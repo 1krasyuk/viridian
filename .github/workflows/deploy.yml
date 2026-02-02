@@ -26,6 +26,7 @@ jobs:
         run: npm run build
         env:
           VITE_CG_API_KEY: ${{ vars.VITE_CG_API_KEY }}
+
       - name: Deploy to Cloudflare Pages via Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
