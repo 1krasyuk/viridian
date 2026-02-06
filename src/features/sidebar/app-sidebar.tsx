@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  useSidebar,
 } from '@/shared/ui/sidebar'
 import { Link } from '@tanstack/react-router'
 import {
@@ -33,6 +34,8 @@ import { useTheme } from '@/shared/lib/theme-provider'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
+  const { state } = useSidebar()
+
   return (
     <Sidebar collapsible='icon'>
       <SidebarHeader className='flex'>
@@ -140,9 +143,10 @@ export function AppSidebar() {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
-                side='top'
-                align='center'
-                sideOffset={16}
+                side={state === 'collapsed' ? 'right' : 'top'}
+                align={state === 'collapsed' ? 'end' : 'center'}
+                sideOffset={state === 'collapsed' ? 16 : 12}
+                alignOffset={2}
                 className='
             w-48 rounded-xl border border-border/50 
             bg-popover/80 backdrop-blur-xl p-1.5 shadow-xl
