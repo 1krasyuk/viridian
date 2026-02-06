@@ -23,6 +23,7 @@ import {
   DollarSign,
   Grid2X2,
   Languages,
+  Layers,
   Moon,
   Newspaper,
   Settings,
@@ -71,7 +72,8 @@ export function AppSidebar() {
           <SidebarMenu className='gap-1'>
             {[
               { to: '/watchlist', icon: <Star />, label: 'Watchlist' },
-              { to: '/heatmap', icon: <Grid2X2 />, label: 'Heatmap' },
+              { to: '/multichart', icon: <Grid2X2 />, label: 'Multichart' },
+              { to: '/heatmap', icon: <Layers />, label: 'Heatmap' },
               { to: '/portfolio', icon: <WalletMinimal />, label: 'Portfolio' },
               { to: '/news', icon: <Newspaper />, label: 'News' },
             ].map((item) => (
