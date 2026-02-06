@@ -122,10 +122,10 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   className='
               w-full h-12 shrink-0
-              flex items-center justify-between
-              rounded-lg border border-sidebar-border/90 bg-sidebar-accent/50 p-2
+              flex items-center justify-center
+              rounded-lg border border-sidebar-border/90 bg-sidebar-accent/50
               hover:bg-sidebar-accent transition-none
-
+       
               group-data-[collapsible=icon]:size-8!
               group-data-[collapsible=icon]:justify-center
               group-data-[collapsible=icon]:bg-accent!
@@ -133,7 +133,7 @@ export function AppSidebar() {
                 >
                   <div className='flex items-center gap-2 group-data-[collapsible=icon]:gap-0'>
                     <Settings className='size-5! shrink-0 group-data-[collapsible=icon]:size-5' />
-                    <span className='truncate font-medium text-xs tracking-widest uppercase group-data-[collapsible=icon]:hidden'>
+                    <span className='truncate font-medium text-sm tracking-widest  group-data-[collapsible=icon]:hidden'>
                       Settings
                     </span>
                   </div>
