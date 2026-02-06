@@ -1,6 +1,7 @@
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import {
@@ -17,6 +18,7 @@ import {
 import { Link } from '@tanstack/react-router'
 import {
   ChevronRight,
+  ChevronsUpDown,
   DollarSign,
   Grid2X2,
   Languages,
@@ -109,88 +111,78 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className='group p-0 border-t border-sidebar-border/50'>
+      <SidebarFooter className=''>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   className='
-                  w-full h-14
-                  rounded-none 
-                  flex justify-center 
-                  shrink-0
-                  group-data-[collapsible=icon]:size-12! 
-                  bg-accent!'
+              w-full h-12 shrink-0
+              flex items-center justify-between
+              rounded-lg border border-sidebar-border/90 bg-sidebar-accent/50 p-2
+              hover:bg-sidebar-accent transition-none
+
+              group-data-[collapsible=icon]:size-8!
+              group-data-[collapsible=icon]:justify-center
+              group-data-[collapsible=icon]:bg-accent!
+            '
                 >
-                  <Settings className='size-5! shrink-0 group-data-[collapsible=icon]:size-5' />
-                  <span className='group-data-[collapsible=icon]:hidden font-medium tracking-widest uppercase text-xs'>
-                    Settings
-                  </span>
+                  <div className='flex items-center gap-2 group-data-[collapsible=icon]:gap-0'>
+                    <Settings className='size-5! shrink-0 group-data-[collapsible=icon]:size-5' />
+                    <span className='truncate font-medium text-xs tracking-widest uppercase group-data-[collapsible=icon]:hidden'>
+                      Settings
+                    </span>
+                  </div>
+
+                  <ChevronsUpDown className='size-4 opacity-50 group-data-[collapsible=icon]:hidden' />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
                 side='top'
-                align='start'
-                sideOffset={1}
+                align='center'
+                sideOffset={16}
                 className='
-                rounded-none 
-                border border-border
-                p-0 
-              '
+            w-48 rounded-xl border border-border/50 
+            bg-popover/80 backdrop-blur-xl p-1.5 shadow-xl
+            animate-in zoom-in-95 slide-in-from-bottom-20
+          '
               >
-                {/* Theme */}
-                <button
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className='
-                  w-full flex items-center gap-3 px-4 py-3.5 
-                  text-xs text-popover-foreground transition-all duration-200
-                  hover:bg-accent hover:text-accent-foreground
-                  group/btn
-                '
+                  className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'
                 >
                   <div className='relative size-4 flex items-center justify-center'>
-                    <Sun className='size-full transition-all scale-100 rotate-0 dark:scale-0 dark:rotate-90 opacity-100 dark:opacity-0' />
-                    <Moon className='absolute inset-0 size-full transition-all scale-0 dark:scale-100  opacity-0 dark:opacity-90' />
+                    <Sun className='size-full rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0' />
+                    <Moon className='absolute inset-0 size-full rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100' />
                   </div>
-                  <span className='font-medium tracking-wide'>Appearance</span>
-                  <span className='ml-auto text-[9px] px-1.5 py-0.5 border border-border rounded-sm bg-muted text-muted-foreground uppercase'>
-                    {theme === 'dark' ? 'Dark' : 'Light'}
+                  <span className='font-medium text-xs'>Appearance</span>
+                  <span className='ml-auto text-[9px] px-1.5 py-0.5 border border-border rounded-md bg-muted uppercase'>
+                    {theme}
                   </span>
-                </button>
+                </DropdownMenuItem>
 
-                {/* Language */}
-                <button
-                  className='
-                  w-full flex items-center gap-3 px-4 py-3.5 
-                  text-xs text-popover-foreground transition-all duration-200
-                  hover:bg-accent hover:text-accent-foreground
-                '
-                >
-                  <Languages className='size-4 opacity-90' />
-                  <span className='font-medium tracking-wide'>Language</span>
+                <div className='my-1 h-px bg-border/40' />
+
+                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                  <Languages className='size-4 opacity-80' />
+                  <span className='font-medium text-xs'>Language</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
                     <span>ENG</span>
                     <ChevronRight className='size-3' />
                   </div>
-                </button>
+                </DropdownMenuItem>
 
-                {/* Currency */}
-                <button
-                  className='
-                  w-full flex items-center gap-3 px-4 py-3.5 
-                  text-xs text-popover-foreground transition-all duration-200
-                  hover:bg-accent hover:text-accent-foreground
-                '
-                >
-                  <DollarSign className='size-4 opacity-90' />
-                  <span className='font-medium tracking-wide'>Currency</span>
+                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                  <DollarSign className='size-4 opacity-80' />
+                  <span className='font-medium text-xs'>Currency</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
                     <span>USD</span>
                     <ChevronRight className='size-3' />
                   </div>
-                </button>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
