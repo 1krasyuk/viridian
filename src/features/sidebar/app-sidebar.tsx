@@ -35,7 +35,7 @@ export function AppSidebar() {
     <Sidebar collapsible='icon'>
       <SidebarHeader className='flex'>
         <div className='relative group-data-[state=expanded]:p-2 flex items-center gap-2 group-data-[collapsible=icon]:px-0 justify-start group-data-[state=collapsed]:flex-col border-b pb-2'>
-          <SidebarTrigger className='group-data-[state=expanded]:hidden rotate-180 secondary dark:hover:bg-popover w-full bg-border border-0 rounded-none' />
+          <SidebarTrigger className='group-data-[state=expanded]:hidden rotate-180 secondary dark:hover:bg-accent w-full bg-border border-0 rounded-none' />
           <Link to='/' className='relative size-10 shrink-0 flex items-center'>
             <img
               src='/logo.svg'
@@ -63,7 +63,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarMenu className='gap-0.5'>
+          <SidebarMenu className='gap-1'>
             {[
               { to: '/watchlist', icon: <Star />, label: 'Watchlist' },
               { to: '/heatmap', icon: <Grid2X2 />, label: 'Heatmap' },
@@ -73,15 +73,29 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.to}>
                 <SidebarMenuButton
                   asChild
-                  // isActive={isActive}
                   className='
-              bg-transparent hover:bg-accent active:bg-foreground/5
-              text-foreground hover:text-foreground
-              transition-colors duration-200 ease-out
-              [&_svg]:size-5 
-              group-data-[collapsible=icon]:justify-center
-              
-            '
+                    transition-colors duration-200 ease-in-out
+                    text-sidebar-foreground/70
+                    px-2 rounded-sm
+                 
+                  hover:bg-black/15   
+                    dark:hover:bg-foreground/15
+                    dark:hover:text-foreground
+                    
+                    dark:data-[active=true]:bg-primary/15 
+                    dark:data-[active=true]:text-primary
+                    
+                    data-[active=true]:bg-primary/30
+                    data-[active=true]:text-primary
+                    data-[active=true]:font-bold
+                    data-[active=true]:transition-none
+                    active:bg-bg-black/15 
+
+                    [&_svg]:size-6
+                    [&_svg]:stroke-[1.5]
+                    group-data-[collapsible=icon]:justify-center
+                    text-md
+                  '
                 >
                   <Link to={item.to} activeProps={{ 'data-active': true }}>
                     {item.icon}
@@ -104,16 +118,13 @@ export function AppSidebar() {
                   className='
                   w-full h-14
                   rounded-none 
-                  text-sidebar-foreground
-                  hover:text-sidebar-foreground
                   flex justify-center 
                   shrink-0
                   group-data-[collapsible=icon]:size-12! 
-                  bg-secondary
-                '
+                  bg-accent!'
                 >
                   <Settings className='size-5! shrink-0 group-data-[collapsible=icon]:size-5' />
-                  <span className='group-data-[collapsible=icon]:hidden font-medium tracking-widest uppercase text-sm'>
+                  <span className='group-data-[collapsible=icon]:hidden font-medium tracking-widest uppercase text-xs'>
                     Settings
                   </span>
                 </SidebarMenuButton>
@@ -122,16 +133,14 @@ export function AppSidebar() {
               <DropdownMenuContent
                 side='top'
                 align='start'
-                sideOffset={0}
+                sideOffset={1}
                 className='
                 rounded-none 
                 border border-border
-                bg-popover/95 backdrop-blur-xl
-                p-0 overflow-hidden
-                shadow-xl
+                p-0 
               '
               >
-                {/* Кнопка переключения темы */}
+                {/* Theme */}
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   className='
@@ -143,7 +152,7 @@ export function AppSidebar() {
                 >
                   <div className='relative size-4 flex items-center justify-center'>
                     <Sun className='size-full transition-all scale-100 rotate-0 dark:scale-0 dark:rotate-90 opacity-100 dark:opacity-0' />
-                    <Moon className='absolute inset-0 size-full transition-all scale-0 dark:scale-100  opacity-0 dark:opacity-90 ' />
+                    <Moon className='absolute inset-0 size-full transition-all scale-0 dark:scale-100  opacity-0 dark:opacity-90' />
                   </div>
                   <span className='font-medium tracking-wide'>Appearance</span>
                   <span className='ml-auto text-[9px] px-1.5 py-0.5 border border-border rounded-sm bg-muted text-muted-foreground uppercase'>
@@ -151,7 +160,7 @@ export function AppSidebar() {
                   </span>
                 </button>
 
-                {/* Кнопка языка */}
+                {/* Language */}
                 <button
                   className='
                   w-full flex items-center gap-3 px-4 py-3.5 
@@ -167,7 +176,7 @@ export function AppSidebar() {
                   </div>
                 </button>
 
-                {/* Кнопка валюты */}
+                {/* Currency */}
                 <button
                   className='
                   w-full flex items-center gap-3 px-4 py-3.5 
