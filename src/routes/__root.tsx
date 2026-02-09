@@ -1,6 +1,8 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { SidebarProvider } from '@/shared/ui/sidebar'
 import { AppSidebar } from '@/features/sidebar/app-sidebar'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/shared/lib/query-client'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -19,10 +21,12 @@ function RootComponent() {
   const sidebar_state = getCookie('sidebar_state')
   const defaultOpen = sidebar_state === 'true'
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar />
+    <QueryClientProvider client={queryClient}>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <AppSidebar />
 
-      <Outlet />
-    </SidebarProvider>
+        <Outlet />
+      </SidebarProvider>
+    </QueryClientProvider>
   )
 }
