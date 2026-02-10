@@ -5,9 +5,9 @@ import { Badge } from '@/shared/ui/badge'
 export const columns: ColumnDef<Coin>[] = [
   {
     accessorKey: 'market_cap_rank',
-    header: () => <div className='text-left'>#</div>,
+    header: () => <div className='text-center'>#</div>,
     cell: ({ row }) => (
-      <div className='text-left'>{row.original.market_cap_rank}</div>
+      <div className='text-center'>{row.original.market_cap_rank}</div>
     ),
   },
   {
