@@ -4,7 +4,7 @@ import type { Coin } from '../types/coins'
 export const coinsApi = {
   async getCoins(): Promise<Coin[]> {
     const { data } = await http.get<Coin[]>('/coins/markets', {
-      params: { vs_currency: 'usd' },
+      params: { vs_currency: 'usd', sparkline: true },
     })
     return data
   },

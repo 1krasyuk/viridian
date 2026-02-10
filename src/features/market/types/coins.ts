@@ -26,4 +26,7 @@ export interface Coin {
   roi: number | null
   last_updated: string
   market_cap_rank_with_rehypothecated: number
+  sparkline_in_7d?: {
+    price: number[]
+  }
 }
