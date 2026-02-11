@@ -51,21 +51,23 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'price_change_percentage_24h',
     header: '24h Price Change %',
     cell: ({ row }) => {
-      const raw = row.original.price_change_percentage_24h
-      const formatted = row.original.price_change_percentage_24h.toFixed(2)
+      const price = row.original.price_change_percentage_24h
+
+      const color =
+        price == null
+          ? 'text-muted-foreground'
+          : price > 0
+            ? 'text-emerald-400'
+            : price < 0
+              ? 'text-destructive'
+              : 'text-muted-foreground'
+
+      const formatted =
+        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
+
       return (
-        <div
-          title={raw.toString()}
-          className={
-            raw > 0
-              ? 'text-emerald-500'
-              : raw < 0
-                ? 'text-destructive'
-                : 'text-muted-foreground'
-          }
-        >
-          {raw > 0 ? '+' : ''}
-          {formatted}%
+        <div title={price?.toString() ?? 'No data'} className={color}>
+          {formatted}
         </div>
       )
     },
