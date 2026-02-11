@@ -44,7 +44,7 @@ export const columns: ColumnDef<Coin>[] = [
         currency: 'USD',
       }).format(price)
 
-      return <div className='text-right font-medium'>{formatted}</div>
+      return <div>{formatted}</div>
     },
   },
   {
@@ -75,30 +75,103 @@ export const columns: ColumnDef<Coin>[] = [
   {
     accessorKey: 'price_change_24h',
     header: '24h Price Change',
+    cell: ({ row }) => {
+      const value = row.original.price_change_24h
+
+      const color =
+        value == null
+          ? 'text-muted-foreground'
+          : value > 0
+            ? 'text-emerald-400'
+            : value < 0
+              ? 'text-destructive'
+              : 'text-muted-foreground'
+
+      const formatted =
+        value == null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}`
+
+      return (
+        <div title={value?.toString() ?? 'No data'} className={color}>
+          {formatted}
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'high_24h',
     header: '24h High',
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('high_24h'))
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(price)
+
+      return <div>{formatted}</div>
+    },
   },
   {
     accessorKey: 'low_24h',
     header: '24h Low',
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('low_24h'))
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(price)
+
+      return <div>{formatted}</div>
+    },
   },
   {
     accessorKey: 'market_cap',
     header: 'Market Cap',
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('market_cap'))
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      }).format(price)
+
+      return <div>{formatted}</div>
+    },
   },
-  {
-    accessorKey: 'market_cap_change_24h',
-    header: '24h Market Cap Change',
-  },
+  // {
+  //   accessorKey: 'market_cap_change_24h',
+  //   header: '24h Market Cap Change',
+  // },
   {
     accessorKey: 'total_volume',
     header: 'Total Volume',
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue('total_volume'))
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      }).format(price)
+
+      return <div>{formatted}</div>
+    },
   },
   {
     accessorKey: 'circulating_supply',
     header: 'Circulating Supply',
+    cell: ({ row }) => {
+      const supply = row.original.circulating_supply
+      const symbol = row.original.symbol.toUpperCase()
+
+      if (supply == null) return <div className='text-muted-foreground'>—</div>
+
+      const tier = Math.floor(Math.log10(supply) / 3)
+      const suffixes = ['', 'K', 'M', 'B', 'T']
+      const scaled = supply / Math.pow(10, tier * 3)
+
+      const formatted = `${scaled.toFixed(2)}${suffixes[tier] ?? ''} ${symbol}`
+
+      return <div title={supply.toString()}>{formatted}</div>
+    },
   },
   {
     accessorKey: 'sparkline_in_7d',
