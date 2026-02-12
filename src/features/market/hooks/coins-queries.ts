@@ -6,10 +6,10 @@ export const coinsKeys = {
   detail: (id: number) => ['coins', id] as const,
 }
 
-export function useCoins() {
+export function useCoins(page: number, per_page: number) {
   return useQuery({
-    queryKey: coinsKeys.all,
-    queryFn: coinsApi.getCoins,
+    queryKey: [coinsKeys.all, page, per_page],
+    queryFn: () => coinsApi.getCoins({ page, per_page }),
   })
 }
 

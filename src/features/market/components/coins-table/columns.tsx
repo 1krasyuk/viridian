@@ -57,7 +57,7 @@ export const columns: ColumnDef<Coin>[] = [
         price == null
           ? 'text-muted-foreground'
           : price > 0
-            ? 'text-emerald-400'
+            ? 'dark:text-emerald-400 text-emerald-500'
             : price < 0
               ? 'text-destructive'
               : 'text-muted-foreground'
