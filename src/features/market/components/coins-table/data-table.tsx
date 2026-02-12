@@ -24,7 +24,7 @@ interface DataTableProps<TData, TValue> {
   page: number
   perPage: number
   pageCount: number
-  onPageChange: (page: number, size: number) => void
+  onPageChange: (page: number, size?: number) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -109,26 +109,41 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className='flex items-center flex-col '>
-        <div className='flex gap-2 justify-center flex-1'>
+        <div className='flex gap-2 justify-center '>
           <Button
             variant='outline'
             size='sm'
             onClick={() => onPageChange(page - 1, perPage)}
             disabled={page <= 1 || loading}
+            className='min-w-25'
           >
-            <ChevronLeft className='h-4 w-4 mr-1' /> Back
+            <ChevronLeft />
+            <span>Coins</span>
+            {page > 1 ? (
+              <>
+                {(page - 2) * perPage + 1} - {(page - 1) * perPage}
+              </>
+            ) : (
+              <>
+                {(page - 1) * perPage + 1} to {page * perPage}{' '}
+              </>
+            )}
           </Button>
+
           <Button
             variant='outline'
             size='sm'
             onClick={() => onPageChange(page + 1, perPage)}
             disabled={page >= pageCount || loading}
+            className=' min-w-25'
           >
-            Next <ChevronRight className='h-4 w-4 ml-1' />
+            <span>Coins</span>
+            {page * perPage + 1} - {(page + 1) * perPage}
+            <ChevronRight />
           </Button>
         </div>
         <span className='text-sm text-muted-foreground my-3 '>
-          Page {page} of {pageCount}
+          Showing {(page - 1) * perPage + 1} to {page * perPage}
         </span>
       </div>
     </div>

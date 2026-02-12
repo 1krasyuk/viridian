@@ -3,8 +3,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
 const searchSchema = z.object({
-  page: z.coerce.number().catch(1),
-  per_page: z.coerce.number().catch(100),
+  page: z.number().int().positive().optional(),
+  per_page: z.number().int().positive().optional(),
 })
 
 export const Route = createFileRoute('/')({

@@ -3,15 +3,21 @@ import { columns } from './columns'
 import { DataTable } from './data-table'
 import { useSearch, useNavigate } from '@tanstack/react-router'
 
+const DEFAULT_PAGE = 1
+const DEFAULT_PER_PAGE = 100
+
 export function CoinsTable() {
-  const { page, per_page } = useSearch({ from: '/' })
+  const search = useSearch({ from: '/' })
+
+  const page = search.page ?? DEFAULT_PAGE
+  const per_page = search.per_page ?? DEFAULT_PER_PAGE
   const navigate = useNavigate()
   const { data, isLoading } = useCoins(page, per_page)
 
-  const handlePaginationChange = (newPage: number, newPerPage: number) => {
+  const handlePaginationChange = (newPage: number) => {
     navigate({
       to: '.',
-      search: (prev) => ({ ...prev, page: newPage, per_page: newPerPage }),
+      search: (prev) => ({ ...prev, page: newPage }),
     })
   }
 
