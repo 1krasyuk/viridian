@@ -58,8 +58,8 @@ export const columns: ColumnDef<Coin>[] = [
       const symbol = row.original.symbol
 
       return (
-        <div className='flex gap-2'>
-          <img src={image} className='w-5 h-5 ' />
+        <div className='flex gap-2.5'>
+          <img src={image} className='w-5 h-5 rounded-full scale-115' />
           <p className='truncate max-w-25' title={name}>
             {name}
           </p>
