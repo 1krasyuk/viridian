@@ -1,8 +1,12 @@
+import * as React from 'react'
+
 import type { ColumnDef } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  type SortingState,
+  getSortedRowModel,
 } from '@tanstack/react-table'
 
 import {
@@ -40,12 +44,19 @@ export function DataTable<TData, TValue>({
     id: `skeleton-${i}`,
   })) as TData[]
 
+  const [sorting, setSorting] = React.useState<SortingState>([])
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: loading ? skeletonRows : data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
   })
 
   return (

@@ -1,6 +1,42 @@
-import type { ColumnDef } from '@tanstack/react-table'
+import type { Column, ColumnDef } from '@tanstack/react-table'
 import type { Coin } from '../../types/coins'
 import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { ChevronUp, ChevronDown } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
+
+function sortableHeader<TData, TValue>(
+  column: Column<TData, TValue>,
+  title: string,
+) {
+  const isSorted = column.getIsSorted()
+
+  return (
+    <Button
+      variant='ghost'
+      className='px-0 gap-0.5 bg-transparent!'
+      onClick={() => column.toggleSorting()}
+    >
+      {title}
+
+      <div className='flex flex-col'>
+        <ChevronUp
+          className={cn(
+            'transition-colors -mb-2',
+            isSorted === 'asc' ? 'text-primary' : 'text-muted-foreground/50',
+          )}
+        />
+
+        <ChevronDown
+          className={cn(
+            'transition-colors',
+            isSorted === 'desc' ? 'text-primary' : 'text-muted-foreground/50',
+          )}
+        />
+      </div>
+    </Button>
+  )
+}
 
 export const columns: ColumnDef<Coin>[] = [
   {
@@ -12,7 +48,10 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'name',
-    header: () => <div className='text-left'>Name</div>,
+    header: ({ column }) => (
+      <div className='text-left'>{sortableHeader(column, 'Name')}</div>
+    ),
+
     cell: ({ row }) => {
       const image = row.original.image
       const name = row.original.name
@@ -20,7 +59,7 @@ export const columns: ColumnDef<Coin>[] = [
 
       return (
         <div className='flex gap-2'>
-          <img src={image} className='w-5 h-5' />
+          <img src={image} className='w-5 h-5 ' />
           <p className='truncate max-w-25' title={name}>
             {name}
           </p>
@@ -36,7 +75,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'current_price',
-    header: 'Current Price',
+    header: ({ column }) => sortableHeader(column, 'Current Price'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('current_price'))
       const formatted = new Intl.NumberFormat('en-US', {
@@ -49,7 +88,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'price_change_percentage_24h',
-    header: '24h Price Change %',
+    header: ({ column }) => sortableHeader(column, '24h Price Change %'),
     cell: ({ row }) => {
       const price = row.original.price_change_percentage_24h
 
@@ -74,7 +113,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'price_change_24h',
-    header: '24h Price Change',
+    header: ({ column }) => sortableHeader(column, '24h Price Change'),
     cell: ({ row }) => {
       const value = row.original.price_change_24h
 
@@ -99,7 +138,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'high_24h',
-    header: '24h High',
+    header: ({ column }) => sortableHeader(column, '24h High'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('high_24h'))
       const formatted = new Intl.NumberFormat('en-US', {
@@ -112,7 +151,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'low_24h',
-    header: '24h Low',
+    header: ({ column }) => sortableHeader(column, '24h Low'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('low_24h'))
       const formatted = new Intl.NumberFormat('en-US', {
@@ -125,7 +164,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'market_cap',
-    header: 'Market Cap',
+    header: ({ column }) => sortableHeader(column, 'Market Cap'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('market_cap'))
       const formatted = new Intl.NumberFormat('en-US', {
@@ -143,7 +182,7 @@ export const columns: ColumnDef<Coin>[] = [
   // },
   {
     accessorKey: 'total_volume',
-    header: 'Total Volume',
+    header: ({ column }) => sortableHeader(column, 'Total Volume'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('total_volume'))
       const formatted = new Intl.NumberFormat('en-US', {
@@ -157,7 +196,7 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     accessorKey: 'circulating_supply',
-    header: 'Circulating Supply',
+    header: ({ column }) => sortableHeader(column, 'Circulating Supply'),
     cell: ({ row }) => {
       const supply = row.original.circulating_supply
       const symbol = row.original.symbol.toUpperCase()
