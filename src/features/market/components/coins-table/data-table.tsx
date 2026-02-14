@@ -111,7 +111,7 @@ export function DataTable<TData, TValue>({
         <DialogTrigger>
           <Button variant='outline'>Columns</Button>
         </DialogTrigger>
-        <DialogContent className='bg-card'>
+        <DialogContent className='bg-card sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
               Choose up to {table.getVisibleLeafColumns().length}/15 metrics
@@ -121,25 +121,51 @@ export function DataTable<TData, TValue>({
             </DialogDescription>
           </DialogHeader>
 
-          <div className='flex flex-wrap  gap-1.5'>
-            {table
-              .getAllLeafColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <Button
-                  key={column.id}
-                  variant={column.getIsVisible() ? 'soft' : 'outline'}
-                  size='sm'
-                  className='rounded-3xl gap-1.5  font-bold '
-                  onClick={() => column.toggleVisibility()}
-                >
-                  {(column.columnDef.meta as { label?: string })?.label ??
-                    column.id}
-                  {column.getIsVisible() && (
-                    <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
-                  )}
-                </Button>
-              ))}
+          <div className='space-y-3'>
+            {Object.entries(
+              table
+                .getAllLeafColumns()
+                .filter((column) => column.getCanHide())
+                .reduce<
+                  Record<string, ReturnType<typeof table.getAllLeafColumns>>
+                >((groups, column) => {
+                  const category =
+                    (
+                      column.columnDef.meta as {
+                        category?: string
+                      }
+                    )?.category ?? 'Other'
+                  if (!groups[category]) groups[category] = []
+                  groups[category].push(column)
+                  return groups
+                }, {}),
+            ).map(([category, cols]) => (
+              <div key={category} className='flex items-start gap-4'>
+                <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5'>
+                  {category}
+                </span>
+                <div className='flex flex-wrap gap-1.5 w-full justify-end'>
+                  {cols.map((column) => (
+                    <Button
+                      key={column.id}
+                      variant={column.getIsVisible() ? 'soft' : 'outline'}
+                      size='sm'
+                      className='rounded-3xl gap-1.5 font-bold'
+                      onClick={() => column.toggleVisibility()}
+                    >
+                      {(
+                        column.columnDef.meta as {
+                          label?: string
+                        }
+                      )?.label ?? column.id}
+                      {column.getIsVisible() && (
+                        <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
+                      )}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
           <div className='flex justify-between items-center'>
             <Button

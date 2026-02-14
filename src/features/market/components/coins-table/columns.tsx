@@ -347,7 +347,7 @@ export const columns: ColumnDef<Coin>[] = [
   {
     id: 'last_updated',
     accessorKey: 'last_updated',
-    meta: { label: 'Last Updated', category: 'General' },
+    meta: { label: 'Last Updated' },
     header: ({ column }) => sortableHeader(column, 'Last Updated'),
     cell: (props) => formatDateCell(props),
   },
