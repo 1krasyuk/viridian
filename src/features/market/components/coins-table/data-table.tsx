@@ -17,9 +17,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/shared/ui/dialog'
+
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -46,6 +55,12 @@ export function DataTable<TData, TValue>({
 
   const [sorting, setSorting] = React.useState<SortingState>([])
 
+  const [columnVisibility, setColumnVisibility] = React.useState({
+    // columnId1: true,
+    // columnId2: false, //hide this column by default
+    // columnId3: true,
+  })
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: loading ? skeletonRows : data,
@@ -56,11 +71,52 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
+      columnVisibility,
     },
+    onColumnVisibilityChange: setColumnVisibility,
   })
 
   return (
     <div className='space-y-4 w-full'>
+      <Dialog>
+        <DialogTrigger>
+          <Button variant='outline'>Columns</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Choose up to 9/12 metrics</DialogTitle>
+            <DialogDescription>
+              Add, delete and sort metrics just how you need it
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='flex flex-wrap  gap-1.5'>
+            {table
+              .getAllLeafColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => (
+                <Button
+                  key={column.id}
+                  variant={column.getIsVisible() ? 'default' : 'outline'}
+                  size='sm'
+                  className='transition-all'
+                  onClick={() => column.toggleVisibility()}
+                >
+                  {(column.columnDef.meta as { label?: string })?.label ??
+                    column.id}
+                  {column.getIsVisible() && <X className='rounded-full' />}
+                </Button>
+              ))}
+          </div>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => table.resetColumnVisibility()}
+          >
+            Reset
+          </Button>
+        </DialogContent>
+      </Dialog>
       <div className='w-full text-right overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
