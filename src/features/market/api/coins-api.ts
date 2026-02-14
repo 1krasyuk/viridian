@@ -13,6 +13,7 @@ export const coinsApi = {
       params: {
         vs_currency: 'usd',
         sparkline: true,
+        price_change_percentage: '1h,7d,30d,1y',
         page,
         per_page,
       },

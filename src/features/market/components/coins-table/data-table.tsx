@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
@@ -19,6 +19,7 @@ import {
 } from '@/shared/ui/table'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -55,11 +56,26 @@ export function DataTable<TData, TValue>({
 
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const [columnVisibility, setColumnVisibility] = React.useState({
-    // columnId1: true,
-    // columnId2: false, //hide this column by default
-    // columnId3: true,
-  })
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({
+      market_cap_rank: true,
+      name: true,
+      current_price: true,
+      price_change_24h: false,
+      price_change_percentage_1h_in_currency: false,
+      price_change_percentage_24h: true,
+      price_change_percentage_7d_in_currency: true,
+      price_change_percentage_30d_in_currency: true,
+      price_change_percentage_1y_in_currency: false,
+      market_cap: true,
+      total_volume: true,
+      circulating_supply: true,
+      high_24h: false,
+      low_24h: false,
+
+      //OPTIONAL
+      last_updated: false,
+    })
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -82,7 +98,7 @@ export function DataTable<TData, TValue>({
         <DialogTrigger>
           <Button variant='outline'>Columns</Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className='bg-card'>
           <DialogHeader>
             <DialogTitle>Choose up to 9/12 metrics</DialogTitle>
             <DialogDescription>
@@ -97,24 +113,30 @@ export function DataTable<TData, TValue>({
               .map((column) => (
                 <Button
                   key={column.id}
-                  variant={column.getIsVisible() ? 'default' : 'outline'}
+                  variant={column.getIsVisible() ? 'soft' : 'outline'}
                   size='sm'
-                  className='transition-all'
+                  className='rounded-3xl gap-1.5  font-bold '
                   onClick={() => column.toggleVisibility()}
                 >
                   {(column.columnDef.meta as { label?: string })?.label ??
                     column.id}
-                  {column.getIsVisible() && <X className='rounded-full' />}
+                  {column.getIsVisible() && (
+                    <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
+                  )}
                 </Button>
               ))}
           </div>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.resetColumnVisibility()}
-          >
-            Reset
-          </Button>
+          <div className='flex justify-between items-center'>
+            <Button
+              variant='destructive'
+              onClick={() => table.resetColumnVisibility()}
+            >
+              Reset
+            </Button>
+            <DialogClose asChild>
+              <Button>Apply changes</Button>
+            </DialogClose>
+          </div>
         </DialogContent>
       </Dialog>
       <div className='w-full text-right overflow-hidden rounded-md border'>
