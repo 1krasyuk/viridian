@@ -1,4 +1,4 @@
-import type { Column, ColumnDef } from '@tanstack/react-table'
+import type { CellContext, Column, ColumnDef } from '@tanstack/react-table'
 import type { Coin } from '../../types/coins'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -36,6 +36,92 @@ function sortableHeader<TData, TValue>(
       </div>
     </Button>
   )
+}
+
+function formatCurrencyCell<TData extends Coin, TValue>(
+  context: CellContext<TData, TValue>,
+  options?: {
+    maximumFractionDigits?: number
+    naText?: string
+  },
+) {
+  const value = context.getValue() as number | null | undefined
+  const { maximumFractionDigits = 2, naText = '—' } = options ?? {}
+
+  if (value == null || isNaN(value)) {
+    return <div className='text-muted-foreground'>{naText}</div>
+  }
+
+  const formatted = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits,
+  }).format(value)
+
+  if (value === 0) {
+    return <div className='text-muted-foreground'>{formatted}</div>
+  }
+
+  return <div>{formatted}</div>
+}
+
+function formatPercentageChangeCell<TData extends Coin, TValue>(
+  context: CellContext<TData, TValue>,
+  options?: {
+    maximumFractionDigits?: number
+    naText?: string
+  },
+) {
+  const value = context.getValue() as number | null | undefined
+  const { maximumFractionDigits = 2, naText = '—' } = options ?? {}
+
+  const color =
+    value == null
+      ? 'text-muted-foreground'
+      : value > 0
+        ? 'dark:text-emerald-400 text-emerald-500'
+        : value < 0
+          ? 'text-destructive'
+          : 'text-muted-foreground'
+
+  if (value == null) {
+    return <div className={color}>{naText}</div>
+  }
+
+  const prefix = value > 0 ? '+' : ''
+  const formatted = `${prefix}${value.toFixed(maximumFractionDigits)}%`
+
+  return (
+    <div title={value.toString()} className={color}>
+      {formatted}
+    </div>
+  )
+}
+
+function formatDateCell<TData extends Coin, TValue>(
+  context: CellContext<TData, TValue>,
+) {
+  const value = context.getValue() as string | null | undefined
+
+  if (value == null) {
+    return <div className='text-muted-foreground'>—</div>
+  }
+
+  const date = new Date(value)
+
+  if (isNaN(date.getTime())) {
+    return <div className='text-muted-foreground'>—</div>
+  }
+
+  const formatted = date
+    .toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+    .replace(/\//g, '.')
+
+  return <div>{formatted}</div>
 }
 
 export const columns: ColumnDef<Coin>[] = [
@@ -80,216 +166,70 @@ export const columns: ColumnDef<Coin>[] = [
   {
     id: 'current_price',
     accessorKey: 'current_price',
-    meta: { label: 'Price', category: 'Price' },
+    meta: { label: 'Current Price', category: 'Price' },
     header: ({ column }) => sortableHeader(column, 'Current Price'),
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue('current_price'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(price)
-
-      return <div>{formatted}</div>
-    },
+    cell: (row) => formatCurrencyCell(row),
   },
   {
     id: 'price_change_24h',
     accessorKey: 'price_change_24h',
-    meta: { label: '24h change', category: 'Price change' },
+    meta: { label: '24h Price Change', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '24h Price Change'),
-    cell: ({ row }) => {
-      const value = row.original.price_change_24h
-
-      const color =
-        value == null
-          ? 'text-muted-foreground'
-          : value > 0
-            ? 'text-emerald-400'
-            : value < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        value == null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(2)}`
-
-      return (
-        <div title={value?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'price_change_percentage_1h_in_currency',
     accessorKey: 'price_change_percentage_1h_in_currency',
-    meta: { label: '1h%', category: 'Price change' },
+    meta: { label: '1h %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '1h %'),
-    cell: ({ row }) => {
-      const price = row.original.price_change_percentage_1h_in_currency
-
-      const color =
-        price == null
-          ? 'text-muted-foreground'
-          : price > 0
-            ? 'dark:text-emerald-400 text-emerald-500'
-            : price < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
-
-      return (
-        <div title={price?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'price_change_percentage_24h',
     accessorKey: 'price_change_percentage_24h',
-    meta: { label: '24h%', category: 'Price change' },
+    meta: { label: '24h %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '24h %'),
-    cell: ({ row }) => {
-      const price = row.original.price_change_percentage_24h
-
-      const color =
-        price == null
-          ? 'text-muted-foreground'
-          : price > 0
-            ? 'dark:text-emerald-400 text-emerald-500'
-            : price < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
-
-      return (
-        <div title={price?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'price_change_percentage_7d_in_currency',
     accessorKey: 'price_change_percentage_7d_in_currency',
-    meta: { label: '7d%', category: 'Price change' },
+    meta: { label: '7d %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '7d %'),
-    cell: ({ row }) => {
-      const price = row.original.price_change_percentage_7d_in_currency
-
-      const color =
-        price == null
-          ? 'text-muted-foreground'
-          : price > 0
-            ? 'dark:text-emerald-400 text-emerald-500'
-            : price < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
-
-      return (
-        <div title={price?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'price_change_percentage_30d_in_currency',
     accessorKey: 'price_change_percentage_30d_in_currency',
-    meta: { label: '30d%', category: 'Price change' },
+    meta: { label: '30d %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '30d %'),
-    cell: ({ row }) => {
-      const price = row.original.price_change_percentage_30d_in_currency
-
-      const color =
-        price == null
-          ? 'text-muted-foreground'
-          : price > 0
-            ? 'dark:text-emerald-400 text-emerald-500'
-            : price < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
-
-      return (
-        <div title={price?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'price_change_percentage_1y_in_currency',
     accessorKey: 'price_change_percentage_1y_in_currency',
-    meta: { label: '1y%', category: 'Price change' },
+    meta: { label: '1y %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '1y %'),
-    cell: ({ row }) => {
-      const price = row.original.price_change_percentage_1y_in_currency
-
-      const color =
-        price == null
-          ? 'text-muted-foreground'
-          : price > 0
-            ? 'dark:text-emerald-400 text-emerald-500'
-            : price < 0
-              ? 'text-destructive'
-              : 'text-muted-foreground'
-
-      const formatted =
-        price == null ? '—' : `${price > 0 ? '+' : ''}${price.toFixed(2)}%`
-
-      return (
-        <div title={price?.toString() ?? 'No data'} className={color}>
-          {formatted}
-        </div>
-      )
-    },
+    cell: (props) => formatPercentageChangeCell(props),
   },
   {
     id: 'market_cap',
     accessorKey: 'market_cap',
     meta: { label: 'Market Cap', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Market Cap'),
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue('market_cap'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-      }).format(price)
-
-      return <div>{formatted}</div>
-    },
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
   },
   {
     id: 'total_volume',
     accessorKey: 'total_volume',
-    meta: { label: 'Volume', category: 'Market' },
+    meta: { label: 'Total Volume', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Total Volume'),
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue('total_volume'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-      }).format(price)
-
-      return <div>{formatted}</div>
-    },
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
   },
   {
     id: 'circulating_supply',
     accessorKey: 'circulating_supply',
-    meta: { label: 'Supply', category: 'Market' },
+    meta: { label: 'Circulating Supply', category: 'Supply' },
     header: ({ column }) => sortableHeader(column, 'Circulating Supply'),
     cell: ({ row }) => {
       const supply = row.original.circulating_supply
@@ -308,86 +248,107 @@ export const columns: ColumnDef<Coin>[] = [
   },
   {
     id: 'sparkline_in_7d',
-    meta: { label: 'Chart 7d', category: 'Chart' },
-
+    meta: { label: '7d Chart', category: 'Chart' },
     accessorKey: 'sparkline_in_7d',
     header: 'Last 7 days',
   },
   {
     id: 'high_24h',
     accessorKey: 'high_24h',
-    meta: { label: 'High 24h', category: 'Price change' },
+    meta: { label: '24h High', category: 'Price' },
     header: ({ column }) => sortableHeader(column, '24h High'),
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue('high_24h'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(price)
-
-      return <div>{formatted}</div>
-    },
+    cell: (row) => formatCurrencyCell(row),
   },
   {
     id: 'low_24h',
     accessorKey: 'low_24h',
-    meta: { label: 'Low 24h', category: 'Price change' },
+    meta: { label: '24h Low', category: 'Price' },
     header: ({ column }) => sortableHeader(column, '24h Low'),
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue('low_24h'))
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(price)
-
-      return <div>{formatted}</div>
-    },
+    cell: (row) => formatCurrencyCell(row),
+  },
+  {
+    id: 'market_cap_change_24h',
+    accessorKey: 'market_cap_change_24h',
+    meta: { label: 'Market Cap Change 24h', category: 'Market' },
+    header: ({ column }) => sortableHeader(column, '24h Market Cap Change'),
+    cell: (row) => formatCurrencyCell(row),
   },
 
-  // {
-  //   accessorKey: 'market_cap_change_24h',
-  //   header: '24h Market Cap Change',
-  // },
+  {
+    id: 'market_cap_change_percentage_24h',
+    accessorKey: 'market_cap_change_percentage_24h',
+    meta: { label: 'Market Cap Change 24h %', category: 'Market' },
+    header: ({ column }) => sortableHeader(column, '24h Market Cap Change %'),
+    cell: (props) => formatPercentageChangeCell(props),
+  },
 
-  //   {
-  //     accessorKey: 'market_cap_change_percentage_24h',
-  //     header: '24h Market Cap Change %',
-  //   },
-
-  //   {
-  //     accessorKey: 'total_supply',
-  //     header: 'Total Supply',
-  //   },
-  //   {
-  //     accessorKey: 'max_supply',
-  //     header: 'Max Supply',
-  //   },
-  //   {
-  //     accessorKey: 'ath',
-  //     header: 'All Time High',
-  //   },
-  //   {
-  //     accessorKey: 'ath_change_percentage',
-  //     header: 'ATH Change %',
-  //   },
-  //   {
-  //     accessorKey: 'ath_date',
-  //     header: 'ATH Date',
-  //   },
-  //   {
-  //     accessorKey: 'atl',
-  //     header: 'All Time Low',
-  //   },
-  //   {
-  //     accessorKey: 'atl_change_percentage',
-  //     header: 'ATL Change %',
-  //   },
-  //   {
-  //     accessorKey: 'roi',
-  //     header: 'ROI',
-  //   },
-  //   {
-  //     accessorKey: 'last_updated',
-  //     header: 'Last Updated',
-  //   },
+  {
+    id: 'total_supply',
+    accessorKey: 'total_supply',
+    meta: { label: 'Total Supply', category: 'Supply' },
+    header: ({ column }) => sortableHeader(column, 'Total Supply'),
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+  },
+  {
+    id: 'max_supply',
+    accessorKey: 'max_supply',
+    meta: { label: 'Max Supply', category: 'Supply' },
+    header: ({ column }) => sortableHeader(column, 'Max Supply'),
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+  },
+  {
+    id: 'ath',
+    accessorKey: 'ath',
+    meta: { label: 'All Time High', category: 'Price' },
+    header: ({ column }) => sortableHeader(column, 'All Time High'),
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+  },
+  {
+    id: 'ath_change_percentage',
+    accessorKey: 'ath_change_percentage',
+    meta: { label: 'ATH Change %', category: 'Price Change' },
+    header: ({ column }) => sortableHeader(column, 'ATH Change %'),
+    cell: (props) => formatPercentageChangeCell(props),
+  },
+  {
+    id: 'ath_date',
+    accessorKey: 'ath_date',
+    meta: { label: 'ATH Date', category: 'Price' },
+    header: ({ column }) => sortableHeader(column, 'ATH Date'),
+    cell: (props) => formatDateCell(props),
+  },
+  {
+    id: 'atl',
+    accessorKey: 'atl',
+    meta: { label: 'All Time Low', category: 'Price' },
+    header: ({ column }) => sortableHeader(column, 'All Time Low'),
+    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+  },
+  {
+    id: 'atl_change_percentage',
+    accessorKey: 'atl_change_percentage',
+    meta: { label: 'ATL Change %', category: 'Price Change' },
+    header: ({ column }) => sortableHeader(column, 'ATL Change %'),
+    cell: (props) => formatPercentageChangeCell(props),
+  },
+  {
+    id: 'atl_date',
+    accessorKey: 'atl_date',
+    meta: { label: 'ATL Date', category: 'Price' },
+    header: ({ column }) => sortableHeader(column, 'ATL Date'),
+    cell: (props) => formatDateCell(props),
+  },
+  {
+    id: 'roi',
+    accessorKey: 'roi',
+    meta: { label: 'ROI', category: 'Market' },
+    header: ({ column }) => sortableHeader(column, 'ROI'),
+  },
+  {
+    id: 'last_updated',
+    accessorKey: 'last_updated',
+    meta: { label: 'Last Updated', category: 'General' },
+    header: ({ column }) => sortableHeader(column, 'Last Updated'),
+    cell: (props) => formatDateCell(props),
+  },
 ]

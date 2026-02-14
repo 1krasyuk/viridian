@@ -31,6 +31,37 @@ import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
+const deafaultVisibilityState = {
+  market_cap_rank: true,
+  name: true,
+  current_price: true,
+  price_change_24h: false,
+  price_change_percentage_1h_in_currency: false,
+  price_change_percentage_24h: true,
+  price_change_percentage_7d_in_currency: true,
+  price_change_percentage_30d_in_currency: true,
+  price_change_percentage_1y_in_currency: false,
+  market_cap: true,
+  total_volume: true,
+  circulating_supply: true,
+  high_24h: false,
+  low_24h: false,
+
+  //OPTIONAL
+  market_cap_change_24h: false,
+  market_cap_change_percentage_24h: false,
+  total_supply: false,
+  max_supply: false,
+  ath: false,
+  ath_change_percentage: false,
+  ath_date: false,
+  atl: false,
+  atl_change_percentage: false,
+  atl_date: false,
+  roi: false,
+  last_updated: false,
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -57,25 +88,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([])
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({
-      market_cap_rank: true,
-      name: true,
-      current_price: true,
-      price_change_24h: false,
-      price_change_percentage_1h_in_currency: false,
-      price_change_percentage_24h: true,
-      price_change_percentage_7d_in_currency: true,
-      price_change_percentage_30d_in_currency: true,
-      price_change_percentage_1y_in_currency: false,
-      market_cap: true,
-      total_volume: true,
-      circulating_supply: true,
-      high_24h: false,
-      low_24h: false,
-
-      //OPTIONAL
-      last_updated: false,
-    })
+    React.useState<VisibilityState>(deafaultVisibilityState)
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -100,7 +113,9 @@ export function DataTable<TData, TValue>({
         </DialogTrigger>
         <DialogContent className='bg-card'>
           <DialogHeader>
-            <DialogTitle>Choose up to 9/12 metrics</DialogTitle>
+            <DialogTitle>
+              Choose up to {table.getVisibleLeafColumns().length}/15 metrics
+            </DialogTitle>
             <DialogDescription>
               Add, delete and sort metrics just how you need it
             </DialogDescription>
@@ -129,7 +144,7 @@ export function DataTable<TData, TValue>({
           <div className='flex justify-between items-center'>
             <Button
               variant='destructive'
-              onClick={() => table.resetColumnVisibility()}
+              onClick={() => setColumnVisibility(deafaultVisibilityState)}
             >
               Reset
             </Button>
@@ -148,7 +163,7 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className='bg-sidebar text-right'
+                      className='bg-sidebar text-right d'
                     >
                       {header.isPlaceholder
                         ? null
@@ -168,12 +183,12 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className='group duration-0'
+                  className='group duration-0 '
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {loading ? (
-                        <Skeleton className='h-4 w-full' />
+                        <Skeleton className='h-4 w-full ' />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
@@ -188,7 +203,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 text-center'
+                  className='h-screen text-center'
                 >
                   No results.
                 </TableCell>
