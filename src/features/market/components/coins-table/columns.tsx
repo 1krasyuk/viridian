@@ -40,18 +40,22 @@ function sortableHeader<TData, TValue>(
 
 export const columns: ColumnDef<Coin>[] = [
   {
+    id: 'market_cap_rank',
     accessorKey: 'market_cap_rank',
+    meta: { label: 'Market Cap Rank', category: 'General' },
     header: () => <div className='text-center'>#</div>,
+    enableHiding: false,
     cell: ({ row }) => (
       <div className='text-center'>{row.original.market_cap_rank}</div>
     ),
   },
   {
+    id: 'name',
     accessorKey: 'name',
     header: ({ column }) => (
       <div className='text-left'>{sortableHeader(column, 'Name')}</div>
     ),
-
+    enableHiding: false,
     cell: ({ row }) => {
       const image = row.original.image
       const name = row.original.name
@@ -74,7 +78,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'current_price',
     accessorKey: 'current_price',
+    meta: { label: 'Price', category: 'Price' },
     header: ({ column }) => sortableHeader(column, 'Current Price'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('current_price'))
@@ -87,7 +93,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'price_change_percentage_24h',
     accessorKey: 'price_change_percentage_24h',
+    meta: { label: '24h%', category: 'Price change' },
     header: ({ column }) => sortableHeader(column, '24h Price Change %'),
     cell: ({ row }) => {
       const price = row.original.price_change_percentage_24h
@@ -112,7 +120,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'price_change_24h',
     accessorKey: 'price_change_24h',
+    meta: { label: '24h change', category: 'Price change' },
     header: ({ column }) => sortableHeader(column, '24h Price Change'),
     cell: ({ row }) => {
       const value = row.original.price_change_24h
@@ -137,7 +147,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'high_24h',
     accessorKey: 'high_24h',
+    meta: { label: 'High 24h', category: 'Price change' },
     header: ({ column }) => sortableHeader(column, '24h High'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('high_24h'))
@@ -150,7 +162,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'low_24h',
     accessorKey: 'low_24h',
+    meta: { label: 'Low 24h', category: 'Price change' },
     header: ({ column }) => sortableHeader(column, '24h Low'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('low_24h'))
@@ -163,7 +177,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'market_cap',
     accessorKey: 'market_cap',
+    meta: { label: 'Market Cap', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Market Cap'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('market_cap'))
@@ -181,7 +197,9 @@ export const columns: ColumnDef<Coin>[] = [
   //   header: '24h Market Cap Change',
   // },
   {
+    id: 'total_volume',
     accessorKey: 'total_volume',
+    meta: { label: 'Volume', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Total Volume'),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('total_volume'))
@@ -195,7 +213,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'circulating_supply',
     accessorKey: 'circulating_supply',
+    meta: { label: 'Supply', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Circulating Supply'),
     cell: ({ row }) => {
       const supply = row.original.circulating_supply
@@ -213,6 +233,9 @@ export const columns: ColumnDef<Coin>[] = [
     },
   },
   {
+    id: 'sparkline_in_7d',
+    meta: { label: 'Chart 7d', category: 'Chart' },
+
     accessorKey: 'sparkline_in_7d',
     header: 'Last 7 days',
   },
