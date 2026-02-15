@@ -30,6 +30,7 @@ import {
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Badge } from '@/shared/ui/badge'
 
 const deafaultVisibilityState = {
   market_cap_rank: true,
@@ -114,14 +115,25 @@ export function DataTable<TData, TValue>({
         <DialogContent className='bg-card sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              Choose up to {table.getVisibleLeafColumns().length}/15 metrics
+              Choose up to
+              <Badge
+                className='px-2 mx-2 rounded-md text-sm font-bold'
+                variant={
+                  table.getVisibleLeafColumns().length < 15
+                    ? 'outline'
+                    : 'destructive'
+                }
+              >
+                {table.getVisibleLeafColumns().length}/15
+              </Badge>
+              metrics
             </DialogTitle>
             <DialogDescription>
               Add, delete and sort metrics just how you need it
             </DialogDescription>
           </DialogHeader>
 
-          <div className='space-y-3'>
+          <div className='space-y-5'>
             {Object.entries(
               table
                 .getAllLeafColumns()
@@ -140,8 +152,8 @@ export function DataTable<TData, TValue>({
                   return groups
                 }, {}),
             ).map(([category, cols]) => (
-              <div key={category} className='flex items-start gap-4'>
-                <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5'>
+              <div key={category} className='flex items-start'>
+                <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5 '>
                   {category}
                 </span>
                 <div className='flex flex-wrap gap-1.5 w-full justify-end'>
@@ -149,6 +161,10 @@ export function DataTable<TData, TValue>({
                     <Button
                       key={column.id}
                       variant={column.getIsVisible() ? 'soft' : 'outline'}
+                      disabled={
+                        !column.getIsVisible() &&
+                        table.getVisibleLeafColumns().length >= 15
+                      }
                       size='sm'
                       className='rounded-3xl gap-1.5 font-bold'
                       onClick={() => column.toggleVisibility()}
