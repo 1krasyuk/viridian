@@ -125,7 +125,11 @@ function formatPercentageChangeCell<TData extends Coin, TValue>(
 
 function formatDateCell<TData extends Coin, TValue>(
   context: CellContext<TData, TValue>,
+  options?: {
+    mode?: 'date' | 'time' | 'datetime'
+  },
 ) {
+  const { mode = 'date' } = options ?? {}
   const value = context.getValue() as string | null | undefined
 
   if (value == null) {
@@ -138,11 +142,30 @@ function formatDateCell<TData extends Coin, TValue>(
     return <div className='text-muted-foreground'>—</div>
   }
 
-  const formatted = date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
+  let formatted: string
+
+  if (mode === 'date') {
+    formatted = date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+  } else if (mode === 'time') {
+    formatted = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+  } else {
+    formatted = date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+  }
 
   return <div>{formatted}</div>
 }
@@ -372,6 +395,6 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'last_updated',
     meta: { label: 'Last Updated' },
     header: ({ column }) => sortableHeader(column, 'Last Updated'),
-    cell: (row) => formatDateCell(row),
+    cell: (props) => formatDateCell(props, { mode: 'time' }),
   },
 ]
