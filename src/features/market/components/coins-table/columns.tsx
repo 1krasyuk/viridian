@@ -43,26 +43,51 @@ function formatCurrencyCell<TData extends Coin, TValue>(
   options?: {
     maximumFractionDigits?: number
     naText?: string
+    showSign?: boolean
+    colored?: boolean
   },
 ) {
   const value = context.getValue() as number | null | undefined
-  const { maximumFractionDigits = 2, naText = '—' } = options ?? {}
+  const {
+    maximumFractionDigits = 2,
+    naText = '—',
+    showSign = false,
+    colored = false,
+  } = options ?? {}
+
+  let colorClass = ''
+  if (colored && value != null) {
+    colorClass =
+      value > 0
+        ? 'dark:text-emerald-400 text-emerald-500'
+        : value < 0
+          ? 'text-destructive'
+          : 'text-muted-foreground'
+  }
 
   if (value == null || isNaN(value)) {
     return <div className='text-muted-foreground'>{naText}</div>
   }
 
+  const prefix = showSign && value > 0 ? '+' : '-'
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    signDisplay: showSign ? 'never' : 'auto',
     maximumFractionDigits,
-  }).format(value)
+  }).format(showSign ? Math.abs(value) : value)
 
-  if (value === 0) {
-    return <div className='text-muted-foreground'>{formatted}</div>
+  const result = showSign ? `${prefix}${formatted}` : formatted
+
+  if (value === 0 && !colored) {
+    return <div className='text-muted-foreground'>{result}</div>
   }
 
-  return <div>{formatted}</div>
+  return (
+    <div title={value.toString()} className={colorClass || undefined}>
+      {result}
+    </div>
+  )
 }
 
 function formatPercentageChangeCell<TData extends Coin, TValue>(
@@ -113,13 +138,11 @@ function formatDateCell<TData extends Coin, TValue>(
     return <div className='text-muted-foreground'>—</div>
   }
 
-  const formatted = date
-    .toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    .replace(/\//g, '.')
+  const formatted = date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
 
   return <div>{formatted}</div>
 }
@@ -175,42 +198,42 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'price_change_24h',
     meta: { label: '24h Price Change', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '24h Price Change'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatCurrencyCell(row, { showSign: true, colored: true }),
   },
   {
     id: 'price_change_percentage_1h_in_currency',
     accessorKey: 'price_change_percentage_1h_in_currency',
     meta: { label: '1h %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '1h %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'price_change_percentage_24h',
     accessorKey: 'price_change_percentage_24h',
     meta: { label: '24h %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '24h %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'price_change_percentage_7d_in_currency',
     accessorKey: 'price_change_percentage_7d_in_currency',
     meta: { label: '7d %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '7d %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'price_change_percentage_30d_in_currency',
     accessorKey: 'price_change_percentage_30d_in_currency',
     meta: { label: '30d %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '30d %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'price_change_percentage_1y_in_currency',
     accessorKey: 'price_change_percentage_1y_in_currency',
     meta: { label: '1y %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '1y %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'market_cap',
@@ -271,7 +294,7 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'market_cap_change_24h',
     meta: { label: 'Market Cap Change 24h', category: 'Market' },
     header: ({ column }) => sortableHeader(column, '24h Market Cap Change'),
-    cell: (row) => formatCurrencyCell(row),
+    cell: (row) => formatCurrencyCell(row, { showSign: true, colored: true }),
   },
 
   {
@@ -279,7 +302,7 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'market_cap_change_percentage_24h',
     meta: { label: 'Market Cap Change 24h %', category: 'Market' },
     header: ({ column }) => sortableHeader(column, '24h Market Cap Change %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
 
   {
@@ -308,7 +331,7 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'ath_change_percentage',
     meta: { label: 'ATH Change %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, 'ATH Change %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'ath_date',
@@ -329,14 +352,14 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'atl_change_percentage',
     meta: { label: 'ATL Change %', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, 'ATL Change %'),
-    cell: (props) => formatPercentageChangeCell(props),
+    cell: (row) => formatPercentageChangeCell(row),
   },
   {
     id: 'atl_date',
     accessorKey: 'atl_date',
     meta: { label: 'ATL Date', category: 'Price' },
     header: ({ column }) => sortableHeader(column, 'ATL Date'),
-    cell: (props) => formatDateCell(props),
+    cell: (row) => formatDateCell(row),
   },
   {
     id: 'roi',
@@ -349,6 +372,6 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'last_updated',
     meta: { label: 'Last Updated' },
     header: ({ column }) => sortableHeader(column, 'Last Updated'),
-    cell: (props) => formatDateCell(props),
+    cell: (row) => formatDateCell(row),
   },
 ]
