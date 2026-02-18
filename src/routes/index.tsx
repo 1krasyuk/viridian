@@ -5,6 +5,7 @@ import { z } from 'zod'
 const searchSchema = z.object({
   page: z.number().int().positive().optional(),
   per_page: z.number().int().positive().optional(),
+  category: z.string().optional(),
 })
 
 export const Route = createFileRoute('/')({

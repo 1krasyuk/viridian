@@ -83,6 +83,8 @@ interface DataTableProps<TData, TValue> {
   onPageChange: (page: number, size?: number) => void
   categories?: Category[]
   loadingCategories?: boolean
+  category: string | undefined
+  onCategoryChange: (category: string | undefined) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -94,6 +96,8 @@ export function DataTable<TData, TValue>({
   pageCount,
   onPageChange,
   categories,
+  category,
+  onCategoryChange,
   // loadingCategories,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
@@ -104,6 +108,8 @@ export function DataTable<TData, TValue>({
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(deafaultVisibilityState)
+
+  const categoryValue = categories?.find((c) => c.category_id === category)
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -125,17 +131,23 @@ export function DataTable<TData, TValue>({
       <Combobox
         items={categories || []}
         itemToStringValue={(category: Category) => category.name}
+        itemToStringLabel={(category: Category) => category.name}
+        value={categoryValue}
+        onValueChange={(category) => {
+          console.log(category)
+          onCategoryChange(category?.category_id)
+        }}
       >
         <ComboboxInput
           placeholder='Select a category'
-          className='w-50'
+          className='w-50 rounded-lg'
           showClear
         />
         <ComboboxContent>
           <ComboboxEmpty>No category found.</ComboboxEmpty>
           <ComboboxList>
             {(category) => (
-              <ComboboxItem key={category.category_id} value={category.name}>
+              <ComboboxItem key={category.category_id} value={category}>
                 {category.name}
               </ComboboxItem>
             )}

@@ -11,8 +11,11 @@ export function CoinsTable() {
 
   const page = search.page ?? DEFAULT_PAGE
   const per_page = search.per_page ?? DEFAULT_PER_PAGE
+  const category = search.category
   const navigate = useNavigate()
-  const { data, isLoading } = useCoins(page, per_page)
+
+  const { data, isLoading } = useCoins(page, per_page, category)
+
   const { data: categoriesData, isLoading: isCategoriesLoading } =
     useCategoriesList()
 
@@ -20,6 +23,13 @@ export function CoinsTable() {
     navigate({
       to: '.',
       search: (prev) => ({ ...prev, page: newPage }),
+    })
+  }
+
+  const handleCategoryChange = (category: string | undefined) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({ ...prev, category: category }),
     })
   }
 
@@ -37,8 +47,10 @@ export function CoinsTable() {
       perPage={per_page}
       pageCount={pageCount}
       onPageChange={handlePaginationChange}
-      categories={categoriesData} // <--- Передаем массив
+      categories={categoriesData}
       loadingCategories={isCategoriesLoading}
+      category={category}
+      onCategoryChange={handleCategoryChange}
     />
   )
 }
