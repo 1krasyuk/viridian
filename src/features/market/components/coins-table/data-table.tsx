@@ -1,6 +1,8 @@
 import * as React from 'react'
 
 import type { ColumnDef, VisibilityState } from '@tanstack/react-table'
+
+import type { Category } from '../../types/categories'
 import {
   flexRender,
   getCoreRowModel,
@@ -26,6 +28,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/shared/ui/combobox'
 
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
@@ -71,6 +81,8 @@ interface DataTableProps<TData, TValue> {
   perPage: number
   pageCount: number
   onPageChange: (page: number, size?: number) => void
+  categories?: Category[]
+  loadingCategories?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -81,6 +93,8 @@ export function DataTable<TData, TValue>({
   perPage,
   pageCount,
   onPageChange,
+  categories,
+  // loadingCategories,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -108,6 +122,26 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className='space-y-4 w-full'>
+      <Combobox
+        items={categories || []}
+        itemToStringValue={(category: Category) => category.name}
+      >
+        <ComboboxInput
+          placeholder='Select a category'
+          className='w-50'
+          showClear
+        />
+        <ComboboxContent>
+          <ComboboxEmpty>No category found.</ComboboxEmpty>
+          <ComboboxList>
+            {(category) => (
+              <ComboboxItem key={category.category_id} value={category.name}>
+                {category.name}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
       <Dialog>
         <DialogTrigger>
           <Button variant='outline'>Columns</Button>
