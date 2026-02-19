@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useCategoriesList, useCoins } from '../../hooks/coins-queries'
 import { columns } from './columns'
 import { DataTable } from './data-table'
@@ -10,33 +11,39 @@ export function CoinsTable() {
   const search = useSearch({ from: '/' })
 
   const page = search.page ?? DEFAULT_PAGE
-  const per_page = search.per_page ?? DEFAULT_PER_PAGE
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE)
   const category = search.category
   const navigate = useNavigate()
 
-  const { data, isLoading } = useCoins(page, per_page, category)
+  const { data, isLoading } = useCoins(page, perPage, category)
 
   const { data: categoriesData, isLoading: isCategoriesLoading } =
     useCategoriesList()
 
-  const handlePaginationChange = (newPage: number) => {
-    navigate({
-      to: '.',
-      search: (prev) => ({ ...prev, page: newPage }),
-    })
+  const handlePaginationChange = (newPage: number, newPerPage?: number) => {
+    if (newPerPage !== undefined && newPerPage !== perPage) {
+      setPerPage(newPerPage)
+      navigate({
+        to: '.',
+        search: (prev) => ({ ...prev, page: 1 }),
+      })
+    } else {
+      navigate({
+        to: '.',
+        search: (prev) => ({ ...prev, page: newPage }),
+      })
+    }
   }
 
   const handleCategoryChange = (category: string | undefined) => {
     navigate({
       to: '.',
-      search: (prev) => ({ ...prev, category: category }),
+      search: (prev) => ({ ...prev, category: category, page: 1 }),
     })
   }
 
-  const isLastPage = data && data.length < per_page
+  const isLastPage = data && data.length < perPage
   const pageCount = isLastPage ? page : page + 1
-
-  console.log(data)
 
   return (
     <DataTable
@@ -44,7 +51,7 @@ export function CoinsTable() {
       data={data || []}
       loading={isLoading}
       page={page}
-      perPage={per_page}
+      perPage={perPage}
       pageCount={pageCount}
       onPageChange={handlePaginationChange}
       categories={categoriesData}

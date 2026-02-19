@@ -36,10 +36,23 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@/shared/ui/combobox'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
 
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Settings2,
+  X,
+} from 'lucide-react'
 import { Badge } from '@/shared/ui/badge'
 
 const deafaultVisibilityState = {
@@ -128,120 +141,154 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className='space-y-4 w-full'>
-      <Combobox
-        items={categories || []}
-        itemToStringValue={(category: Category) => category.name}
-        itemToStringLabel={(category: Category) => category.name}
-        value={categoryValue}
-        onValueChange={(category) => {
-          console.log(category)
-          onCategoryChange(category?.category_id)
-        }}
-      >
-        <ComboboxInput
-          placeholder='Select a category'
-          className='w-50 rounded-lg'
-          showClear
-        />
-        <ComboboxContent>
-          <ComboboxEmpty>No category found.</ComboboxEmpty>
-          <ComboboxList>
-            {(category) => (
-              <ComboboxItem key={category.category_id} value={category}>
-                {category.name}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-      <Dialog>
-        <DialogTrigger>
-          <Button variant='outline'>Columns</Button>
-        </DialogTrigger>
-        <DialogContent className='bg-card sm:max-w-2xl'>
-          <DialogHeader>
-            <DialogTitle>
-              Choose up to
-              <Badge
-                className='px-2 mx-2 rounded-md text-sm font-bold'
-                variant={
-                  table.getVisibleLeafColumns().length < 15
-                    ? 'outline'
-                    : 'destructive'
-                }
-              >
-                {table.getVisibleLeafColumns().length}/15
-              </Badge>
-              metrics
-            </DialogTitle>
-            <DialogDescription>
-              Add, delete and sort metrics just how you need it
-            </DialogDescription>
-          </DialogHeader>
+      <div className='flex justify-between mx-3 mt-3'>
+        <Combobox
+          items={categories || []}
+          itemToStringValue={(category: Category) => category.name}
+          itemToStringLabel={(category: Category) => category.name}
+          value={categoryValue}
+          onValueChange={(category) => {
+            onCategoryChange(category?.category_id)
+          }}
+        >
+          <ComboboxInput
+            placeholder='Select a category'
+            className='w-50 rounded-lg'
+            showClear
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No category found.</ComboboxEmpty>
+            <ComboboxList>
+              {(category) => (
+                <ComboboxItem key={category.category_id} value={category}>
+                  {category.name}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
 
-          <div className='space-y-5'>
-            {Object.entries(
-              table
-                .getAllLeafColumns()
-                .filter((column) => column.getCanHide())
-                .reduce<
-                  Record<string, ReturnType<typeof table.getAllLeafColumns>>
-                >((groups, column) => {
-                  const category =
-                    (
-                      column.columnDef.meta as {
-                        category?: string
-                      }
-                    )?.category ?? 'Other'
-                  if (!groups[category]) groups[category] = []
-                  groups[category].push(column)
-                  return groups
-                }, {}),
-            ).map(([category, cols]) => (
-              <div key={category} className='flex items-start'>
-                <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5 '>
-                  {category}
-                </span>
-                <div className='flex flex-wrap gap-1.5 w-full justify-end'>
-                  {cols.map((column) => (
-                    <Button
-                      key={column.id}
-                      variant={column.getIsVisible() ? 'soft' : 'outline'}
-                      disabled={
-                        !column.getIsVisible() &&
-                        table.getVisibleLeafColumns().length >= 15
-                      }
-                      size='sm'
-                      className='rounded-3xl gap-1.5 font-bold'
-                      onClick={() => column.toggleVisibility()}
-                    >
-                      {(
-                        column.columnDef.meta as {
-                          label?: string
-                        }
-                      )?.label ?? column.id}
-                      {column.getIsVisible() && (
-                        <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
-                      )}
-                    </Button>
-                  ))}
-                </div>
+        <div className='flex gap-5 items-center'>
+          <Dialog>
+            <DialogTrigger>
+              <Button variant='outline' className=''>
+                Columns
+                <Settings2 />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className='bg-card sm:max-w-2xl'>
+              <DialogHeader>
+                <DialogTitle>
+                  Choose up to
+                  <Badge
+                    className='px-2 mx-2 rounded-md text-sm font-bold'
+                    variant={
+                      table.getVisibleLeafColumns().length < 15
+                        ? 'outline'
+                        : 'destructive'
+                    }
+                  >
+                    {table.getVisibleLeafColumns().length}/15
+                  </Badge>
+                  metrics
+                </DialogTitle>
+                <DialogDescription>
+                  Add, delete and sort metrics just how you need it
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className='space-y-5'>
+                {Object.entries(
+                  table
+                    .getAllLeafColumns()
+                    .filter((column) => column.getCanHide())
+                    .reduce<
+                      Record<string, ReturnType<typeof table.getAllLeafColumns>>
+                    >((groups, column) => {
+                      const category =
+                        (
+                          column.columnDef.meta as {
+                            category?: string
+                          }
+                        )?.category ?? 'Other'
+                      if (!groups[category]) groups[category] = []
+                      groups[category].push(column)
+                      return groups
+                    }, {}),
+                ).map(([category, cols]) => (
+                  <div key={category} className='flex items-start'>
+                    <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5 '>
+                      {category}
+                    </span>
+                    <div className='flex flex-wrap gap-1.5 w-full justify-end'>
+                      {cols.map((column) => (
+                        <Button
+                          key={column.id}
+                          variant={column.getIsVisible() ? 'soft' : 'outline'}
+                          disabled={
+                            !column.getIsVisible() &&
+                            table.getVisibleLeafColumns().length >= 15
+                          }
+                          size='sm'
+                          className='rounded-3xl gap-1.5 font-bold'
+                          onClick={() => column.toggleVisibility()}
+                        >
+                          {(
+                            column.columnDef.meta as {
+                              label?: string
+                            }
+                          )?.label ?? column.id}
+                          {column.getIsVisible() && (
+                            <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className='flex justify-between items-center'>
-            <Button
-              variant='destructive'
-              onClick={() => setColumnVisibility(deafaultVisibilityState)}
-            >
-              Reset
-            </Button>
-            <DialogClose asChild>
-              <Button>Apply changes</Button>
-            </DialogClose>
-          </div>
-        </DialogContent>
-      </Dialog>
+              <div className='flex justify-between items-center'>
+                <Button
+                  variant='destructive'
+                  onClick={() => setColumnVisibility(deafaultVisibilityState)}
+                >
+                  Reset
+                </Button>
+                <DialogClose asChild>
+                  <Button>Apply changes</Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className='w-30'>
+                {perPage} Rows
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='min-w-0 p-1'>
+              <DropdownMenuRadioGroup
+                value={String(perPage)}
+                onValueChange={(value) => {
+                  onPageChange(1, Number(value))
+                }}
+              >
+                {[20, 50, 100, 200, 250].map((size) => (
+                  <DropdownMenuRadioItem
+                    key={size}
+                    value={String(size)}
+                    className='my-0.5'
+                  >
+                    {size} Rows
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
       <div className='w-full text-right overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
