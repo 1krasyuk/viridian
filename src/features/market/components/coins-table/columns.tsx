@@ -170,6 +170,56 @@ function formatDateCell<TData extends Coin, TValue>(
   return <div>{formatted}</div>
 }
 
+function formatSparklineCell<TData extends Coin, TValue>(
+  context: CellContext<TData, TValue>,
+) {
+  // Get the { price: number[] } object
+  const sparkline = context.getValue() as { price: number[] } | undefined
+
+  // If no data or array is empty
+  if (!sparkline?.price?.length)
+    return <div className='text-muted-foreground'>—</div>
+
+  const data = sparkline.price
+  const width = 150
+  const height = 35
+
+  // Find boundaries for scaling
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+
+  // Function to calculate Y coordinate
+  const getY = (val: number) => height - ((val - min) / range) * height
+
+  // Build the path: M (start) x,y L (line) x,y ...
+  const pathD = data
+    .map(
+      (val, i) =>
+        `${i === 0 ? 'M' : 'L'} ${(i / (data.length - 1)) * width} ${getY(val)}`,
+    )
+    .join(' ')
+
+  // Color: if the last price is higher than the first - green, otherwise red
+  const colorClass =
+    data[data.length - 1] >= data[0]
+      ? 'stroke-emerald-500 dark:stroke-emerald-400'
+      : 'stroke-destructive'
+
+  return (
+    <div className='flex items-center justify-end'>
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        className={cn('fill-none stroke-1', colorClass)}
+      >
+        <path d={pathD} />
+      </svg>
+    </div>
+  )
+}
+
 export const columns: ColumnDef<Coin>[] = [
   {
     id: 'market_cap_rank',
@@ -297,6 +347,7 @@ export const columns: ColumnDef<Coin>[] = [
     meta: { label: '7d Chart', category: 'Chart' },
     accessorKey: 'sparkline_in_7d',
     header: 'Last 7 days',
+    cell: (row) => formatSparklineCell(row),
   },
   {
     id: 'high_24h',

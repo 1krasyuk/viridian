@@ -298,7 +298,7 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className='bg-sidebar text-right d'
+                      className='bg-sidebar text-right hover:bg-accent'
                     >
                       {header.isPlaceholder
                         ? null
