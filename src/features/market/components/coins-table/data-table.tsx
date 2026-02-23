@@ -55,7 +55,24 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/shared/ui/badge'
 
-const deafaultVisibilityState = {
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable'
+
+import { DraggableColumnItem } from './draggable-column-item'
+
+const defaultVisibilityState = {
   market_cap_rank: true,
   name: true,
   current_price: true,
@@ -111,7 +128,6 @@ export function DataTable<TData, TValue>({
   categories,
   category,
   onCategoryChange,
-  // loadingCategories,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -120,9 +136,20 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([])
 
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>(deafaultVisibilityState)
+    React.useState<VisibilityState>(defaultVisibilityState)
 
   const categoryValue = categories?.find((c) => c.category_id === category)
+
+  const [columnOrder, setColumnOrder] = React.useState<string[]>(
+    columns.map((c) => c.id as string),
+  )
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -135,9 +162,22 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       columnVisibility,
+      columnOrder,
     },
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: setColumnOrder,
   })
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      setColumnOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string)
+        const newIndex = items.indexOf(over.id as string)
+        return arrayMove(items, oldIndex, newIndex)
+      })
+    }
+  }
 
   return (
     <div className='space-y-4 w-full'>
@@ -176,19 +216,19 @@ export function DataTable<TData, TValue>({
                 <Settings2 />
               </Button>
             </DialogTrigger>
-            <DialogContent className='bg-card sm:max-w-2xl'>
+            <DialogContent className='bg-card sm:max-w-3xl'>
               <DialogHeader>
                 <DialogTitle>
                   Choose up to
                   <Badge
                     className='px-2 mx-2 rounded-md text-sm font-bold'
                     variant={
-                      table.getVisibleLeafColumns().length < 15
+                      table.getVisibleLeafColumns().length < 12
                         ? 'outline'
                         : 'destructive'
                     }
                   >
-                    {table.getVisibleLeafColumns().length}/15
+                    {table.getVisibleLeafColumns().length}/12
                   </Badge>
                   metrics
                 </DialogTitle>
@@ -196,7 +236,45 @@ export function DataTable<TData, TValue>({
                   Add, delete and sort metrics just how you need it
                 </DialogDescription>
               </DialogHeader>
+              <div className=''>
+                <p className='text-xs font-semibold uppercase text-muted-foreground mb-3'>
+                  Selected Columns
+                </p>
+                <div className='flex flex-wrap gap-2 min-h-10 p-2 bg-accent/50 rounded-xl'>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={table
+                        .getVisibleLeafColumns()
+                        .filter((col) => col.getCanHide())
+                        .map((col) => col.id)}
+                      strategy={() => null}
+                    >
+                      {table
+                        .getVisibleLeafColumns()
+                        .filter((col) => col.getCanHide())
+                        .map((column, idx) => {
+                          const columnMeta = column.columnDef.meta as {
+                            label?: string
+                          }
+                          const label = columnMeta?.label ?? column.id
 
+                          return (
+                            <DraggableColumnItem
+                              key={column.id}
+                              id={column.id}
+                              index={idx}
+                              label={label}
+                            />
+                          )
+                        })}
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              </div>
               <div className='space-y-5'>
                 {Object.entries(
                   table
@@ -227,7 +305,7 @@ export function DataTable<TData, TValue>({
                           variant={column.getIsVisible() ? 'soft' : 'outline'}
                           disabled={
                             !column.getIsVisible() &&
-                            table.getVisibleLeafColumns().length >= 15
+                            table.getVisibleLeafColumns().length >= 12
                           }
                           size='sm'
                           className='rounded-3xl gap-1.5 font-bold'
@@ -250,7 +328,10 @@ export function DataTable<TData, TValue>({
               <div className='flex justify-between items-center'>
                 <Button
                   variant='destructive'
-                  onClick={() => setColumnVisibility(deafaultVisibilityState)}
+                  onClick={() => {
+                    setColumnVisibility(defaultVisibilityState)
+                    setColumnOrder(columns.map((c) => c.id as string))
+                  }}
                 >
                   Reset
                 </Button>
