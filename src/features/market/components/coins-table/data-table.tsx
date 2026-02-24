@@ -50,6 +50,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  RefreshCcw,
   Settings2,
   X,
 } from 'lucide-react'
@@ -368,6 +369,19 @@ export function DataTable<TData, TValue>({
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            variant='outline'
+            className='w-10 h-10 group'
+            onClick={() => {
+              setColumnVisibility(defaultVisibilityState)
+              setColumnOrder(columns.map((c) => c.id as string))
+              setSorting([])
+              onPageChange(1, 100)
+              onCategoryChange(undefined)
+            }}
+          >
+            <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
+          </Button>
         </div>
       </div>
       <div className='w-full text-right overflow-hidden rounded-md border'>
