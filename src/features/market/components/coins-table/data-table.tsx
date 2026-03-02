@@ -12,66 +12,28 @@ import {
 } from '@tanstack/react-table'
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/shared/ui/table'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/shared/ui/dialog'
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/shared/ui/combobox'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu'
 
 import { Skeleton } from '@/shared/ui/skeleton'
-import { Button } from '@/shared/ui/button'
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCcw,
-  Settings2,
-  X,
-} from 'lucide-react'
-import { Badge } from '@/shared/ui/badge'
+import { cn } from '@/shared/lib/utils'
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable'
+import { DataTableToolbar } from './data-table-toolbar'
+import { DataTablePagination } from './data-table-pagination'
 
-import { DraggableColumnItem } from './draggable-column-item'
+const PINNED_COLUMNS: Record<
+  string,
+  { left: number; width?: number; minWidth?: number; isLast?: boolean }
+> = {
+  market_cap_rank: { left: 0, width: 70 },
+  name: { left: 70, minWidth: 180, isLast: true },
+}
+
+const MIN_COL_WIDTH = 120
 
 const defaultVisibilityState = {
   market_cap_rank: true,
@@ -145,13 +107,6 @@ export function DataTable<TData, TValue>({
     columns.map((c) => c.id as string),
   )
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
-
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: loading ? skeletonRows : data,
@@ -169,231 +124,102 @@ export function DataTable<TData, TValue>({
     onColumnOrderChange: setColumnOrder,
   })
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (over && active.id !== over.id) {
-      setColumnOrder((items) => {
-        const oldIndex = items.indexOf(active.id as string)
-        const newIndex = items.indexOf(over.id as string)
-        return arrayMove(items, oldIndex, newIndex)
-      })
+  const handleResetColumns = () => {
+    setColumnVisibility(defaultVisibilityState)
+    setColumnOrder(columns.map((c) => c.id as string))
+  }
+
+  const handleReset = () => {
+    handleResetColumns()
+    setSorting([])
+    onPageChange(1, 100)
+    onCategoryChange(undefined)
+  }
+
+  // Split-table: refs for scroll sync and column width measurement
+  const headerScrollRef = React.useRef<HTMLDivElement>(null)
+  const bodyScrollRef = React.useRef<HTMLDivElement>(null)
+  const bodyTableRef = React.useRef<HTMLTableElement>(null)
+  const [colWidths, setColWidths] = React.useState<number[]>([])
+  const [totalWidth, setTotalWidth] = React.useState(0)
+
+  const handleBodyScroll = () => {
+    if (headerScrollRef.current && bodyScrollRef.current) {
+      headerScrollRef.current.scrollLeft = bodyScrollRef.current.scrollLeft
     }
   }
 
+  // Measure body column widths and apply to header table
+  const measureColWidths = React.useCallback(() => {
+    const bodyTable = bodyTableRef.current
+    if (!bodyTable) return
+    const firstRow = bodyTable.querySelector('tbody tr')
+    if (!firstRow) return
+    const cells = Array.from(firstRow.querySelectorAll('td'))
+    const widths = cells.map((cell) => cell.getBoundingClientRect().width)
+    setTotalWidth(bodyTable.scrollWidth)
+    setColWidths(widths)
+  }, [])
+
+  React.useLayoutEffect(() => {
+    if (loading) return
+    measureColWidths()
+  }, [loading, data, columnVisibility, columnOrder, measureColWidths])
+
+  // Re-measure on container resize (window resize, sidebar toggle, etc.)
+  React.useEffect(() => {
+    const container = bodyScrollRef.current
+    if (!container) return
+    const observer = new ResizeObserver(measureColWidths)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [measureColWidths])
+
   return (
-    <div className='space-y-4 w-full'>
-      <div className='flex justify-between mx-3 mt-3'>
-        <Combobox
-          items={categories || []}
-          itemToStringValue={(category: Category) => category.name}
-          itemToStringLabel={(category: Category) => category.name}
-          value={categoryValue}
-          onValueChange={(category) => {
-            onCategoryChange(category?.category_id)
-          }}
+    <div className='w-full'>
+      <DataTableToolbar
+        table={table}
+        categories={categories}
+        categoryValue={categoryValue}
+        onCategoryChange={onCategoryChange}
+        perPage={perPage}
+        onPageChange={onPageChange}
+        onReset={handleReset}
+        onResetColumns={handleResetColumns}
+      />
+      {/* Sticky table header — separate table synced with body */}
+      <div
+        ref={headerScrollRef}
+        className='sticky top-16 z-20 overflow-hidden text-right bg-sidebar'
+      >
+        <table
+          className='w-full text-sm'
+          style={
+            colWidths.length > 0
+              ? { tableLayout: 'fixed', width: totalWidth }
+              : undefined
+          }
         >
-          <ComboboxInput
-            placeholder='Select a category'
-            className='w-50 rounded-lg'
-            showClear
-          />
-          <ComboboxContent>
-            <ComboboxEmpty>No category found.</ComboboxEmpty>
-            <ComboboxList>
-              {(category) => (
-                <ComboboxItem key={category.category_id} value={category}>
-                  {category.name}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
-
-        <div className='flex gap-5 items-center'>
-          <Dialog>
-            <DialogTrigger>
-              <Button variant='outline' className=''>
-                Columns
-                <Settings2 />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className='bg-card sm:max-w-3xl'>
-              <DialogHeader>
-                <DialogTitle>
-                  Choose up to
-                  <Badge
-                    className='px-2 mx-2 rounded-md text-sm font-bold'
-                    variant={
-                      table.getVisibleLeafColumns().length < 12
-                        ? 'outline'
-                        : 'destructive'
-                    }
-                  >
-                    {table.getVisibleLeafColumns().length}/12
-                  </Badge>
-                  metrics
-                </DialogTitle>
-                <DialogDescription>
-                  Add, delete and sort metrics just how you need it
-                </DialogDescription>
-              </DialogHeader>
-              <div className=''>
-                <p className='text-xs font-semibold uppercase text-muted-foreground mb-3'>
-                  Selected Columns
-                </p>
-                <div className='flex flex-wrap gap-2 min-h-10 p-2 bg-accent/50 rounded-xl'>
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={table
-                        .getVisibleLeafColumns()
-                        .filter((col) => col.getCanHide())
-                        .map((col) => col.id)}
-                      strategy={() => null}
-                    >
-                      {table
-                        .getVisibleLeafColumns()
-                        .filter((col) => col.getCanHide())
-                        .map((column, idx) => {
-                          const columnMeta = column.columnDef.meta as {
-                            label?: string
-                          }
-                          const label = columnMeta?.label ?? column.id
-
-                          return (
-                            <DraggableColumnItem
-                              key={column.id}
-                              id={column.id}
-                              index={idx}
-                              label={label}
-                            />
-                          )
-                        })}
-                    </SortableContext>
-                  </DndContext>
-                </div>
-              </div>
-              <div className='space-y-5'>
-                {Object.entries(
-                  table
-                    .getAllLeafColumns()
-                    .filter((column) => column.getCanHide())
-                    .reduce<
-                      Record<string, ReturnType<typeof table.getAllLeafColumns>>
-                    >((groups, column) => {
-                      const category =
-                        (
-                          column.columnDef.meta as {
-                            category?: string
-                          }
-                        )?.category ?? 'Other'
-                      if (!groups[category]) groups[category] = []
-                      groups[category].push(column)
-                      return groups
-                    }, {}),
-                ).map(([category, cols]) => (
-                  <div key={category} className='flex items-start'>
-                    <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5 '>
-                      {category}
-                    </span>
-                    <div className='flex flex-wrap gap-1.5 w-full justify-end'>
-                      {cols.map((column) => (
-                        <Button
-                          key={column.id}
-                          variant={column.getIsVisible() ? 'soft' : 'outline'}
-                          disabled={
-                            !column.getIsVisible() &&
-                            table.getVisibleLeafColumns().length >= 12
-                          }
-                          size='sm'
-                          className='rounded-3xl gap-1.5 font-bold'
-                          onClick={() => column.toggleVisibility()}
-                        >
-                          {(
-                            column.columnDef.meta as {
-                              label?: string
-                            }
-                          )?.label ?? column.id}
-                          {column.getIsVisible() && (
-                            <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
-                          )}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className='flex justify-between items-center'>
-                <Button
-                  variant='destructive'
-                  onClick={() => {
-                    setColumnVisibility(defaultVisibilityState)
-                    setColumnOrder(columns.map((c) => c.id as string))
-                  }}
-                >
-                  Reset
-                </Button>
-                <DialogClose asChild>
-                  <Button>Apply changes</Button>
-                </DialogClose>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='outline' className='w-30'>
-                {perPage} Rows
-                <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className='min-w-0 p-1'>
-              <DropdownMenuRadioGroup
-                value={String(perPage)}
-                onValueChange={(value) => {
-                  onPageChange(1, Number(value))
-                }}
-              >
-                {[20, 50, 100, 200, 250].map((size) => (
-                  <DropdownMenuRadioItem
-                    key={size}
-                    value={String(size)}
-                    className='my-0.5'
-                  >
-                    {size} Rows
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            variant='outline'
-            className='w-10 h-10 group'
-            onClick={() => {
-              setColumnVisibility(defaultVisibilityState)
-              setColumnOrder(columns.map((c) => c.id as string))
-              setSorting([])
-              onPageChange(1, 100)
-              onCategoryChange(undefined)
-            }}
-          >
-            <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
-          </Button>
-        </div>
-      </div>
-      <div className='w-full text-right overflow-hidden rounded-md border'>
-        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map((header, headerIndex) => {
+                  const pinned = PINNED_COLUMNS[header.column.id]
+                  const measuredWidth = colWidths[headerIndex]
                   return (
                     <TableHead
                       key={header.id}
-                      className='bg-sidebar text-right hover:bg-accent'
+                      className={cn(
+                        'bg-sidebar text-right hover:bg-accent',
+                        pinned && 'sticky z-10',
+                        pinned?.isLast && '',
+                      )}
+                      style={{
+                        ...(measuredWidth != null && {
+                          width: measuredWidth,
+                        }),
+                        ...(pinned && { left: pinned.left }),
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -407,79 +233,86 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
+        </table>
+      </div>
+
+      {/* Scrollable table body — horizontal scroll synced to header */}
+      <div
+        ref={bodyScrollRef}
+        className='overflow-x-auto text-right'
+        onScroll={handleBodyScroll}
+      >
+        <table
+          ref={bodyTableRef}
+          className='w-full text-sm border-b border-border'
+        >
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className='group duration-0 '
+                  className='group duration-0'
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {loading ? (
-                        <Skeleton className='h-4 w-full ' />
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const pinned = PINNED_COLUMNS[cell.column.id]
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          pinned &&
+                            'sticky z-10 bg-background group-hover:bg-muted ',
+                          pinned?.isLast && 'border-r border-border',
+                        )}
+                        style={
+                          pinned
+                            ? {
+                                left: pinned.left,
+                                ...(pinned.width && {
+                                  width: pinned.width,
+                                  minWidth: pinned.width,
+                                  maxWidth: pinned.width,
+                                }),
+                                ...(pinned.minWidth && {
+                                  minWidth: pinned.minWidth,
+                                }),
+                              }
+                            : { minWidth: MIN_COL_WIDTH }
+                        }
+                      >
+                        {loading ? (
+                          <Skeleton className='h-4 w-full' />
+                        ) : (
+                          flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-screen text-center'
+                  className='h-64 text-center'
                 >
                   No results.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
-        </Table>
+        </table>
       </div>
-      <div className='flex items-center flex-col '>
-        <div className='flex gap-2 justify-center '>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => onPageChange(page - 1, perPage)}
-            disabled={page <= 1 || loading}
-            className='min-w-25'
-          >
-            <ChevronLeft />
-            <span>Coins</span>
-            {page > 1 ? (
-              <>
-                {(page - 2) * perPage + 1} - {(page - 1) * perPage}
-              </>
-            ) : (
-              <>
-                {(page - 1) * perPage + 1} to {page * perPage}{' '}
-              </>
-            )}
-          </Button>
-
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => onPageChange(page + 1, perPage)}
-            disabled={page >= pageCount || loading}
-            className=' min-w-25'
-          >
-            <span>Coins</span>
-            {page * perPage + 1} - {(page + 1) * perPage}
-            <ChevronRight />
-          </Button>
-        </div>
-        <span className='text-sm text-muted-foreground my-3 '>
-          Showing {(page - 1) * perPage + 1} to {page * perPage}
-        </span>
-      </div>
+      <DataTablePagination
+        page={page}
+        perPage={perPage}
+        pageCount={pageCount}
+        loading={loading}
+        onPageChange={onPageChange}
+      />
     </div>
   )
 }
