@@ -29,8 +29,8 @@ const PINNED_COLUMNS: Record<
   string,
   { left: number; width?: number; minWidth?: number; isLast?: boolean }
 > = {
-  market_cap_rank: { left: 0, width: 70 },
-  name: { left: 70, minWidth: 180, isLast: true },
+  market_cap_rank: { left: 0, width: 60 },
+  name: { left: 60, minWidth: 120, isLast: true },
 }
 
 const MIN_COL_WIDTH = 120
@@ -190,7 +190,7 @@ export function DataTable<TData, TValue>({
       {/* Sticky table header — separate table synced with body */}
       <div
         ref={headerScrollRef}
-        className='sticky top-16 z-20 overflow-hidden text-right bg-sidebar'
+        className='sticky top-0 z-20 overflow-hidden text-right '
       >
         <table
           className='w-full text-sm'
@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'bg-sidebar text-right hover:bg-accent',
+                        'bg-sidebar text-right  group-hover:bg-muted/80',
                         pinned && 'sticky z-10',
                         pinned?.isLast && '',
                       )}
@@ -260,9 +260,8 @@ export function DataTable<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          pinned &&
-                            'sticky z-10 bg-background group-hover:bg-muted ',
-                          pinned?.isLast && 'border-r border-border',
+                          pinned && 'sticky z-10 bg-background group-hover',
+                          pinned?.isLast && ' ',
                         )}
                         style={
                           pinned

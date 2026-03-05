@@ -87,7 +87,7 @@ export function DataTableToolbar<TData>({
   }
 
   return (
-    <div className='sticky top-0 z-30 bg-background h-16 flex items-center justify-between px-3'>
+    <div className='bg-background h-16 flex items-center justify-between px-3'>
       <Combobox
         items={categories || []}
         itemToStringValue={(category: Category) => category.name}

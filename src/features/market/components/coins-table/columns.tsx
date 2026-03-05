@@ -49,7 +49,7 @@ function formatCurrencyCell<TData extends Coin, TValue>(
 ) {
   const value = context.getValue() as number | null | undefined
   const {
-    maximumFractionDigits = 2,
+    maximumFractionDigits = 5,
     naText = '—',
     showSign = false,
     colored = false,
