@@ -25,7 +25,9 @@ function RootComponent() {
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
 
-        <Outlet />
+        <main className='flex-1 min-w-0'>
+          <Outlet />
+        </main>
       </SidebarProvider>
     </QueryClientProvider>
   )
