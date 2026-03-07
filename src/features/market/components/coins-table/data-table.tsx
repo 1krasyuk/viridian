@@ -239,7 +239,7 @@ export function DataTable<TData, TValue>({
       {/* Scrollable table body — horizontal scroll synced to header */}
       <div
         ref={bodyScrollRef}
-        className='overflow-x-auto text-right'
+        className='overflow-x-auto text-right custom-scrollbar'
         onScroll={handleBodyScroll}
       >
         <table

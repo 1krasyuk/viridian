@@ -222,3 +222,19 @@
 .terminal-cursor {
   animation: blink 1s step-end infinite;
 }
+
+/* CUSTOM HORIZONTAL BAR FOR COINS TABLE*/
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/40 rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/60;
+  }
+}
