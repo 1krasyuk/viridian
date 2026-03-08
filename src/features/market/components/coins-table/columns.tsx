@@ -271,7 +271,12 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'price_change_24h',
     meta: { label: '24h Price Change', category: 'Price Change' },
     header: ({ column }) => sortableHeader(column, '24h Price Change'),
-    cell: (row) => formatCurrencyCell(row, { showSign: true, colored: true }),
+    cell: (row) =>
+      formatCurrencyCell(row, {
+        showSign: true,
+        colored: true,
+        maximumFractionDigits: 2,
+      }),
   },
   {
     id: 'price_change_percentage_1h_in_currency',
@@ -337,9 +342,13 @@ export const columns: ColumnDef<Coin>[] = [
       const suffixes = ['', 'K', 'M', 'B', 'T']
       const scaled = supply / Math.pow(10, tier * 3)
 
-      const formatted = `${scaled.toFixed(2)}${suffixes[tier] ?? ''} ${symbol}`
+      const formatted = `${scaled.toFixed(2)}${suffixes[tier] ?? ''}`
 
-      return <div title={supply.toString()}>{formatted}</div>
+      return (
+        <div title={supply.toString()}>
+          {formatted} <Badge variant='secondary'>{symbol}</Badge>
+        </div>
+      )
     },
   },
   {
@@ -368,7 +377,12 @@ export const columns: ColumnDef<Coin>[] = [
     accessorKey: 'market_cap_change_24h',
     meta: { label: 'Market Cap Change 24h', category: 'Market' },
     header: ({ column }) => sortableHeader(column, '24h Market Cap Change'),
-    cell: (row) => formatCurrencyCell(row, { showSign: true, colored: true }),
+    cell: (row) =>
+      formatCurrencyCell(row, {
+        showSign: true,
+        colored: true,
+        maximumFractionDigits: 0,
+      }),
   },
 
   {

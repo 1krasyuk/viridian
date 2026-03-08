@@ -129,12 +129,12 @@ export function DataTableToolbar<TData>({
                 <Badge
                   className='px-2 mx-2 rounded-md text-sm font-bold'
                   variant={
-                    table.getVisibleLeafColumns().length < 12
+                    table.getVisibleLeafColumns().length - 2 < 12
                       ? 'outline'
                       : 'destructive'
                   }
                 >
-                  {table.getVisibleLeafColumns().length}/12
+                  {table.getVisibleLeafColumns().length - 2}/12
                 </Badge>
                 metrics
               </DialogTitle>
@@ -211,7 +211,7 @@ export function DataTableToolbar<TData>({
                         variant={column.getIsVisible() ? 'soft' : 'outline'}
                         disabled={
                           !column.getIsVisible() &&
-                          table.getVisibleLeafColumns().length >= 12
+                          table.getVisibleLeafColumns().length - 2 >= 12
                         }
                         size='sm'
                         className='rounded-3xl gap-1.5 font-bold'

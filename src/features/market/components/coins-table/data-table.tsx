@@ -33,7 +33,7 @@ const PINNED_COLUMNS: Record<
   name: { left: 60, minWidth: 120, isLast: true },
 }
 
-const MIN_COL_WIDTH = 120
+const MIN_COL_WIDTH = 80
 
 const defaultVisibilityState = {
   market_cap_rank: true,
@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'bg-sidebar text-right group-hover:bg-muted/80',
+                        'bg-sidebar text-right group-hover:bg-muted/80  ',
                         pinned && 'sticky z-10',
                         pinned?.isLast && '',
                       )}
