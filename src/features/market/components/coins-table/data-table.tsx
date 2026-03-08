@@ -210,7 +210,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'bg-sidebar text-right  group-hover:bg-muted/80',
+                        'bg-sidebar text-right group-hover:bg-muted/80',
                         pinned && 'sticky z-10',
                         pinned?.isLast && '',
                       )}
@@ -242,10 +242,7 @@ export function DataTable<TData, TValue>({
         className='overflow-x-auto text-right custom-scrollbar'
         onScroll={handleBodyScroll}
       >
-        <table
-          ref={bodyTableRef}
-          className='w-full text-sm border-b border-border'
-        >
+        <table ref={bodyTableRef} className='w-full text-sm'>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -260,8 +257,9 @@ export function DataTable<TData, TValue>({
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          pinned && 'sticky z-10 bg-background group-hover',
-                          pinned?.isLast && ' ',
+                          pinned && 'sticky z-10 bg-background',
+                          pinned?.isLast && '',
+                          // 'shadow-[inset_-1px_0_0_0_var(--color-border)]',
                         )}
                         style={
                           pinned
