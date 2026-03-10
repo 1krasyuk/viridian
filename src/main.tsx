@@ -5,7 +5,13 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import { ThemeProvider } from '@/shared/lib/theme-provider'
 
-const router = createRouter({ routeTree })
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
+const router = createRouter({ routeTree, scrollRestoration: true })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
