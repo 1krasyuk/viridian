@@ -342,6 +342,13 @@ export const columns: ColumnDef<Coin>[] = [
       const suffixes = ['', 'K', 'M', 'B', 'T']
       const scaled = supply / Math.pow(10, tier * 3)
 
+      if (Number.isNaN(scaled))
+        return (
+          <div className='text-muted-foreground'>
+            0.0 <Badge variant='secondary'>{symbol}</Badge>
+          </div>
+        )
+
       const formatted = `${scaled.toFixed(2)}${suffixes[tier] ?? ''}`
 
       return (

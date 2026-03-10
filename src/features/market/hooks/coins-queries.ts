@@ -10,6 +10,7 @@ export function useCoins(page: number, per_page: number, category?: string) {
   return useQuery({
     queryKey: [coinsKeys.all, page, per_page, category],
     queryFn: () => coinsApi.getCoins({ page, per_page, category }),
+    refetchInterval: 60000,
   })
 }
 
