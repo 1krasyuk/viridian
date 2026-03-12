@@ -15,6 +15,8 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as MultichartRouteImport } from './routes/multichart'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoinsIndexRouteImport } from './routes/coins/index'
+import { Route as CoinsCoinIdRouteImport } from './routes/coins/$coinId'
 
 const WatchlistRoute = WatchlistRouteImport.update({
   id: '/watchlist',
@@ -46,6 +48,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoinsIndexRoute = CoinsIndexRouteImport.update({
+  id: '/coins/',
+  path: '/coins/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoinsCoinIdRoute = CoinsCoinIdRouteImport.update({
+  id: '/coins/$coinId',
+  path: '/coins/$coinId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/watchlist': typeof WatchlistRoute
+  '/coins/$coinId': typeof CoinsCoinIdRoute
+  '/coins/': typeof CoinsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/watchlist': typeof WatchlistRoute
+  '/coins/$coinId': typeof CoinsCoinIdRoute
+  '/coins': typeof CoinsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +87,8 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/portfolio': typeof PortfolioRoute
   '/watchlist': typeof WatchlistRoute
+  '/coins/$coinId': typeof CoinsCoinIdRoute
+  '/coins/': typeof CoinsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +99,18 @@ export interface FileRouteTypes {
     | '/news'
     | '/portfolio'
     | '/watchlist'
+    | '/coins/$coinId'
+    | '/coins/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/heatmap' | '/multichart' | '/news' | '/portfolio' | '/watchlist'
+  to:
+    | '/'
+    | '/heatmap'
+    | '/multichart'
+    | '/news'
+    | '/portfolio'
+    | '/watchlist'
+    | '/coins/$coinId'
+    | '/coins'
   id:
     | '__root__'
     | '/'
@@ -91,6 +119,8 @@ export interface FileRouteTypes {
     | '/news'
     | '/portfolio'
     | '/watchlist'
+    | '/coins/$coinId'
+    | '/coins/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,6 +130,8 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRoute
   PortfolioRoute: typeof PortfolioRoute
   WatchlistRoute: typeof WatchlistRoute
+  CoinsCoinIdRoute: typeof CoinsCoinIdRoute
+  CoinsIndexRoute: typeof CoinsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +178,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/coins/': {
+      id: '/coins/'
+      path: '/coins'
+      fullPath: '/coins/'
+      preLoaderRoute: typeof CoinsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coins/$coinId': {
+      id: '/coins/$coinId'
+      path: '/coins/$coinId'
+      fullPath: '/coins/$coinId'
+      preLoaderRoute: typeof CoinsCoinIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +202,8 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRoute,
   PortfolioRoute: PortfolioRoute,
   WatchlistRoute: WatchlistRoute,
+  CoinsCoinIdRoute: CoinsCoinIdRoute,
+  CoinsIndexRoute: CoinsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -258,7 +258,8 @@ export function DataTable<TData, TValue>({
                         key={cell.id}
                         className={cn(
                           pinned && 'sticky z-10 bg-background',
-                          pinned?.isLast && '',
+                          pinned?.isLast &&
+                            'shadow-[inset_-1px_0_0_0_var(--color-border)]',
                           // 'shadow-[inset_-1px_0_0_0_var(--color-border)]',
                         )}
                         style={

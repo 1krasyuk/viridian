@@ -1,4 +1,5 @@
 export interface Coin {
+  id: string
   market_cap_rank: number
   image: string
   name: string

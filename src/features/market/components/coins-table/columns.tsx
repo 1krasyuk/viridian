@@ -4,6 +4,7 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { Link } from '@tanstack/react-router'
 
 function sortableHeader<TData, TValue>(
   column: Column<TData, TValue>,
@@ -239,23 +240,28 @@ export const columns: ColumnDef<Coin>[] = [
     ),
     enableHiding: false,
     cell: ({ row }) => {
-      const image = row.original.image
-      const name = row.original.name
-      const symbol = row.original.symbol
+      const { image, name, symbol, id } = row.original
 
       return (
-        <div className='flex gap-2.5'>
-          <img src={image} className='w-5 h-5 rounded-full scale-115' />
-          <p className='truncate max-w-25' title={name}>
-            {name}
-          </p>
-          <Badge
-            variant='outline'
-            className='group-hover:text-background group-hover:bg-primary duration-75'
-          >
-            {symbol}
-          </Badge>
-        </div>
+        <>
+          <Link
+            to='/coins/$coinId'
+            params={{ coinId: id }}
+            className='absolute inset-0'
+          />
+          <div className='flex gap-2.5'>
+            <img src={image} className='w-5 h-5 rounded-full scale-115' />
+            <p className='truncate max-w-25' title={name}>
+              {name}
+            </p>
+            <Badge
+              variant='outline'
+              className='group-hover:text-background group-hover:bg-primary duration-75'
+            >
+              {symbol}
+            </Badge>
+          </div>
+        </>
       )
     },
   },
