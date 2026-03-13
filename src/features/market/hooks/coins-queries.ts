@@ -3,7 +3,7 @@ import { coinsApi } from '../api/coins-api'
 
 export const coinsKeys = {
   all: ['coins'] as const,
-  detail: (id: number) => ['coins', id] as const,
+  detail: (id: string) => ['coins', id] as const,
 }
 
 export function useCoins(page: number, per_page: number, category?: string) {
@@ -14,7 +14,7 @@ export function useCoins(page: number, per_page: number, category?: string) {
   })
 }
 
-export function useCoin(id: number) {
+export function useCoin(id: string) {
   return useQuery({
     queryKey: coinsKeys.detail(id),
     queryFn: () => coinsApi.getCoin(id),

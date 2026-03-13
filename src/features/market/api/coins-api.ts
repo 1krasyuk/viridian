@@ -25,7 +25,7 @@ export const coinsApi = {
     return data
   },
 
-  async getCoin(id: number): Promise<Coin> {
+  async getCoin(id: string): Promise<Coin> {
     const { data } = await http.get<Coin>(`/coins/${id}`)
     return data
   },

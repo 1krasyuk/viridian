@@ -1,4 +1,4 @@
-import { CoinPage } from '@/features/market/components/coin-page/coin-page'
+import { useCoin } from '@/features/market/hooks/coins-queries'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/coins/$coinId')({
@@ -6,5 +6,8 @@ export const Route = createFileRoute('/coins/$coinId')({
 })
 
 function RouteComponent() {
-  return <CoinPage />
+  const { coinId } = Route.useParams()
+  const { data, isLoading } = useCoin(coinId)
+  console.log(data)
+  return <div></div>
 }
