@@ -1,5 +1,5 @@
 import type { CellContext, Column, ColumnDef } from '@tanstack/react-table'
-import type { Coin } from '../../types/coins'
+import type { CoinsList } from '../../types/coins-list'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { ChevronUp, ChevronDown } from 'lucide-react'
@@ -39,7 +39,7 @@ function sortableHeader<TData, TValue>(
   )
 }
 
-function formatCurrencyCell<TData extends Coin, TValue>(
+function formatCurrencyCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     maximumFractionDigits?: number
@@ -91,7 +91,7 @@ function formatCurrencyCell<TData extends Coin, TValue>(
   )
 }
 
-function formatPercentageChangeCell<TData extends Coin, TValue>(
+function formatPercentageChangeCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     maximumFractionDigits?: number
@@ -124,7 +124,7 @@ function formatPercentageChangeCell<TData extends Coin, TValue>(
   )
 }
 
-function formatDateCell<TData extends Coin, TValue>(
+function formatDateCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     mode?: 'date' | 'time' | 'datetime'
@@ -171,7 +171,7 @@ function formatDateCell<TData extends Coin, TValue>(
   return <div>{formatted}</div>
 }
 
-function formatSparklineCell<TData extends Coin, TValue>(
+function formatSparklineCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
 ) {
   // Get the { price: number[] } object
@@ -221,7 +221,7 @@ function formatSparklineCell<TData extends Coin, TValue>(
   )
 }
 
-export const columns: ColumnDef<Coin>[] = [
+export const columns: ColumnDef<CoinsList>[] = [
   {
     id: 'market_cap_rank',
     accessorKey: 'market_cap_rank',
