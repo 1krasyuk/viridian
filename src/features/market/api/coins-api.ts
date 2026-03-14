@@ -1,5 +1,6 @@
 import { http } from '@/shared/lib/axios-config'
 import type { CoinsList } from '../types/coins-list'
+import type { Coin } from '../types/coin'
 import type { Category } from '../types/categories'
 
 export const coinsApi = {
