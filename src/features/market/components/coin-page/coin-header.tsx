@@ -1,11 +1,22 @@
+import { useState } from 'react'
+import { Button } from '@/shared/ui/button'
 import type { Coin } from '../../types/coin'
 import { Badge } from '@/shared/ui/badge'
+import { Star, Share, Check } from 'lucide-react'
 
 type Props = {
   coin: Coin
 }
 export function CoinHeader({ coin }: Props) {
   const priceChange = coin.market_data.price_change_percentage_24h
+
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <div className='w-full space-y-3'>
@@ -19,6 +30,14 @@ export function CoinHeader({ coin }: Props) {
           <Badge variant='secondary' className='rounded-md'>
             #{coin.market_cap_rank}
           </Badge>
+        </div>
+        <div className=' flex gap-1'>
+          <Button variant='secondary'>
+            <Star />
+          </Button>
+          <Button variant='secondary' onClick={handleCopy}>
+            {copied ? <Check /> : <Share />}
+          </Button>
         </div>
       </div>
       <div className='flex gap-3 items-center'>
