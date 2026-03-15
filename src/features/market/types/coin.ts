@@ -9,7 +9,7 @@ export interface Coin {
   }
   market_cap_rank: number
   market_data: {
-    current_price: number
-    price_change_percentage_24h: number
+    current_price: Record<string, number>
+    price_change_percentage_24h: number | null
   }
 }

@@ -11,7 +11,7 @@ function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading } = useCoin(coinId)
   console.log(data)
-  if (isLoading)
+  if (isLoading || !data)
     return (
       <div className='text-3xl flex justify-center h-screen text-center items-center'>
         LOADING...
@@ -19,9 +19,11 @@ function RouteComponent() {
     )
   return (
     <div className='flex'>
-      <CoinChart symbol={data?.symbol}></CoinChart>
-      <div className='flex flex-col'>
-        <CoinHeader></CoinHeader>
+      <div className='w-3/4 h-screen'>
+        <CoinChart symbol={data.symbol}></CoinChart>
+      </div>
+      <div className='w-1/4 p-5'>
+        <CoinHeader coin={data}></CoinHeader>
       </div>
     </div>
   )
