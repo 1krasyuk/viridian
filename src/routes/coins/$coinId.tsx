@@ -1,5 +1,6 @@
 import { CoinChart } from '@/features/market/components/coin-page/coin-chart'
 import { CoinHeader } from '@/features/market/components/coin-page/coin-header'
+import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 import { useCoin } from '@/features/market/hooks/coins-queries'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -24,6 +25,7 @@ function RouteComponent() {
       </div>
       <div className='w-1/4 p-5'>
         <CoinHeader coin={data}></CoinHeader>
+        <CoinStatistics coin={data}></CoinStatistics>
       </div>
     </div>
   )
