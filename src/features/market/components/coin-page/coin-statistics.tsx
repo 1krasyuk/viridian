@@ -16,7 +16,7 @@ type Format = 'currency' | 'number' | 'percent' | 'suffix'
 type StatCardProps = {
   label: string
   tooltip?: string
-  value: number
+  value: number | null
   format?: Format
   change?: number | null
   suffix?: string
@@ -34,12 +34,32 @@ function formatValue(value: number, format?: Format, suffix?: string) {
     case 'percent':
       return `${value.toFixed(2)}%`
     case 'suffix':
-      return `${value.toLocaleString()}${suffix ?? ''}`
+      return `${value.toLocaleString('en-US', {
+        notation: 'compact',
+        maximumFractionDigits: 2,
+      })} ${suffix ?? ''}`
     default:
       return value.toLocaleString()
   }
 }
+function formatTooltipValue(
+  value: number | null | undefined,
+  format?: 'currency' | 'percent' | 'suffix' | 'number',
+  suffix?: string,
+) {
+  if (value == null) return '--'
 
+  switch (format) {
+    case 'currency':
+      return `$${value.toLocaleString('en-US')}`
+    case 'percent':
+      return `${value.toFixed(5)}%`
+    case 'suffix':
+      return `${value.toLocaleString()} ${suffix || ''}`
+    default:
+      return value.toLocaleString()
+  }
+}
 function ChangeBadge({ value }: { value: number }) {
   const isPositive = value >= 0
   return (
@@ -63,7 +83,7 @@ function StatCard({
   change,
   suffix,
 }: StatCardProps) {
-  const formattedValue = formatValue(value, format, suffix)
+  const formattedValue = formatValue(value ?? 0, format, suffix)
 
   return (
     <div className='flex flex-col items-center gap-1 p-2 border border-ring rounded-md'>
@@ -78,7 +98,7 @@ function StatCard({
                 </span>
               </TooltipTrigger>
               <TooltipContent side='bottom'>
-                <span>{tooltip}</span>
+                <span className='whitespace-pre-line'>{tooltip}</span>
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -88,7 +108,18 @@ function StatCard({
       </TooltipProvider>
 
       <div className='flex items-center gap-2'>
-        <span className='font-bold text-sm'>{formattedValue}</span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className='font-bold text-sm cursor'>{formattedValue}</span>
+            </TooltipTrigger>
+            <TooltipContent className='text-xs' side='bottom'>
+              <span className='whitespace-pre-line'>
+                {formatTooltipValue(value, format, suffix)}
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         {change != null && <ChangeBadge value={change} />}
       </div>
     </div>
@@ -118,13 +149,57 @@ export function CoinStatistics({ coin }: Props) {
           <StatCard
             label='Vol/MCap (24h)'
             tooltip='Indicator of liquidity. The higher the ratio, the more liquid the cryptocurrency is, which should make it easier for it to be bought/sold on an exchange close to its value.
-Cryptocurrencies with a low ratio are less liquid and most likely present less stable markets.'
+
+            Cryptocurrencies with a low ratio are less liquid and most likely present less stable markets.'
             value={
               (coin.market_data.total_volume.usd /
                 coin.market_data.market_cap.usd) *
               100
             }
             format='percent'
+          />
+        </div>
+      </div>
+      <StatCard
+        label='FDV'
+        tooltip='Fully-diluted value (FDV) = price x max supply. If max supply is null, FDV = price x total supply. If max supply and total supply are infinite or not available, fully-diluted value shows - -.
+
+          FDV is the same when max supply = total supply or when max supply is infinite.'
+        value={coin.market_data.fully_diluted_valuation.usd}
+        format='currency'
+      />
+      <div className='flex gap-2 w-full'>
+        <div className='flex-1'>
+          <StatCard
+            label='Total suppoly'
+            tooltip='Total supply = Total coins created - coins that have been burned (if any) It is comparable to outstanding shares in the stock market.
+
+            If the project did not submit this data nor was it verified by CoinMarketCap, total supply shows “--”.'
+            value={coin.market_data.total_supply}
+            format='suffix'
+            suffix='BTC'
+          />
+        </div>
+        <div className='flex-1'>
+          <StatCard
+            label='Max. supply'
+            tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
+
+            If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
+            value={coin.market_data.max_supply}
+            format='suffix'
+            suffix='BTC'
+          />
+        </div>
+        <div className='flex-1'>
+          <StatCard
+            label='Max. supply'
+            tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
+
+            If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
+            value={coin.market_data.circulating_supply}
+            format='suffix'
+            suffix='BTC'
           />
         </div>
       </div>
