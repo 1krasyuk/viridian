@@ -75,6 +75,7 @@ function ChangeBadge({ value }: { value: number }) {
     </span>
   )
 }
+
 function StatCard({
   label,
   tooltip,
@@ -86,15 +87,17 @@ function StatCard({
   const formattedValue = formatValue(value ?? 0, format, suffix)
 
   return (
-    <div className='flex flex-col items-center gap-1 p-2 border border-ring rounded-md'>
+    // Добавили w-full h-full и justify-between, чтобы контент распределялся внутри сетки
+    <div className='flex flex-col items-center justify-between gap-1 p-2 border border-ring rounded-md w-full h-full text-center'>
       <TooltipProvider>
-        <div className='flex items-center gap-1 text-muted-foreground text-sm'>
-          {label}
+        {/* break-words позволяет тексту переноситься, если карточка узкая */}
+        <div className='flex items-center justify-center gap-1 text-muted-foreground text-sm w-full wrap-break-word'>
+          <span>{label}</span>
           {tooltip ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className='inline-flex items-center gap-1'>
-                  <Info size='14' />
+                  <Info size='14' className='shrink-0' />
                 </span>
               </TooltipTrigger>
               <TooltipContent side='bottom'>
@@ -107,11 +110,14 @@ function StatCard({
         </div>
       </TooltipProvider>
 
-      <div className='flex items-center gap-2'>
+      {/* Обертка значения с flex-wrap, чтобы бейдж не вылетал */}
+      <div className='flex items-center justify-center flex-wrap gap-2 w-full'>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className='font-bold text-sm cursor'>{formattedValue}</span>
+              <span className='font-bold text-sm cursor-default truncate'>
+                {formattedValue}
+              </span>
             </TooltipTrigger>
             <TooltipContent className='text-xs' side='bottom'>
               <span className='whitespace-pre-line'>
@@ -128,80 +134,88 @@ function StatCard({
 
 export function CoinStatistics({ coin }: Props) {
   return (
-    <div className='my-3 flex flex-col gap-2'>
-      <StatCard
-        label='Market Cap'
-        tooltip='The total market value of a cryptocurrency circulating supply. It is analogous to the free-float capitalization in the stock market.'
-        value={coin.market_data.market_cap.usd}
-        format='currency'
-        change={coin.market_data.price_change_percentage_24h}
-      />
-      <div className='flex gap-2 w-full'>
-        <div className='flex-1'>
-          <StatCard
-            label='Volume (24h)'
-            tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours.'
-            value={coin.market_data.total_volume.usd}
-            format='currency'
-          />
-        </div>
-        <div className='flex-1'>
-          <StatCard
-            label='Vol/MCap (24h)'
-            tooltip='Indicator of liquidity. The higher the ratio, the more liquid the cryptocurrency is, which should make it easier for it to be bought/sold on an exchange close to its value.
+    // Используем grid-cols-6 для точного позиционирования
+    <div className='my-3 grid grid-cols-6 gap-2 items-stretch'>
+      {/* Ряд 1: Market Cap (на всю ширину) */}
+      <div className='col-span-6'>
+        <StatCard
+          label='Market Cap'
+          tooltip='The total market value of a cryptocurrency circulating supply. It is analogous to the free-float capitalization in the stock market.'
+          value={coin.market_data.market_cap.usd}
+          format='currency'
+          change={coin.market_data.price_change_percentage_24h}
+        />
+      </div>
+
+      {/* Ряд 2: Volume и Vol/MCap (по 50% ширины) */}
+      <div className='col-span-3'>
+        <StatCard
+          label='Volume (24h)'
+          tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours.'
+          value={coin.market_data.total_volume.usd}
+          format='currency'
+        />
+      </div>
+      <div className='col-span-3'>
+        <StatCard
+          label='Vol/MCap (24h)'
+          tooltip='Indicator of liquidity. The higher the ratio, the more liquid the cryptocurrency is, which should make it easier for it to be bought/sold on an exchange close to its value.
 
             Cryptocurrencies with a low ratio are less liquid and most likely present less stable markets.'
-            value={
-              (coin.market_data.total_volume.usd /
-                coin.market_data.market_cap.usd) *
-              100
-            }
-            format='percent'
-          />
-        </div>
+          value={
+            (coin.market_data.total_volume.usd /
+              coin.market_data.market_cap.usd) *
+            100
+          }
+          format='percent'
+        />
       </div>
-      <StatCard
-        label='FDV'
-        tooltip='Fully-diluted value (FDV) = price x max supply. If max supply is null, FDV = price x total supply. If max supply and total supply are infinite or not available, fully-diluted value shows - -.
+
+      {/* Ряд 3: FDV (на всю ширину) */}
+      <div className='col-span-6'>
+        <StatCard
+          label='FDV'
+          tooltip='Fully-diluted value (FDV) = price x max supply. If max supply is null, FDV = price x total supply. If max supply and total supply are infinite or not available, fully-diluted value shows - -.
 
           FDV is the same when max supply = total supply or when max supply is infinite.'
-        value={coin.market_data.fully_diluted_valuation.usd}
-        format='currency'
-      />
-      <div className='flex gap-2 w-full'>
-        <div className='flex-1'>
-          <StatCard
-            label='Total suppoly'
-            tooltip='Total supply = Total coins created - coins that have been burned (if any) It is comparable to outstanding shares in the stock market.
+          value={coin.market_data.fully_diluted_valuation.usd}
+          format='currency'
+        />
+      </div>
+
+      {/* Ряд 4: Три карточки (по 33% ширины) */}
+      <div className='col-span-2'>
+        <StatCard
+          label='Total supply'
+          tooltip='Total supply = Total coins created - coins that have been burned (if any) It is comparable to outstanding shares in the stock market.
 
             If the project did not submit this data nor was it verified by CoinMarketCap, total supply shows “--”.'
-            value={coin.market_data.total_supply}
-            format='suffix'
-            suffix='BTC'
-          />
-        </div>
-        <div className='flex-1'>
-          <StatCard
-            label='Max. supply'
-            tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
+          value={coin.market_data.total_supply}
+          format='suffix'
+          suffix='BTC'
+        />
+      </div>
+      <div className='col-span-2'>
+        <StatCard
+          label='Max. supply'
+          tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
 
             If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
-            value={coin.market_data.max_supply}
-            format='suffix'
-            suffix='BTC'
-          />
-        </div>
-        <div className='flex-1'>
-          <StatCard
-            label='Max. supply'
-            tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
+          value={coin.market_data.max_supply}
+          format='suffix'
+          suffix='BTC'
+        />
+      </div>
+      <div className='col-span-2'>
+        <StatCard
+          label='Circ. supply' // Исправлено на Circ. для ясности, но можно вернуть Max. supply
+          tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
 
             If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
-            value={coin.market_data.circulating_supply}
-            format='suffix'
-            suffix='BTC'
-          />
-        </div>
+          value={coin.market_data.circulating_supply}
+          format='suffix'
+          suffix='BTC'
+        />
       </div>
     </div>
   )
