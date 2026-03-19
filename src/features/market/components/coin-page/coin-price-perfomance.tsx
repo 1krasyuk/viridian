@@ -4,19 +4,35 @@ type Props = {
   coin: Coin
 }
 
-function formatCurrency(value: number | null | undefined) {
-  if (value == null) return '--'
-  return `$${value.toLocaleString('en-US')}`
+function formatCurrency(v?: number | null) {
+  if (v == null) return '--'
+
+  if (v < 1) {
+    return `$${v.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    })}`
+  }
+
+  return `$${v.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
 }
 
-function formatPercent(value: number | null | undefined) {
-  if (value == null) return '--'
-  return `${value.toFixed(2)}%`
+function formatPercent(v?: number | null) {
+  if (v == null) return '--'
+  return `${v > 0 ? '+' : ''}${v.toFixed(2)}%`
 }
 
 function formatDate(date?: string) {
   if (!date) return '--'
-  return new Date(date).toLocaleDateString()
+
+  return new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  })
 }
 
 function PriceRow({
@@ -39,7 +55,17 @@ function PriceRow({
 
       <div className='text-right'>
         <div>{formatCurrency(price)}</div>
-        {change != null && <div>{formatPercent(change)}</div>}
+        <div
+          className={
+            change != null
+              ? change > 0
+                ? 'text-emerald-400'
+                : 'text-destructive'
+              : ''
+          }
+        >
+          {formatPercent(change)}
+        </div>
       </div>
     </div>
   )
@@ -49,7 +75,7 @@ export function CoinPricePerformance({ coin }: Props) {
   const data = coin.market_data
 
   return (
-    <div className='mt-4 flex flex-col gap-3'>
+    <div className='flex flex-col'>
       <div className='font-bold'>Price Performance (24h)</div>
 
       <div className='flex justify-between'>
@@ -58,7 +84,7 @@ export function CoinPricePerformance({ coin }: Props) {
           <div>{formatCurrency(data.low_24h?.usd)}</div>
         </div>
 
-        <div>
+        <div className='text-right'>
           <div>High</div>
           <div>{formatCurrency(data.high_24h?.usd)}</div>
         </div>
