@@ -1,4 +1,6 @@
+import { Badge } from '@/shared/ui/badge'
 import type { Coin } from '../../types/coin'
+import { cn } from '@/shared/lib/utils'
 
 type Props = {
   coin: Coin
@@ -47,25 +49,53 @@ function PriceRow({
   change?: number
 }) {
   return (
-    <div className='flex justify-between'>
+    <div className='flex justify-between items-center'>
       <div>
-        <div>{label}</div>
-        <div>{formatDate(date)}</div>
+        <div className='text-sm text-ring font-bold'>{label}</div>
+        <div className='text-sm text-ring'>{formatDate(date)}</div>
       </div>
 
       <div className='text-right'>
-        <div>{formatCurrency(price)}</div>
+        <div className='text-sm font-bold'>{formatCurrency(price)}</div>
         <div
-          className={
-            change != null
-              ? change > 0
-                ? 'text-emerald-400'
-                : 'text-destructive'
-              : ''
-          }
+          className={cn(
+            'text-xs font-semibold',
+            change != null &&
+              (change > 0 ? 'text-emerald-400' : 'text-red-500'),
+          )}
         >
           {formatPercent(change)}
         </div>
+      </div>
+    </div>
+  )
+}
+
+function PriceRangeBar({
+  low,
+  high,
+  current,
+}: {
+  low: number
+  high: number
+  current: number
+}) {
+  const percentage = high === low ? 0 : ((current - low) / (high - low)) * 100
+
+  return (
+    <div>
+      <div className='relative h-2 w-full bg-ring/70 rounded-full mt-2'>
+        <div
+          className='absolute h-2 bg-foreground 0 rounded-full'
+          style={{ width: `${Math.min(Math.max(percentage, 0), 100)}%` }}
+        ></div>
+        <div
+          className='absolute left-0 top-0 h-2 border border-border'
+          style={{
+            left: `${Math.min(Math.max(percentage, 0), 100)}%`,
+            transform: 'translateX(-50%)',
+          }}
+        ></div>
       </div>
     </div>
   )
@@ -75,34 +105,51 @@ export function CoinPricePerformance({ coin }: Props) {
   const data = coin.market_data
 
   return (
-    <div className='flex flex-col'>
-      <div className='font-bold'>Price Performance (24h)</div>
-
+    <div>
       <div className='flex justify-between'>
-        <div>
-          <div>Low</div>
-          <div>{formatCurrency(data.low_24h?.usd)}</div>
-        </div>
+        <div className='font-bold text-sm'>Price Performance</div>
+        <Badge variant='secondary' className='rounded-md font-bold'>
+          24h
+        </Badge>
+      </div>
+      <div className='py-3'>
+        <div className=' flex justify-between'>
+          <div>
+            <div className='text-sm text-ring font-bold'>Low</div>
+            <div className='font-bold text-sm'>
+              {formatCurrency(data.low_24h?.usd)}
+            </div>
+          </div>
 
-        <div className='text-right'>
-          <div>High</div>
-          <div>{formatCurrency(data.high_24h?.usd)}</div>
+          <div className='text-right'>
+            <div className='text-sm text-ring font-bold'>High</div>
+            <div className='font-bold text-sm'>
+              {formatCurrency(data.high_24h?.usd)}
+            </div>
+          </div>
         </div>
+        <PriceRangeBar
+          low={data.low_24h.usd}
+          high={data.high_24h.usd}
+          current={data.current_price.usd}
+        />
       </div>
 
-      <PriceRow
-        label='All-Time High'
-        date={data.ath_date?.usd}
-        price={data.ath?.usd}
-        change={data.ath_change_percentage?.usd}
-      />
+      <div className='flex flex-col gap-3'>
+        <PriceRow
+          label='All-time high'
+          date={data.ath_date?.usd}
+          price={data.ath?.usd}
+          change={data.ath_change_percentage?.usd}
+        />
 
-      <PriceRow
-        label='All-Time Low'
-        date={data.atl_date?.usd}
-        price={data.atl?.usd}
-        change={data.atl_change_percentage?.usd}
-      />
+        <PriceRow
+          label='All-time low'
+          date={data.atl_date?.usd}
+          price={data.atl?.usd}
+          change={data.atl_change_percentage?.usd}
+        />
+      </div>
     </div>
   )
 }
