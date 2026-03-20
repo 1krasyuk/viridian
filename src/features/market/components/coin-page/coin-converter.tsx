@@ -4,11 +4,7 @@ import { Input } from '@/shared/ui/input'
 import { RotateCcw } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 
-type Props = {
-  coin: Coin
-}
-
-export function CoinConverter({ coin }: Props) {
+export function CoinConverter({ coin }: { coin: Coin }) {
   const price = coin.market_data.current_price.usd
 
   const [coinInput, setCoinInput] = useState('1')
@@ -73,7 +69,6 @@ export function CoinConverter({ coin }: Props) {
       </div>
 
       <div className='rounded-lg border-2 border-muted-foreground overflow-hidden'>
-        {/* Coin */}
         <div className='flex items-center border-b border-ring'>
           <span className='px-3 text-sm font-bold text-muted-foreground'>
             {coin.symbol.toUpperCase()}
@@ -89,7 +84,6 @@ export function CoinConverter({ coin }: Props) {
           />
         </div>
 
-        {/* USD */}
         <div className='flex items-center'>
           <span className='px-3 text-sm font-bold text-muted-foreground'>
             USD

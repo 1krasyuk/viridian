@@ -2,10 +2,6 @@ import { Badge } from '@/shared/ui/badge'
 import type { Coin } from '../../types/coin'
 import { cn } from '@/shared/lib/utils'
 
-type Props = {
-  coin: Coin
-}
-
 function formatCurrency(v?: number | null) {
   if (v == null) return '--'
 
@@ -101,7 +97,7 @@ function PriceRangeBar({
   )
 }
 
-export function CoinPricePerformance({ coin }: Props) {
+export function CoinPricePerformance({ coin }: { coin: Coin }) {
   const data = coin.market_data
 
   return (

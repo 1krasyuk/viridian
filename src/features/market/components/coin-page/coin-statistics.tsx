@@ -7,10 +7,6 @@ import {
 import type { Coin } from '../../types/coin'
 import { Info } from 'lucide-react'
 
-type Props = {
-  coin: Coin
-}
-
 type Format = 'currency' | 'number' | 'percent' | 'suffix'
 
 type StatCardProps = {
@@ -87,10 +83,8 @@ function StatCard({
   const formattedValue = formatValue(value ?? 0, format, suffix)
 
   return (
-    // Добавили w-full h-full и justify-between, чтобы контент распределялся внутри сетки
-    <div className='flex flex-col items-center justify-between gap-1 p-2 border border-ring rounded-md w-full h-full text-center'>
+    <div className='flex flex-col items-center justify-between gap-1 p-2 border border-muted-foreground rounded-md w-full h-full text-center'>
       <TooltipProvider>
-        {/* break-words позволяет тексту переноситься, если карточка узкая */}
         <div className='flex items-center justify-center gap-1 text-muted-foreground text-sm w-full wrap-break-word'>
           <span>{label}</span>
           {tooltip ? (
@@ -110,7 +104,6 @@ function StatCard({
         </div>
       </TooltipProvider>
 
-      {/* Обертка значения с flex-wrap, чтобы бейдж не вылетал */}
       <div className='flex items-center justify-center flex-wrap gap-2 w-full'>
         <TooltipProvider>
           <Tooltip>
@@ -132,11 +125,9 @@ function StatCard({
   )
 }
 
-export function CoinStatistics({ coin }: Props) {
+export function CoinStatistics({ coin }: { coin: Coin }) {
   return (
-    // Используем grid-cols-6 для точного позиционирования
     <div className='my-3 grid grid-cols-6 gap-2 items-stretch'>
-      {/* Ряд 1: Market Cap (на всю ширину) */}
       <div className='col-span-6'>
         <StatCard
           label='Market Cap'
@@ -147,7 +138,6 @@ export function CoinStatistics({ coin }: Props) {
         />
       </div>
 
-      {/* Ряд 2: Volume и Vol/MCap (по 50% ширины) */}
       <div className='col-span-3'>
         <StatCard
           label='Volume (24h)'
@@ -171,7 +161,6 @@ export function CoinStatistics({ coin }: Props) {
         />
       </div>
 
-      {/* Ряд 3: FDV (на всю ширину) */}
       <div className='col-span-6'>
         <StatCard
           label='FDV'
@@ -183,7 +172,6 @@ export function CoinStatistics({ coin }: Props) {
         />
       </div>
 
-      {/* Ряд 4: Три карточки (по 33% ширины) */}
       <div className='col-span-2'>
         <StatCard
           label='Total supply'
@@ -208,7 +196,7 @@ export function CoinStatistics({ coin }: Props) {
       </div>
       <div className='col-span-2'>
         <StatCard
-          label='Circ. supply' // Исправлено на Circ. для ясности, но можно вернуть Max. supply
+          label='Circ. supply'
           tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
 
             If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'

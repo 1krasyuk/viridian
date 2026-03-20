@@ -4,10 +4,7 @@ import type { Coin } from '../../types/coin'
 import { Badge } from '@/shared/ui/badge'
 import { Star, Share, Check } from 'lucide-react'
 
-type Props = {
-  coin: Coin
-}
-export function CoinHeader({ coin }: Props) {
+export function CoinHeader({ coin }: { coin: Coin }) {
   const priceChange = coin.market_data.price_change_percentage_24h
 
   const [copied, setCopied] = useState(false)
