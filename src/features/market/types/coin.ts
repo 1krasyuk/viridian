@@ -32,5 +32,17 @@ export interface Coin {
     atl: Record<string, number>
     atl_change_percentage: Record<string, number>
     atl_date: Record<string, string>
+
+    links: {
+      homepage: string[]
+      whitepaper: string
+      blockchain_sites: string[]
+      subreddit_url: string
+      official_forum_url: string[]
+      repos_url: {
+        github: string[]
+      }
+    }
+    categories: string[]
   }
 }
