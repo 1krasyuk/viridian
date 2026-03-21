@@ -1,4 +1,4 @@
-// components/coin-info.tsx
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import {
   Facebook,
   Send,
   Copy,
+  Check,
 } from 'lucide-react'
 import type { Coin } from '../../types/coin'
 
@@ -29,9 +30,12 @@ const InfoRow = ({
   label: string
   children: React.ReactNode
 }) => (
-  <div className='flex items-center justify-between py-2'>
-    <span className='text-sm text-muted-foreground'>{label}</span>
-    <div className='flex items-center gap-2'>{children}</div>
+  <div className='flex items-start py-1 gap-2'>
+    <span className='font-bold pr-3 text-sm text-muted-foreground shrink-0'>
+      {label}
+    </span>
+
+    <div className='ml-auto flex flex-wrap justify-end gap-1'>{children}</div>
   </div>
 )
 
@@ -48,13 +52,13 @@ const LinkBtn = ({
     variant='secondary'
     size='sm'
     asChild
-    className='h-7 gap-1.5 text-xs max-w-50'
+    className='h-7 gap-1.5 text-xs max-w-50 w-auto '
   >
     <Link
       to={href}
       target='_blank'
       rel='noopener noreferrer'
-      className='overflow-hidden'
+      className='overflow-hidden '
     >
       {Icon && <Icon className='h-3.5 w-3.5 shrink-0' />}
       <span className='truncate'>
@@ -91,19 +95,32 @@ const LinkDropdown = ({ items }: { items: string[] }) => (
   </DropdownMenu>
 )
 
-const CopyValue = ({ value, label }: { value: string; label: string }) => (
-  <div className='flex items-center gap-2'>
-    <code className='text-xs'>{label}</code>
-    <Button
-      variant='ghost'
-      size='icon'
-      className='h-6 w-6'
-      onClick={() => navigator.clipboard.writeText(value)}
-    >
-      <Copy className='h-3.5 w-3.5' />
-    </Button>
-  </div>
-)
+const CopyValue = ({ value, label }: { value: string; label: string }) => {
+  const [copied, setCopied] = useState(false)
+
+  return (
+    <div className='flex items-center gap-2'>
+      <code className='text-xs'>{label}</code>
+
+      <Button
+        variant='ghost'
+        size='icon'
+        className='h-6 w-6'
+        onClick={() => {
+          navigator.clipboard.writeText(value)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        }}
+      >
+        {copied ? (
+          <Check className='h-3.5 w-3.5' />
+        ) : (
+          <Copy className='h-3.5 w-3.5' />
+        )}
+      </Button>
+    </div>
+  )
+}
 
 export function CoinInfo({ coin }: { coin: Coin }) {
   const website = coin.links.homepage.find(Boolean)
@@ -132,7 +149,7 @@ export function CoinInfo({ coin }: { coin: Coin }) {
   ].filter(Boolean) as { url: string; icon: typeof Twitter }[]
 
   return (
-    <div className=''>
+    <div>
       {/* Website & Whitepaper */}
       <InfoRow label='Website'>
         {website && (
@@ -205,31 +222,38 @@ export function CoinInfo({ coin }: { coin: Coin }) {
       {/* Categories */}
       {coin.categories.length > 0 && (
         <InfoRow label='Categories'>
-          <div className='flex items-center gap-1.5'>
-            {coin.categories.slice(0, 2).map((c, i) => (
-              <Badge key={i} variant='secondary' className='text-xs'>
-                {c}
-              </Badge>
-            ))}
-            {coin.categories.length > 2 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Badge variant='secondary' className='cursor-pointer text-xs'>
-                    +{coin.categories.length - 2}
-                  </Badge>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end'>
-                  {coin.categories.slice(2).map((c, i) => (
-                    <DropdownMenuItem key={i} className='text-xs'>
-                      {c}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+          <Badge variant='secondary' className='text-xs shrink-0'>
+            {coin.categories[0]}
+          </Badge>
+
+          {coin.categories.length > 1 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Badge
+                  variant='secondary'
+                  className='cursor-pointer text-xs shrink-0'
+                >
+                  {coin.categories.length - 1} more
+                  <ChevronDown className='ml-1 h-3 w-3' />
+                </Badge>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align='end'>
+                {coin.categories.slice(1).map((c, i) => (
+                  <DropdownMenuItem key={i} className='text-xs'>
+                    {c}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </InfoRow>
       )}
+
+      {/* API ID */}
+      <InfoRow label='API ID'>
+        <CopyValue value={coin.id} label={coin.id} />
+      </InfoRow>
     </div>
   )
 }
