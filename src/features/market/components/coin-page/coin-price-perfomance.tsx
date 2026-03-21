@@ -101,14 +101,14 @@ export function CoinPricePerformance({ coin }: { coin: Coin }) {
   const data = coin.market_data
 
   return (
-    <div>
-      <div className='flex justify-between'>
-        <div className='font-bold text-sm'>Price Performance</div>
+    <div className='py-2'>
+      <div className='flex items-center gap-2'>
+        <div className='font-bold text-md'>Price Performance</div>
         <Badge variant='secondary' className='rounded-md font-bold'>
           24h
         </Badge>
       </div>
-      <div className='py-3'>
+      <div className='py-1'>
         <div className=' flex justify-between'>
           <div>
             <div className='text-sm text-ring font-bold'>Low</div>
@@ -131,7 +131,7 @@ export function CoinPricePerformance({ coin }: { coin: Coin }) {
         />
       </div>
 
-      <div className='flex flex-col gap-3'>
+      <div className='flex flex-col gap-3 pt-3'>
         <PriceRow
           label='All-time high'
           date={data.ath_date?.usd}
