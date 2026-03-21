@@ -8,6 +8,24 @@ export interface Coin {
     large: string
   }
   market_cap_rank: number
+
+  detail_platforms?: Record<string, { contract_address: string }>
+  platforms?: Record<string, string>
+
+  links: {
+    homepage: string[]
+    whitepaper?: string
+    blockchain_site: string[]
+    subreddit_url?: string
+    twitter_screen_name?: string
+    facebook_username?: string
+    telegram_channel_identifier?: string
+    official_forum_url?: string[]
+    repos_url?: {
+      github: string[]
+    }
+  }
+
   market_data: {
     current_price: Record<string, number>
     price_change_percentage_24h: number | null
@@ -32,17 +50,7 @@ export interface Coin {
     atl: Record<string, number>
     atl_change_percentage: Record<string, number>
     atl_date: Record<string, string>
-
-    links: {
-      homepage: string[]
-      whitepaper: string
-      blockchain_sites: string[]
-      subreddit_url: string
-      official_forum_url: string[]
-      repos_url: {
-        github: string[]
-      }
-    }
-    categories: string[]
   }
+
+  categories: string[]
 }
