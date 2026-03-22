@@ -47,7 +47,7 @@ function PriceRow({
   return (
     <div className='flex justify-between items-center'>
       <div>
-        <div className='text-sm text-ring font-bold'>{label}</div>
+        <div className='text-sm text-muted-foreground font-bold'>{label}</div>
         <div className='text-sm text-ring'>{formatDate(date)}</div>
       </div>
 
@@ -111,14 +111,14 @@ export function CoinPricePerformance({ coin }: { coin: Coin }) {
       <div className='py-1'>
         <div className=' flex justify-between'>
           <div>
-            <div className='text-sm text-ring font-bold'>Low</div>
+            <div className='text-sm text-muted-foreground font-bold'>Low</div>
             <div className='font-bold text-sm'>
               {formatCurrency(data.low_24h?.usd)}
             </div>
           </div>
 
           <div className='text-right'>
-            <div className='text-sm text-ring font-bold'>High</div>
+            <div className='text-sm text-muted-foreground font-bold'>High</div>
             <div className='font-bold text-sm'>
               {formatCurrency(data.high_24h?.usd)}
             </div>

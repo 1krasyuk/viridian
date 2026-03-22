@@ -28,10 +28,10 @@ function RouteComponent() {
         <CoinChart symbol={data.symbol}></CoinChart>
       </div>
       <div className='w-1/4 p-5'>
-        <CoinHeader coin={data}></CoinHeader>
-        <CoinStatistics coin={data}></CoinStatistics>
+        <CoinHeader coin={data} />
+        <CoinStatistics coin={data} />
         <CoinInfo coin={data} />
-        <CoinPricePerformance coin={data}></CoinPricePerformance>
+        <CoinPricePerformance coin={data} />
         <CoinConverter coin={data} />
       </div>
     </div>

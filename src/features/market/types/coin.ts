@@ -38,6 +38,7 @@ export interface Coin {
 
     total_supply: number | null
     max_supply: number | null
+    max_supply_infinite: boolean
     circulating_supply: number | null
 
     high_24h: Record<string, number>

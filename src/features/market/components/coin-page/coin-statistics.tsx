@@ -5,7 +5,7 @@ import {
   TooltipProvider,
 } from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
-import { Info } from 'lucide-react'
+import { InfinityIcon, Info } from 'lucide-react'
 
 type Format = 'currency' | 'number' | 'percent' | 'suffix'
 
@@ -14,6 +14,7 @@ type StatCardProps = {
   tooltip?: string
   value: number | null
   format?: Format
+  isInfinite?: boolean
   change?: number | null
   suffix?: string
 }
@@ -76,16 +77,23 @@ function StatCard({
   label,
   tooltip,
   value,
+  isInfinite,
   format,
   change,
   suffix,
 }: StatCardProps) {
-  const formattedValue = formatValue(value ?? 0, format, suffix)
+  const formattedValue = isInfinite ? (
+    <InfinityIcon className='w-5 h-5' />
+  ) : value == null ? (
+    '—'
+  ) : (
+    formatValue(value, format, suffix)
+  )
 
   return (
     <div className='flex flex-col items-center justify-between gap-1 p-2 border border-muted-foreground rounded-md w-full h-full text-center'>
       <TooltipProvider>
-        <div className='flex items-center justify-center gap-1 text-muted-foreground text-sm w-full wrap-break-word'>
+        <div className='flex items-center justify-center gap-1 text-muted-foreground font-bold text-sm w-full wrap-break-word'>
           <span>{label}</span>
           {tooltip ? (
             <Tooltip>
@@ -114,7 +122,13 @@ function StatCard({
             </TooltipTrigger>
             <TooltipContent className='text-xs' side='bottom'>
               <span className='whitespace-pre-line'>
-                {formatTooltipValue(value, format, suffix)}
+                {isInfinite ? (
+                  <InfinityIcon className='w-4 h-4' />
+                ) : value == null ? (
+                  '—'
+                ) : (
+                  formatTooltipValue(value, format, suffix)
+                )}
               </span>
             </TooltipContent>
           </Tooltip>
@@ -131,7 +145,7 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
       <div className='col-span-6'>
         <StatCard
           label='Market Cap'
-          tooltip='The total market value of a cryptocurrency circulating supply. It is analogous to the free-float capitalization in the stock market.'
+          tooltip='The total market value of a cryptocurrency circulating supply.'
           value={coin.market_data.market_cap.usd}
           format='currency'
           change={coin.market_data.price_change_percentage_24h}
@@ -141,7 +155,7 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
       <div className='col-span-3'>
         <StatCard
           label='Volume (24h)'
-          tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours.'
+          tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours. Shows current market activity.'
           value={coin.market_data.total_volume.usd}
           format='currency'
         />
@@ -149,9 +163,7 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
       <div className='col-span-3'>
         <StatCard
           label='Vol/MCap (24h)'
-          tooltip='Indicator of liquidity. The higher the ratio, the more liquid the cryptocurrency is, which should make it easier for it to be bought/sold on an exchange close to its value.
-
-            Cryptocurrencies with a low ratio are less liquid and most likely present less stable markets.'
+          tooltip='Indicator of liquidity. Higher = more liquid and easier to trade.'
           value={
             (coin.market_data.total_volume.usd /
               coin.market_data.market_cap.usd) *
@@ -164,9 +176,7 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
       <div className='col-span-6'>
         <StatCard
           label='FDV'
-          tooltip='Fully-diluted value (FDV) = price x max supply. If max supply is null, FDV = price x total supply. If max supply and total supply are infinite or not available, fully-diluted value shows - -.
-
-          FDV is the same when max supply = total supply or when max supply is infinite.'
+          tooltip='Fully-diluted value (FDV) = price x max supply. Market cap if all coins were in circulation. Helps estimate potential future valuation.'
           value={coin.market_data.fully_diluted_valuation.usd}
           format='currency'
         />
@@ -175,34 +185,30 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
       <div className='col-span-2'>
         <StatCard
           label='Total supply'
-          tooltip='Total supply = Total coins created - coins that have been burned (if any) It is comparable to outstanding shares in the stock market.
-
-            If the project did not submit this data nor was it verified by CoinMarketCap, total supply shows “--”.'
+          tooltip='Total supply = Total coins created - coins that have been burned. Helps estimate potential future valuation.'
           value={coin.market_data.total_supply}
           format='suffix'
-          suffix='BTC'
+          suffix={coin.symbol.toUpperCase()}
         />
       </div>
       <div className='col-span-2'>
         <StatCard
           label='Max. supply'
-          tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
-
-            If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
+          tooltip='Maximum number of coins that can ever exist.      
+           ∞ means no fixed limit.'
           value={coin.market_data.max_supply}
+          isInfinite={coin.market_data.max_supply_infinite}
           format='suffix'
-          suffix='BTC'
+          suffix={coin.symbol.toUpperCase()}
         />
       </div>
       <div className='col-span-2'>
         <StatCard
           label='Circ. supply'
-          tooltip='The best approximation of the maximum amount of coins that will exist in the forthcoming lifespan of the cryptocurrency, minus any coins that have been verifiably burned. This is also known as the theoretical max number of coins that can be minted, minus any coins that have been verifiably burned.
-
-            If the project did not submit this data nor was it verified by CoinMarketCap, max. supply shows "--".'
+          tooltip='Coins currently available on the market.'
           value={coin.market_data.circulating_supply}
           format='suffix'
-          suffix='BTC'
+          suffix={coin.symbol.toUpperCase()}
         />
       </div>
     </div>
