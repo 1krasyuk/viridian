@@ -27,7 +27,7 @@ function RouteComponent() {
       <div className='w-3/4 h-screen'>
         <CoinChart symbol={data.symbol}></CoinChart>
       </div>
-      <div className='w-1/4 p-5'>
+      <div className='w-1/4 p-5 flex flex-col gap-3'>
         <CoinHeader coin={data} />
         <CoinStatistics coin={data} />
         <CoinInfo coin={data} />

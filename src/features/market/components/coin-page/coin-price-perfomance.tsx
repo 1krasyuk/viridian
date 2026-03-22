@@ -101,7 +101,7 @@ export function CoinPricePerformance({ coin }: { coin: Coin }) {
   const data = coin.market_data
 
   return (
-    <div className='py-2'>
+    <div>
       <div className='flex items-center gap-2'>
         <div className='font-bold text-md'>Price Performance</div>
         <Badge variant='secondary' className='rounded-md font-bold'>

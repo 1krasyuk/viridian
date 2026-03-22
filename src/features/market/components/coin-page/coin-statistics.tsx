@@ -141,7 +141,7 @@ function StatCard({
 
 export function CoinStatistics({ coin }: { coin: Coin }) {
   return (
-    <div className='my-3 grid grid-cols-6 gap-2 items-stretch'>
+    <div className='grid grid-cols-6 gap-2 items-stretch'>
       <div className='col-span-6'>
         <StatCard
           label='Market Cap'

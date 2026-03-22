@@ -30,7 +30,7 @@ const InfoRow = ({
   label: string
   children: React.ReactNode
 }) => (
-  <div className='flex items-start py-1 gap-2'>
+  <div className='flex items-start gap-2'>
     <span className='font-bold pr-3 text-sm text-muted-foreground shrink-0'>
       {label}
     </span>
@@ -149,7 +149,7 @@ export function CoinInfo({ coin }: { coin: Coin }) {
   ].filter(Boolean) as { url: string; icon: typeof Twitter }[]
 
   return (
-    <div>
+    <div className='flex flex-col gap-3'>
       {/* Website & Whitepaper */}
       <InfoRow label='Website'>
         {website && (

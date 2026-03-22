@@ -53,7 +53,7 @@ export function CoinConverter({ coin }: { coin: Coin }) {
   }
 
   return (
-    <div className='pt-3'>
+    <div>
       <div className='flex items-center justify-between pb-3'>
         <p className='font-bold text-sm'>
           {coin.symbol.toUpperCase()} to USD converter
