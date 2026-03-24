@@ -31,6 +31,10 @@ export function CoinHeader({ coin }: { coin: Coin }) {
         <div className=' flex gap-1'>
           <Button variant='secondary'>
             <Star />
+            {new Intl.NumberFormat('en', {
+              notation: 'compact',
+              maximumFractionDigits: 1,
+            }).format(coin.watchlist_portfolio_users)}
           </Button>
           <Button variant='secondary' onClick={handleCopy}>
             {copied ? <Check /> : <Share />}

@@ -3,6 +3,7 @@ import { CoinConverter } from '@/features/market/components/coin-page/coin-conve
 import { CoinHeader } from '@/features/market/components/coin-page/coin-header'
 import { CoinInfo } from '@/features/market/components/coin-page/coin-info'
 import { CoinPricePerformance } from '@/features/market/components/coin-page/coin-price-perfomance'
+import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 
 import { useCoin } from '@/features/market/hooks/coins-queries'
@@ -31,6 +32,7 @@ function RouteComponent() {
         <CoinHeader coin={data} />
         <CoinStatistics coin={data} />
         <CoinInfo coin={data} />
+        <CoinSentiment coin={data} />
         <CoinPricePerformance coin={data} />
         <CoinConverter coin={data} />
       </div>

@@ -53,5 +53,10 @@ export interface Coin {
     atl_date: Record<string, string>
   }
 
+  sentiment_votes_up_percentage: number
+  sentiment_votes_down_percentage: number
+
   categories: string[]
+
+  watchlist_portfolio_users: number
 }
