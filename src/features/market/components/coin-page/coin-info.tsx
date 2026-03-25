@@ -228,7 +228,18 @@ export function CoinInfo({ coin }: { coin: Coin }) {
       {coin.categories.length > 0 && (
         <InfoRow label='Categories'>
           <Badge variant='secondary' className='text-xs shrink-0'>
-            {coin.categories[0]}
+            <Link
+              to='/'
+              search={{
+                category: coin.categories[0]
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/(^-|-$)/g, ''),
+              }}
+              className='block w-full h-full'
+            >
+              {coin.categories[0]}
+            </Link>
           </Badge>
 
           {coin.categories.length > 1 && (
@@ -245,8 +256,19 @@ export function CoinInfo({ coin }: { coin: Coin }) {
 
               <DropdownMenuContent align='end'>
                 {coin.categories.slice(1).map((c, i) => (
-                  <DropdownMenuItem key={i} className='text-xs'>
-                    {c}
+                  <DropdownMenuItem key={i} className='text-xs p-0'>
+                    <Link
+                      to='/'
+                      search={{
+                        category: c
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, '-')
+                          .replace(/(^-|-$)/g, ''),
+                      }}
+                      className='block w-full px-2 py-1'
+                    >
+                      {c}
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
