@@ -1,38 +1,59 @@
 import { TrendingUp, TrendingDown, Gauge } from 'lucide-react'
 import type { Coin } from '../../types/coin'
-
 export function CoinSentiment({ coin }: { coin: Coin }) {
+  const hasSentiment =
+    coin.sentiment_votes_up_percentage != null &&
+    coin.sentiment_votes_down_percentage != null
+
+  const up = coin.sentiment_votes_up_percentage ?? 0
+  const down = coin.sentiment_votes_down_percentage ?? 0
+
   return (
-    <div className='flex flex-col gap-2   border-ring rounded-md'>
+    <div className='flex flex-col gap-2 border-ring rounded-md'>
       {/* Header */}
-      <div className='flex items-center gap-2 '>
+      <div className='flex items-center gap-2'>
         <span className='font-bold text-md'>Community Sentiment</span>
         <Gauge className='w-4 h-4' />
       </div>
 
-      {/* Bar + values */}
       <div className='flex items-center gap-2'>
         {/* Bullish */}
-        <div className='flex items-center gap-1 text-emerald-500 text-xs font-bold'>
+        <div
+          className={`flex items-center gap-1 text-xs font-bold ${
+            hasSentiment ? 'text-emerald-500' : 'text-muted-foreground'
+          }`}
+        >
           <TrendingUp className='w-4 h-4' />
-          {coin.sentiment_votes_up_percentage}%
+          {hasSentiment ? `${up}%` : '—'}
         </div>
 
         {/* Bar */}
-        <div className='flex-1 h-2 rounded overflow-hidden flex'>
-          <div
-            className='h-full bg-emerald-500'
-            style={{ width: `${coin.sentiment_votes_up_percentage}%` }}
-          />
-          <div
-            className='h-full bg-red-500'
-            style={{ width: `${coin.sentiment_votes_down_percentage}%` }}
-          />
+        <div className='relative flex-1 h-2 rounded overflow-hidden flex bg-muted'>
+          {hasSentiment ? (
+            <>
+              <div
+                className='h-full bg-emerald-500'
+                style={{ width: `${up}%` }}
+              />
+              <div
+                className='h-full bg-red-500'
+                style={{ width: `${down}%` }}
+              />
+            </>
+          ) : (
+            <div className='absolute inset-0 flex items-center justify-center text-xs text-muted-foreground'>
+              No sentiment data
+            </div>
+          )}
         </div>
 
         {/* Bearish */}
-        <div className='flex items-center gap-1 text-red-500 text-xs font-bold'>
-          {coin.sentiment_votes_down_percentage}%
+        <div
+          className={`flex items-center gap-1 text-xs font-bold ${
+            hasSentiment ? 'text-red-500' : 'text-muted-foreground'
+          }`}
+        >
+          {hasSentiment ? `${down}%` : '—'}
           <TrendingDown className='w-4 h-4' />
         </div>
       </div>

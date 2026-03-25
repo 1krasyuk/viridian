@@ -151,18 +151,20 @@ export function CoinInfo({ coin }: { coin: Coin }) {
   return (
     <div className='flex flex-col gap-3'>
       {/* Website & Whitepaper */}
-      <InfoRow label='Website'>
-        {website && (
-          <LinkBtn href={website} icon={Globe}>
-            Website
-          </LinkBtn>
-        )}
-        {coin.links.whitepaper && (
-          <LinkBtn href={coin.links.whitepaper} icon={FileText}>
-            Whitepaper
-          </LinkBtn>
-        )}
-      </InfoRow>
+      {(website || coin.links.whitepaper) && (
+        <InfoRow label='Website'>
+          {website && (
+            <LinkBtn href={coin.links.homepage.find(Boolean)!} icon={Globe}>
+              Website
+            </LinkBtn>
+          )}
+          {coin.links.whitepaper && (
+            <LinkBtn href={coin.links.whitepaper} icon={FileText}>
+              Whitepaper
+            </LinkBtn>
+          )}
+        </InfoRow>
+      )}
 
       {/* Explorers */}
       {explorers.length > 0 && (
@@ -192,9 +194,12 @@ export function CoinInfo({ coin }: { coin: Coin }) {
       )}
 
       {/* Forum */}
-      {coin.links.official_forum_url?.[0] && (
+      {coin.links.official_forum_url?.find(Boolean) && (
         <InfoRow label='Community'>
-          <LinkBtn href={coin.links.official_forum_url[0]} icon={MessageCircle}>
+          <LinkBtn
+            href={coin.links.official_forum_url.find(Boolean)!}
+            icon={MessageCircle}
+          >
             Forum
           </LinkBtn>
         </InfoRow>
