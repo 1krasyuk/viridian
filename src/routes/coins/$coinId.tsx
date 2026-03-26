@@ -24,17 +24,29 @@ function RouteComponent() {
       </div>
     )
   return (
-    <div className='flex'>
-      <div className='w-3/4 h-screen'>
-        <CoinChart symbol={data.symbol}></CoinChart>
+    <div className='flex min-h-screen'>
+      {/* LEFT */}
+      <div className='w-3/4 flex flex-col'>
+        <div className='h-175'>
+          <CoinChart symbol={data.symbol} />
+        </div>
+
+        <div className='p-4'>Lorem ipsum... lorem</div>
       </div>
-      <div className='w-1/4 p-5 flex flex-col gap-3'>
-        <CoinHeader coin={data} />
-        <CoinStatistics coin={data} />
-        <CoinInfo coin={data} />
-        <CoinSentiment coin={data} />
-        <CoinPricePerformance coin={data} />
-        <CoinConverter coin={data} />
+
+      {/* RIGHT */}
+      <div className='min-w-1/4 sticky top-0 h-screen flex flex-col border-l'>
+        <div className='bg-background px-5 pt-5 pb-6 relative'>
+          <CoinHeader coin={data} />
+        </div>
+
+        <div className='flex-1 overflow-y-auto no-scrollbar px-5 pb-5 flex flex-col gap-3'>
+          <CoinStatistics coin={data} />
+          <CoinInfo coin={data} />
+          <CoinSentiment coin={data} />
+          <CoinPricePerformance coin={data} />
+          <CoinConverter coin={data} />
+        </div>
       </div>
     </div>
   )
