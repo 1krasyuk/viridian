@@ -59,4 +59,6 @@ export interface Coin {
   categories: string[]
 
   watchlist_portfolio_users: number
+
+  description: Record<string, string>
 }

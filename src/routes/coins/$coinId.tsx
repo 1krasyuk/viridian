@@ -1,5 +1,6 @@
 import { CoinChart } from '@/features/market/components/coin-page/coin-chart'
 import { CoinConverter } from '@/features/market/components/coin-page/coin-converter'
+import { CoinDescription } from '@/features/market/components/coin-page/coin-description'
 import { CoinHeader } from '@/features/market/components/coin-page/coin-header'
 import { CoinInfo } from '@/features/market/components/coin-page/coin-info'
 import { CoinPricePerformance } from '@/features/market/components/coin-page/coin-price-perfomance'
@@ -30,8 +31,7 @@ function RouteComponent() {
         <div className='h-175'>
           <CoinChart symbol={data.symbol} />
         </div>
-
-        <div className='p-4'>Lorem ipsum... lorem</div>
+        <CoinDescription description={data.description} />{' '}
       </div>
 
       {/* RIGHT */}
