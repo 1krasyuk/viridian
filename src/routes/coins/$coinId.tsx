@@ -6,6 +6,7 @@ import { CoinInfo } from '@/features/market/components/coin-page/coin-info'
 import { CoinPricePerformance } from '@/features/market/components/coin-page/coin-price-perfomance'
 import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
+import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
 
 import { useCoin } from '@/features/market/hooks/coins-queries'
 import { createFileRoute } from '@tanstack/react-router'
@@ -31,7 +32,10 @@ function RouteComponent() {
         <div className='h-175'>
           <CoinChart symbol={data.symbol} />
         </div>
-        <CoinDescription description={data.description} />{' '}
+        <div className='flex flex-col p-5 gap-5'>
+          <CoinDescription description={data.description} />
+          <CoinTickersTable tickers={data.tickers ?? []} loading={isLoading} />
+        </div>
       </div>
 
       {/* RIGHT */}
