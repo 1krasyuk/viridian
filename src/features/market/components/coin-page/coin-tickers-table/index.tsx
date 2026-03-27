@@ -6,6 +6,7 @@ import { getColumns } from './columns'
 import { DataTable } from './data-table'
 import { Button } from '@/shared/ui/button'
 import { cn } from '@/shared/lib/utils'
+import { Search } from 'lucide-react'
 
 interface CoinTickersTableProps {
   tickers: Ticker[]
@@ -50,6 +51,7 @@ export function CoinTickersTable({
 }: CoinTickersTableProps) {
   const [exchangeType, setExchangeType] = React.useState<ExchangeType>('all')
   const [marketType, setMarketType] = React.useState<MarketType>('all')
+  const [search, setSearch] = React.useState('')
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -87,8 +89,15 @@ export function CoinTickersTable({
       }
     }
 
+    // Filter by search (exchange name)
+    if (search.trim()) {
+      result = result.filter((ticker) =>
+        ticker.market.name.toLowerCase().includes(search.toLowerCase()),
+      )
+    }
+
     return result
-  }, [tickers, exchangeType, marketType])
+  }, [tickers, exchangeType, marketType, search])
 
   // Sort by volume (default)
   const sortedTickers = React.useMemo(() => {
@@ -110,13 +119,28 @@ export function CoinTickersTable({
   // Reset pagination when filters change
   React.useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }, [exchangeType, marketType])
+  }, [exchangeType, marketType, search])
+
+  const hasActiveFilters =
+    exchangeType !== 'all' || marketType !== 'all' || search !== ''
 
   return (
     <div className='w-full space-y-4'>
       {/* Header with filters */}
       <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
-        <h2 className='text-xl font-semibold'>{coinName} Markets</h2>
+        <div className='flex items-center gap-3'>
+          <h2 className='text-xl font-semibold'>{coinName} Markets</h2>
+          <div className='relative'>
+            <Search className='absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground' />
+            <input
+              type='text'
+              placeholder='Search exchange...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='h-7 pl-7 pr-2 text-xs rounded-md border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring'
+            />
+          </div>
+        </div>
 
         <div className='flex flex-wrap items-center gap-2'>
           {/* Exchange type filters */}
@@ -171,8 +195,9 @@ export function CoinTickersTable({
         onResetFilters={() => {
           setExchangeType('all')
           setMarketType('all')
+          setSearch('')
         }}
-        hasActiveFilters={exchangeType !== 'all' || marketType !== 'all'}
+        hasActiveFilters={hasActiveFilters}
       />
     </div>
   )
