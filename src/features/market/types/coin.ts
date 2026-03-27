@@ -1,3 +1,5 @@
+import type { Ticker } from './tickers'
+
 export interface Coin {
   id: string
   symbol: string
@@ -61,4 +63,5 @@ export interface Coin {
   watchlist_portfolio_users: number
 
   description: Record<string, string>
+  tickers?: Ticker[]
 }
