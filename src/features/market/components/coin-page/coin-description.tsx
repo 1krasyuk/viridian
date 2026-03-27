@@ -5,7 +5,7 @@ export function CoinDescription({
 }) {
   return (
     description.en && (
-      <div className='bg-background p-5 rounded-md shadow-sm'>
+      <div>
         <h2 className='text-xl font-bold mb-3'>About</h2>
         <div className='prose max-w-full text-sm text-muted-foreground'>
           {description.en.split('\n\n\n').map((para, i) => (
