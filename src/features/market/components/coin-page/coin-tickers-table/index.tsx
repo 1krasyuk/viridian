@@ -168,6 +168,11 @@ export function CoinTickersTable({
         loading={loading}
         pagination={pagination}
         onPaginationChange={setPagination}
+        onResetFilters={() => {
+          setExchangeType('all')
+          setMarketType('all')
+        }}
+        hasActiveFilters={exchangeType !== 'all' || marketType !== 'all'}
       />
     </div>
   )

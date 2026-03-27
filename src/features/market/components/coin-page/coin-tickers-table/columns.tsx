@@ -248,8 +248,16 @@ export const getColumns = (options?: ColumnsOptions): ColumnDef<Ticker>[] => {
       ),
       enableHiding: false,
       cell: ({ row }) => {
-        const { base, target, trade_url } = row.original
-        const pair = `${base}/${target}`
+        const { base, target, trade_url, coin_id, target_coin_id } =
+          row.original
+
+        const format = (val: string, id?: string) => {
+          if (id) return id.toUpperCase().slice(0, 10)
+          if (val?.startsWith('0x')) return val.slice(0, 6) + '...'
+          return val
+        }
+
+        const pair = `${format(base, coin_id)}/${format(target, target_coin_id)}`
 
         return (
           <div className='flex items-center gap-1 min-w-10'>

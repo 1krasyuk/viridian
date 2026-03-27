@@ -44,6 +44,8 @@ interface DataTableProps<TData, TValue> {
   loading?: boolean
   pagination: PaginationState
   onPaginationChange: (pagination: PaginationState) => void
+  onResetFilters?: () => void
+  hasActiveFilters?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -52,6 +54,8 @@ export function DataTable<TData, TValue>({
   loading,
   pagination,
   onPaginationChange,
+  onResetFilters,
+  hasActiveFilters,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: pagination.pageSize }).map(
     (_, i) => ({
@@ -182,9 +186,25 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className='h-64 text-center text-muted-foreground'
+                    className='h-64 text-center'
                   >
-                    No results found.
+                    <div className='flex flex-col items-center justify-center gap-3'>
+                      <p className='text-muted-foreground'>
+                        {hasActiveFilters
+                          ? 'No results match your filters.'
+                          : 'No results found.'}
+                      </p>
+                      {hasActiveFilters && onResetFilters && (
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={onResetFilters}
+                          className='gap-1'
+                        >
+                          Clear filters
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
