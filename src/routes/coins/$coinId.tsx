@@ -34,7 +34,11 @@ function RouteComponent() {
         </div>
         <div className='flex flex-col p-5 gap-5'>
           <CoinDescription description={data.description} />
-          <CoinTickersTable tickers={data.tickers ?? []} loading={isLoading} />
+          <CoinTickersTable
+            coinName={data.name}
+            tickers={data.tickers ?? []}
+            loading={isLoading}
+          />
         </div>
       </div>
 

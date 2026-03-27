@@ -11,7 +11,7 @@ import { Search } from 'lucide-react'
 interface CoinTickersTableProps {
   tickers: Ticker[]
   loading?: boolean
-  coinName?: string
+  coinName: string
 }
 
 const EXCHANGE_TYPES: { value: ExchangeType; label: string }[] = [
@@ -47,7 +47,7 @@ const DEX_IDENTIFIERS = [
 export function CoinTickersTable({
   tickers,
   loading,
-  coinName = 'Bitcoin',
+  coinName,
 }: CoinTickersTableProps) {
   const [exchangeType, setExchangeType] = React.useState<ExchangeType>('all')
   const [marketType, setMarketType] = React.useState<MarketType>('all')
