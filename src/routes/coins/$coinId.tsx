@@ -95,19 +95,16 @@ function RouteComponent() {
           </div>
         ) : (
           // Terminal mode
-          <ResizablePanelGroup
-            orientation='vertical'
-            className='h-[calc(100vh-73px)]'
-          >
-            <ResizablePanel defaultSize={40} minSize={25}>
-              <div className='h-full p-4'>
+          <ResizablePanelGroup orientation='vertical'>
+            <ResizablePanel defaultSize='70%' minSize='15%'>
+              <div className='h-full'>
                 <CoinChart symbol={data.symbol} />
               </div>
             </ResizablePanel>
 
-            <ResizableHandle className='bg-border' />
+            <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={60}>
+            <ResizablePanel defaultSize='30%' minSize='15%'>
               <div className='h-full overflow-auto  [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
                 <div className='py-5'>
                   <CoinTickersTable
