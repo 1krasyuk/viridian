@@ -1,17 +1,17 @@
+// data-table.tsx
 import * as React from 'react'
-
-import type { ColumnDef } from '@tanstack/react-table'
-
+import type {
+  ColumnDef,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table'
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type SortingState,
   getSortedRowModel,
   getPaginationRowModel,
-  type PaginationState,
 } from '@tanstack/react-table'
-
 import {
   Table,
   TableBody,
@@ -20,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/ui/table'
-
 import { Skeleton } from '@/shared/ui/skeleton'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
@@ -37,11 +36,13 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react'
+import { DataTableInfinite } from './data-table-infinite'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   loading?: boolean
+  mode: 'pagination' | 'infinite'
   pagination: PaginationState
   onPaginationChange: (pagination: PaginationState) => void
   onResetFilters?: () => void
@@ -52,18 +53,22 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   loading,
+  mode,
   pagination,
   onPaginationChange,
   onResetFilters,
   hasActiveFilters,
 }: DataTableProps<TData, TValue>) {
-  const skeletonRows = Array.from({ length: pagination.pageSize }).map(
-    (_, i) => ({
-      id: `skeleton-${i}`,
-    }),
-  ) as TData[]
-
+  // ВСЕ ХУКИ ВЫЗЫВАЕМ ЗДЕСЬ, ДО ЛЮБЫХ УСЛОВИЙ
   const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const skeletonRows = React.useMemo(
+    () =>
+      Array.from({ length: pagination.pageSize }).map((_, i) => ({
+        id: `skeleton-${i}`,
+      })) as TData[],
+    [pagination.pageSize],
+  )
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -78,13 +83,24 @@ export function DataTable<TData, TValue>({
         typeof updater === 'function' ? updater(pagination) : updater
       onPaginationChange(newPagination)
     },
-    state: {
-      sorting,
-      pagination,
-    },
+    state: { sorting, pagination },
     manualPagination: false,
   })
 
+  // ТЕПЕРЬ УСЛОВНЫЙ РЕТЕРН ПОСЛЕ ВСЕХ ХУКОВ
+  if (mode === 'infinite') {
+    return (
+      <DataTableInfinite
+        columns={columns}
+        data={data}
+        loading={loading}
+        onResetFilters={onResetFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
+    )
+  }
+
+  // Pagination mode
   const pageCount = table.getPageCount()
   const currentPage = pagination.pageIndex + 1
   const totalRows = data.length
@@ -100,33 +116,24 @@ export function DataTable<TData, TValue>({
     const maxVisible = 5
 
     if (pageCount <= maxVisible) {
-      for (let i = 1; i <= pageCount; i++) {
-        pages.push(i)
-      }
+      for (let i = 1; i <= pageCount; i++) pages.push(i)
     } else {
       if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i)
-        }
+        for (let i = 1; i <= 4; i++) pages.push(i)
         pages.push('...')
         pages.push(pageCount)
       } else if (currentPage >= pageCount - 2) {
         pages.push(1)
         pages.push('...')
-        for (let i = pageCount - 3; i <= pageCount; i++) {
-          pages.push(i)
-        }
+        for (let i = pageCount - 3; i <= pageCount; i++) pages.push(i)
       } else {
         pages.push(1)
         pages.push('...')
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i)
-        }
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i)
         pages.push('...')
         pages.push(pageCount)
       }
     }
-
     return pages
   }
 
@@ -136,35 +143,29 @@ export function DataTable<TData, TValue>({
       <div className='rounded-md border overflow-hidden'>
         <div className='overflow-x-auto custom-scrollbar'>
           <Table>
-            <TableHeader className='bg-muted/50 '>
+            <TableHeader className='bg-muted/50'>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className='hover:bg-transparent'>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className='text-right font-medium text-muted-foreground whitespace-nowrap'
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    )
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className='text-right font-medium text-muted-foreground whitespace-nowrap'
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                    className='group hover:bg-muted/50'
-                  >
+                  <TableRow key={row.id} className='group hover:bg-muted/50'>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
@@ -220,8 +221,7 @@ export function DataTable<TData, TValue>({
           Showing {startRow} to {endRow} of {totalRows} results
         </div>
 
-        {/* Page buttons */}
-        <div className='flex items-center gap-1 order-1 sm:order-2 '>
+        <div className='flex items-center gap-1 order-1 sm:order-2'>
           <Button
             variant='outline'
             size='icon'
@@ -290,17 +290,14 @@ export function DataTable<TData, TValue>({
           <span className='text-sm text-muted-foreground'>Rows</span>
           <Select
             value={pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              onPaginationChange({
-                pageIndex: 0,
-                pageSize: Number(value),
-              })
-            }}
+            onValueChange={(value) =>
+              onPaginationChange({ pageIndex: 0, pageSize: Number(value) })
+            }
           >
             <SelectTrigger className='rounded-lg px-2'>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className='max-w-1'>
+            <SelectContent>
               <SelectItem value='10'>10</SelectItem>
               <SelectItem value='50'>50</SelectItem>
               <SelectItem value='100'>100</SelectItem>

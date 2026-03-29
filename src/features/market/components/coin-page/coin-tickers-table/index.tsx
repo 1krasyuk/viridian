@@ -1,3 +1,4 @@
+// features/market/components/coin-page/coin-tickers-table/index.tsx
 import * as React from 'react'
 import type { PaginationState } from '@tanstack/react-table'
 import type { ExchangeType, MarketType } from './types'
@@ -12,6 +13,7 @@ interface CoinTickersTableProps {
   tickers: Ticker[]
   loading?: boolean
   coinName: string
+  mode: 'pagination' | 'infinite'
 }
 
 const EXCHANGE_TYPES: { value: ExchangeType; label: string }[] = [
@@ -48,6 +50,7 @@ export function CoinTickersTable({
   tickers,
   loading,
   coinName,
+  mode,
 }: CoinTickersTableProps) {
   const [exchangeType, setExchangeType] = React.useState<ExchangeType>('all')
   const [marketType, setMarketType] = React.useState<MarketType>('all')
@@ -124,10 +127,20 @@ export function CoinTickersTable({
   const hasActiveFilters =
     exchangeType !== 'all' || marketType !== 'all' || search !== ''
 
+  const resetFilters = () => {
+    setExchangeType('all')
+    setMarketType('all')
+    setSearch('')
+  }
+
   return (
     <div className='w-full space-y-4'>
-      {/* Header with filters */}
-      <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
+      <div
+        className={cn(
+          'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4',
+          mode === 'infinite' && 'px-5',
+        )}
+      >
         <div className='flex items-center gap-3'>
           <h2 className='text-xl font-semibold'>{coinName} Markets</h2>
           <div className='relative'>
@@ -141,7 +154,6 @@ export function CoinTickersTable({
             />
           </div>
         </div>
-
         <div className='flex flex-wrap items-center gap-2'>
           {/* Exchange type filters */}
           <div className='flex items-center gap-1 bg-muted rounded-lg p-1'>
@@ -187,16 +199,13 @@ export function CoinTickersTable({
 
       {/* Data Table */}
       <DataTable
+        mode={mode}
         columns={columns}
         data={sortedTickers}
         loading={loading}
         pagination={pagination}
         onPaginationChange={setPagination}
-        onResetFilters={() => {
-          setExchangeType('all')
-          setMarketType('all')
-          setSearch('')
-        }}
+        onResetFilters={resetFilters}
         hasActiveFilters={hasActiveFilters}
       />
     </div>
