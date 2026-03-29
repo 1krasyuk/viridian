@@ -16,6 +16,7 @@ import {
 } from '@/shared/ui/table'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Button } from '@/shared/ui/button'
+import { cn } from '@/shared/lib/utils'
 
 interface DataTableInfiniteProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -125,14 +126,42 @@ export function DataTableInfinite<TData, TValue>({
             {isLoadingMore &&
               Array.from({ length: 3 }).map((_, i) => (
                 <TableRow key={`skeleton-${i}`}>
-                  {columns.map((_, colIndex) => (
-                    <TableCell
-                      key={`skeleton-col-${colIndex}`}
-                      className='whitespace-nowrap text-right'
-                    >
-                      <Skeleton className='h-4 w-20 ml-auto' />
-                    </TableCell>
-                  ))}
+                  {columns.map((col, colIndex) => {
+                    const widthMap: Record<string, string> = {
+                      index: 'w-8',
+                      exchange: 'w-40',
+                      type: 'w-12',
+                      pair: 'w-28',
+                      price: 'w-20',
+                      spread: 'w-16',
+                      volume: 'w-16',
+                      volume_percentage: 'w-12',
+                      last_updated: 'w-24',
+                    }
+
+                    const alignMap: Record<string, string> = {
+                      exchange: 'text-left',
+                      pair: 'text-left',
+                    }
+
+                    const skeletonWidth = widthMap[col.id as string] || 'w-20'
+                    const align = alignMap[col.id as string] || 'text-right'
+                    const margin =
+                      col.id === 'exchange' || col.id === 'pair'
+                        ? 'mr-auto'
+                        : 'ml-auto'
+
+                    return (
+                      <TableCell
+                        key={`skeleton-col-${colIndex}`}
+                        className={cn('whitespace-nowrap', align)}
+                      >
+                        <Skeleton
+                          className={cn('h-3 ', skeletonWidth, margin)}
+                        />
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))}
 
