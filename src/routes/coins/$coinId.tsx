@@ -38,7 +38,7 @@ function RouteComponent() {
     localStorage.setItem('coin-view-mode', mode)
   }
 
-  if (isLoading || isLoadingChart || !data) {
+  if (isLoading || isLoadingChart || !dataChart || !data) {
     return (
       <div className='text-3xl flex justify-center h-screen text-center items-center'>
         LOADING...

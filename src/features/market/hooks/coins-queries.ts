@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { coinsApi } from '../api/coins-api'
+import type { CoinChartRaw } from '../types/coin-chart'
 
 export const coinsKeys = {
   all: ['coins'] as const,
@@ -26,6 +27,29 @@ export function useCoinChart(id: string) {
   return useQuery({
     queryKey: [coinsKeys.detail(id), 'chart'],
     queryFn: () => coinsApi.getCoinChart(id),
+    select: (data: CoinChartRaw) => {
+      return {
+        ...data,
+        prices: data.prices
+          .map((price) => ({
+            time: price[0] / 1000,
+            value: price[1],
+          }))
+          .sort((a, b) => a.time - b.time)
+          .filter(
+            (item, index, arr) =>
+              index === 0 || item.time !== arr[index - 1].time,
+          ),
+        market_caps: data.market_caps.map((price) => ({
+          time: new Date(price[0]).toISOString(),
+          value: price[1],
+        })),
+        total_volumes: data.total_volumes.map((price) => ({
+          time: new Date(price[0]).toISOString(),
+          value: price[1],
+        })),
+      }
+    },
     enabled: !!id,
   })
 }

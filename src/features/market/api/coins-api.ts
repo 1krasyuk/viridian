@@ -2,7 +2,7 @@ import { http } from '@/shared/lib/axios-config'
 import type { CoinsList } from '../types/coins-list'
 import type { Coin } from '../types/coin'
 import type { Category } from '../types/categories'
-import type { CoinChart } from '../types/coin-chart'
+import type { CoinChartRaw } from '../types/coin-chart'
 
 export const coinsApi = {
   async getCoins({
@@ -32,8 +32,8 @@ export const coinsApi = {
     return data
   },
 
-  async getCoinChart(id: string): Promise<CoinChart> {
-    const { data } = await http.get<CoinChart>(`/coins/${id}/market_chart`, {
+  async getCoinChart(id: string): Promise<CoinChartRaw> {
+    const { data } = await http.get<CoinChartRaw>(`/coins/${id}/market_chart`, {
       params: {
         vs_currency: 'usd',
         days: 1,
