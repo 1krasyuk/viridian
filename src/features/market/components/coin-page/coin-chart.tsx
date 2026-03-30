@@ -2,8 +2,15 @@ import { useState } from 'react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartLine, ChartCandlestick } from 'lucide-react'
+import type { CoinChart } from '../../types/coin-chart'
 
-export function CoinChart({ symbol }: { symbol: string | undefined }) {
+export function CoinChart({
+  symbol,
+  chart,
+}: {
+  symbol: string | undefined
+  chart: CoinChart | undefined
+}) {
   const { theme } = useTheme()
   const [chartType, setChartType] = useState<'simple' | 'tradingview'>('simple')
 
@@ -12,7 +19,7 @@ export function CoinChart({ symbol }: { symbol: string | undefined }) {
       setChartType(value)
     }
   }
-
+  console.log(chart)
   return (
     <div className='flex flex-col h-full'>
       {/* Toggle */}

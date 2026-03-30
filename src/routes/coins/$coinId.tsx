@@ -1,7 +1,7 @@
 // routes/coins/$coinId.tsx
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useCoin } from '@/features/market/hooks/coins-queries'
+import { useCoin, useCoinChart } from '@/features/market/hooks/coins-queries'
 import { CoinChart } from '@/features/market/components/coin-page/coin-chart'
 import { CoinConverter } from '@/features/market/components/coin-page/coin-converter'
 import { CoinDescription } from '@/features/market/components/coin-page/coin-description'
@@ -26,6 +26,7 @@ export const Route = createFileRoute('/coins/$coinId')({
 function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading } = useCoin(coinId)
+  const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(coinId)
   const [viewMode, setViewMode] = useState<'pagination' | 'infinite'>(
     () =>
       (localStorage.getItem('coin-view-mode') as 'pagination' | 'infinite') ||
@@ -37,7 +38,7 @@ function RouteComponent() {
     localStorage.setItem('coin-view-mode', mode)
   }
 
-  if (isLoading || !data) {
+  if (isLoading || isLoadingChart || !data) {
     return (
       <div className='text-3xl flex justify-center h-screen text-center items-center'>
         LOADING...
@@ -81,7 +82,7 @@ function RouteComponent() {
           // Normal mode
           <div className='flex flex-col'>
             <div className='h-175'>
-              <CoinChart symbol={data.symbol} />
+              <CoinChart chart={dataChart} symbol={data.symbol} />
             </div>
             <div className='flex flex-col p-5 gap-5'>
               <CoinDescription description={data.description} />
@@ -98,7 +99,7 @@ function RouteComponent() {
           <ResizablePanelGroup orientation='vertical'>
             <ResizablePanel defaultSize='70%' minSize='15%'>
               <div className='h-full'>
-                <CoinChart symbol={data.symbol} />
+                <CoinChart chart={dataChart} symbol={data.symbol} />
               </div>
             </ResizablePanel>
 

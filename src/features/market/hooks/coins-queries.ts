@@ -22,6 +22,14 @@ export function useCoin(id: string) {
   })
 }
 
+export function useCoinChart(id: string) {
+  return useQuery({
+    queryKey: [coinsKeys.detail(id), 'chart'],
+    queryFn: () => coinsApi.getCoinChart(id),
+    enabled: !!id,
+  })
+}
+
 export function useCategoriesList() {
   return useQuery({
     queryKey: ['coin-categories-list'],
