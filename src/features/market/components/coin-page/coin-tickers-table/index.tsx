@@ -29,7 +29,7 @@ const MARKET_TYPES: { value: MarketType; label: string }[] = [
 ]
 
 // List of DEX identifiers for filtering
-const DEX_IDENTIFIERS = [
+export const DEX_IDENTIFIERS = [
   'uniswap',
   'pancakeswap',
   'sushiswap',

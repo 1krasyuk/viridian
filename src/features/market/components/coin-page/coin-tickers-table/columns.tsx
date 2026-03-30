@@ -5,6 +5,7 @@ import { Button } from '@/shared/ui/button'
 import { ChevronUp, ChevronDown, ExternalLink } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Link } from '@tanstack/react-router'
+import { DEX_IDENTIFIERS } from '.'
 
 function sortableHeader<TData, TValue>(
   column: Column<TData, TValue>,
@@ -214,14 +215,7 @@ export const getColumns = (options?: ColumnsOptions): ColumnDef<Ticker>[] => {
       header: () => <div className='text-center'></div>,
       enableHiding: false,
       cell: ({ row }) => {
-        const isDex = [
-          'uniswap',
-          'pancakeswap',
-          'sushiswap',
-          'curve',
-          'balancer',
-          '1inch',
-        ].some((dex) =>
+        const isDex = DEX_IDENTIFIERS.some((dex) =>
           row.original.market.identifier.toLowerCase().includes(dex),
         )
         return (

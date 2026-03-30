@@ -59,7 +59,6 @@ export function DataTable<TData, TValue>({
   onResetFilters,
   hasActiveFilters,
 }: DataTableProps<TData, TValue>) {
-  // ВСЕ ХУКИ ВЫЗЫВАЕМ ЗДЕСЬ, ДО ЛЮБЫХ УСЛОВИЙ
   const [sorting, setSorting] = React.useState<SortingState>([])
 
   const skeletonRows = React.useMemo(
@@ -87,7 +86,6 @@ export function DataTable<TData, TValue>({
     manualPagination: false,
   })
 
-  // ТЕПЕРЬ УСЛОВНЫЙ РЕТЕРН ПОСЛЕ ВСЕХ ХУКОВ
   if (mode === 'infinite') {
     return (
       <DataTableInfinite
