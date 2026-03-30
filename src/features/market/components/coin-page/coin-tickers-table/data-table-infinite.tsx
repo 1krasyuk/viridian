@@ -79,10 +79,10 @@ export function DataTableInfinite<TData, TValue>({
   const hasNoResults = !loading && data.length === 0
 
   return (
-    <div className='rounded-md border overflow-hidden'>
-      <div className='overflow-x-auto custom-scrollbar'>
+    <div className='rounded-md border relative'>
+      <div className=' custom-scrollbar'>
         <Table>
-          <TableHeader className='bg-muted/50 sticky top-0'>
+          <TableHeader className='bg-popover z-10 sticky top-0'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className='hover:bg-transparent'>
                 {headerGroup.headers.map((header) => (
