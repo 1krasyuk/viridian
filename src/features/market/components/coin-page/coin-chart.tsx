@@ -9,6 +9,11 @@ import {
   TimeScale,
   TimeScaleFitContentTrigger,
 } from 'lightweight-charts-react-components'
+import {
+  getChartColors,
+  createChartOptions,
+  createAreaSeriesOptions,
+} from '@/shared/lib/chart-config'
 
 export function CoinChart({
   symbol,
@@ -25,12 +30,19 @@ export function CoinChart({
       setChartType(value)
     }
   }
-  console.log(chart)
+
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  const colors = getChartColors(isDark)
+  const chartOptions = createChartOptions(colors)
+  const areaSeriesOptions = createAreaSeriesOptions(colors)
 
   return (
     <div className='flex flex-col h-full'>
-      {/* Toggle */}
-      <div className='flex justify-start p-2 '>
+      <div className='flex justify-start p-2'>
         <ToggleGroup
           type='single'
           value={chartType}
@@ -47,7 +59,7 @@ export function CoinChart({
           <ToggleGroupItem
             variant='outline'
             value='tradingview'
-            className='h-8 text-sm '
+            className='h-8 text-sm'
           >
             <ChartCandlestick className='h-4 w-4' />
             TradingView
@@ -55,22 +67,16 @@ export function CoinChart({
         </ToggleGroup>
       </div>
 
-      {/* Chart Content */}
       <div className='flex-1'>
         {chartType === 'simple' ? (
-          <div className='h-full w-full bg-muted/20 flex items-center justify-center'>
+          <div className='h-full w-full flex items-center justify-center'>
             <Chart
               containerProps={{ className: 'w-full h-full' }}
-              options={{
-                autoSize: true,
-                layout: {
-                  attributionLogo: false,
-                },
-              }}
+              options={chartOptions}
             >
-              <AreaSeries data={chart.prices} />
+              <AreaSeries data={chart.prices} options={areaSeriesOptions} />
               <TimeScale>
-                <TimeScaleFitContentTrigger deps={[]} />
+                <TimeScaleFitContentTrigger deps={[chart.prices, theme]} />
               </TimeScale>
             </Chart>
           </div>
