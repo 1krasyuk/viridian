@@ -97,8 +97,12 @@ function RouteComponent() {
         ) : (
           // Terminal mode
           <ResizablePanelGroup orientation='vertical'>
-            <ResizablePanel defaultSize='70%' minSize='15%' className='min-h-0'>
-              <div className='h-full  min-h-0'>
+            <ResizablePanel
+              defaultSize='70%'
+              minSize='15%'
+              className='min-h-0 min-w-0'
+            >
+              <div className='h-full min-h-0 min-w-0'>
                 <CoinChart chart={dataChart} symbol={data.symbol} />
               </div>
             </ResizablePanel>

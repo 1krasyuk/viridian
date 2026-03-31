@@ -36,7 +36,6 @@ export function CoinChart({
     if (!containerRef.current) return
 
     const resizeObserver = new ResizeObserver(() => {
-      // Триггерим перерисовку через CSS
       containerRef.current?.style.setProperty('opacity', '0.99')
       requestAnimationFrame(() => {
         containerRef.current?.style.setProperty('opacity', '1')
@@ -83,10 +82,12 @@ export function CoinChart({
         </ToggleGroup>
       </div>
 
-      <div className='flex-1 min-h-0 relative' ref={containerRef}>
+      <div className='flex-1 min-h-0 relative min-w-0 ' ref={containerRef}>
         {chartType === 'simple' ? (
           <Chart
-            containerProps={{ className: 'absolute inset-0 w-full h-full' }}
+            containerProps={{
+              className: 'absolute inset-0 w-full h-full min-w-0',
+            }}
             options={chartOptions}
           >
             <AreaSeries data={chart.prices} options={areaSeriesOptions} />
