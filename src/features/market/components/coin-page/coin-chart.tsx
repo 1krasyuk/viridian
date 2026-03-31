@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartLine, ChartCandlestick } from 'lucide-react'
@@ -24,12 +24,28 @@ export function CoinChart({
 }) {
   const { theme } = useTheme()
   const [chartType, setChartType] = useState<'simple' | 'tradingview'>('simple')
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
     if (value === 'simple' || value === 'tradingview') {
       setChartType(value)
     }
   }
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Триггерим перерисовку через CSS
+      containerRef.current?.style.setProperty('opacity', '0.99')
+      requestAnimationFrame(() => {
+        containerRef.current?.style.setProperty('opacity', '1')
+      })
+    })
+
+    resizeObserver.observe(containerRef.current)
+    return () => resizeObserver.disconnect()
+  }, [])
 
   const isDark =
     theme === 'dark' ||
@@ -67,19 +83,19 @@ export function CoinChart({
         </ToggleGroup>
       </div>
 
-      <div className='flex-1'>
+      <div className='flex-1 min-h-0 relative' ref={containerRef}>
         {chartType === 'simple' ? (
-          <div className='h-full w-full flex items-center justify-center'>
-            <Chart
-              containerProps={{ className: 'w-full h-full' }}
-              options={chartOptions}
-            >
-              <AreaSeries data={chart.prices} options={areaSeriesOptions} />
-              <TimeScale>
-                <TimeScaleFitContentTrigger deps={[chart.prices, theme]} />
-              </TimeScale>
-            </Chart>
-          </div>
+          <Chart
+            containerProps={{ className: 'absolute inset-0 w-full h-full' }}
+            options={chartOptions}
+          >
+            <AreaSeries data={chart.prices} options={areaSeriesOptions} />
+            <TimeScale>
+              <TimeScaleFitContentTrigger
+                deps={[chart.prices, theme, chartType]}
+              />
+            </TimeScale>
+          </Chart>
         ) : (
           <iframe
             className='w-full h-full'
