@@ -1,3 +1,5 @@
+import type { UTCTimestamp } from 'lightweight-charts'
+
 export interface CoinChartRaw {
   id: string
   vs_currency: string
@@ -13,7 +15,7 @@ export interface CoinChart {
   vs_currency: string
   days: string
   interval: 'daily' | 'hourly'
-  prices: { time: string; value: number }[]
-  market_caps: { time: string; value: number }[]
-  total_volumes: { time: string; value: number }[]
+  prices: { time: UTCTimestamp; value: number }[]
+  market_caps: { time: UTCTimestamp; value: number }[]
+  total_volumes: { time: UTCTimestamp; value: number }[]
 }

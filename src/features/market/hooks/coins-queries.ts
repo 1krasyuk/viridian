@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { coinsApi } from '../api/coins-api'
-import type { CoinChartRaw } from '../types/coin-chart'
+import type { CoinChart, CoinChartRaw } from '../types/coin-chart'
+import type { UTCTimestamp } from 'lightweight-charts'
 
 export const coinsKeys = {
   all: ['coins'] as const,
@@ -27,27 +28,17 @@ export function useCoinChart(id: string) {
   return useQuery({
     queryKey: [coinsKeys.detail(id), 'chart'],
     queryFn: () => coinsApi.getCoinChart(id),
-    select: (data: CoinChartRaw) => {
+    select: (data: CoinChartRaw): CoinChart => {
+      const mapToSeries = (data: number[][]) =>
+        data.map(([time, value]) => ({
+          time: (time / 1000) as UTCTimestamp,
+          value,
+        }))
       return {
         ...data,
-        prices: data.prices
-          .map((price) => ({
-            time: price[0] / 1000,
-            value: price[1],
-          }))
-          .sort((a, b) => a.time - b.time)
-          .filter(
-            (item, index, arr) =>
-              index === 0 || item.time !== arr[index - 1].time,
-          ),
-        market_caps: data.market_caps.map((price) => ({
-          time: new Date(price[0]).toISOString(),
-          value: price[1],
-        })),
-        total_volumes: data.total_volumes.map((price) => ({
-          time: new Date(price[0]).toISOString(),
-          value: price[1],
-        })),
+        prices: mapToSeries(data.prices),
+        market_caps: mapToSeries(data.market_caps),
+        total_volumes: mapToSeries(data.total_volumes),
       }
     },
     enabled: !!id,
