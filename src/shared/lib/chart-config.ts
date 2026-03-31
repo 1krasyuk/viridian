@@ -26,7 +26,7 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
       fontFamily: "'Nunito Sans Variable', sans-serif",
     },
     grid: {
-      vertLines: { color: colors.grid },
+      vertLines: { visible: false },
       horzLines: { color: colors.grid },
     },
     crosshair: {
@@ -44,6 +44,7 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
     },
     timeScale: {
       borderColor: colors.grid,
+      timeVisible: true,
     },
   }) as const
 

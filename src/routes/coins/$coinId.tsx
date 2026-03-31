@@ -80,8 +80,8 @@ function RouteComponent() {
 
         {viewMode === 'pagination' ? (
           // Normal mode
-          <div className='flex flex-col'>
-            <div className='h-175'>
+          <div className='flex flex-col min-w-0'>
+            <div className='h-175 min-w-0 relative w-full'>
               <CoinChart chart={dataChart} symbol={data.symbol} />
             </div>
             <div className='flex flex-col p-5 gap-5'>
