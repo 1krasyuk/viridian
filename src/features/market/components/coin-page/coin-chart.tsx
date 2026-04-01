@@ -17,6 +17,10 @@ import {
   createBaselineSeriesOptions,
 } from '@/shared/lib/chart-config'
 
+type ChartType = 'simple' | 'baseline' | 'tradingview'
+
+const CHART_TYPE_KEY = 'coin-chart-type'
+
 export function CoinChart({
   symbol,
   chart,
@@ -25,14 +29,18 @@ export function CoinChart({
   chart: CoinChart
 }) {
   const { theme } = useTheme()
-  const [chartType, setChartType] = useState<
-    'simple' | 'baseline' | 'tradingview'
-  >('simple')
+  const [chartType, setChartType] = useState<ChartType>(() => {
+    const saved = localStorage.getItem(CHART_TYPE_KEY) as ChartType | null
+    return saved && ['simple', 'baseline', 'tradingview'].includes(saved)
+      ? saved
+      : 'simple'
+  })
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
     if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
       setChartType(value)
+      localStorage.setItem(CHART_TYPE_KEY, value)
     }
   }
 
