@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { ChartLine, ChartCandlestick } from 'lucide-react'
+import { ChartLine, ChartCandlestick, Activity } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
 import {
   AreaSeries,
+  BaselineSeries,
   Chart,
   TimeScale,
   TimeScaleFitContentTrigger,
@@ -13,6 +14,7 @@ import {
   getChartColors,
   createChartOptions,
   createAreaSeriesOptions,
+  createBaselineSeriesOptions,
 } from '@/shared/lib/chart-config'
 
 export function CoinChart({
@@ -23,11 +25,13 @@ export function CoinChart({
   chart: CoinChart
 }) {
   const { theme } = useTheme()
-  const [chartType, setChartType] = useState<'simple' | 'tradingview'>('simple')
+  const [chartType, setChartType] = useState<
+    'simple' | 'baseline' | 'tradingview'
+  >('simple')
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
-    if (value === 'simple' || value === 'tradingview') {
+    if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
       setChartType(value)
     }
   }
@@ -55,6 +59,13 @@ export function CoinChart({
   const chartOptions = createChartOptions(colors)
   const areaSeriesOptions = createAreaSeriesOptions(colors)
 
+  const baseValue = useMemo(() => {
+    if (chart.prices.length === 0) return 0
+    return chart.prices[0].value
+  }, [chart.prices])
+
+  const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-start p-2'>
@@ -73,6 +84,14 @@ export function CoinChart({
           </ToggleGroupItem>
           <ToggleGroupItem
             variant='outline'
+            value='baseline'
+            className='h-8 text-sm'
+          >
+            <Activity className='h-4 w-4' />
+            Baseline
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            variant='outline'
             value='tradingview'
             className='h-8 text-sm'
           >
@@ -82,7 +101,7 @@ export function CoinChart({
         </ToggleGroup>
       </div>
 
-      <div className='flex-1 min-h-0 relative min-w-0 ' ref={containerRef}>
+      <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
         {chartType === 'simple' ? (
           <Chart
             containerProps={{
@@ -91,6 +110,23 @@ export function CoinChart({
             options={chartOptions}
           >
             <AreaSeries data={chart.prices} options={areaSeriesOptions} />
+            <TimeScale>
+              <TimeScaleFitContentTrigger
+                deps={[chart.prices, theme, chartType]}
+              />
+            </TimeScale>
+          </Chart>
+        ) : chartType === 'baseline' ? (
+          <Chart
+            containerProps={{
+              className: 'absolute inset-0 w-full h-full min-w-0',
+            }}
+            options={chartOptions}
+          >
+            <BaselineSeries
+              data={chart.prices}
+              options={baselineSeriesOptions}
+            />
             <TimeScale>
               <TimeScaleFitContentTrigger
                 deps={[chart.prices, theme, chartType]}
