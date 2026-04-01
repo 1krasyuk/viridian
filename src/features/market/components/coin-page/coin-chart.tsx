@@ -35,6 +35,7 @@ export function CoinChart({
       ? saved
       : 'simple'
   })
+  const [resizeKey, setResizeKey] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
@@ -48,10 +49,7 @@ export function CoinChart({
     if (!containerRef.current) return
 
     const resizeObserver = new ResizeObserver(() => {
-      containerRef.current?.style.setProperty('opacity', '0.99')
-      requestAnimationFrame(() => {
-        containerRef.current?.style.setProperty('opacity', '1')
-      })
+      setResizeKey((prev) => prev + 1)
     })
 
     resizeObserver.observe(containerRef.current)
@@ -108,10 +106,10 @@ export function CoinChart({
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-
       <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
         {chartType === 'simple' ? (
           <Chart
+            key={`simple-${resizeKey}`}
             containerProps={{
               className: 'absolute inset-0 w-full h-full min-w-0',
             }}
@@ -120,12 +118,13 @@ export function CoinChart({
             <AreaSeries data={chart.prices} options={areaSeriesOptions} />
             <TimeScale>
               <TimeScaleFitContentTrigger
-                deps={[chart.prices, theme, chartType]}
+                deps={[chart.prices, theme, chartType, resizeKey]}
               />
             </TimeScale>
           </Chart>
         ) : chartType === 'baseline' ? (
           <Chart
+            key={`baseline-${resizeKey}`}
             containerProps={{
               className: 'absolute inset-0 w-full h-full min-w-0',
             }}
@@ -137,12 +136,13 @@ export function CoinChart({
             />
             <TimeScale>
               <TimeScaleFitContentTrigger
-                deps={[chart.prices, theme, chartType]}
+                deps={[chart.prices, theme, chartType, resizeKey]}
               />
             </TimeScale>
           </Chart>
         ) : (
           <iframe
+            key={`tradingview-${resizeKey}`}
             className='w-full h-full'
             src={`https://s.tradingview.com/widgetembed/?symbol=BINANCE:${symbol}USDT&interval=60&theme=${theme}&style=3&hide_side_toolbar=false&autosize=true`}
           />
