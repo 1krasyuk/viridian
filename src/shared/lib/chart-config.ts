@@ -16,6 +16,7 @@ export const getChartColors = (isDark: boolean) => ({
   areaBottomNegative: isDark
     ? 'rgba(239, 68, 68, 0.5)'
     : 'rgba(220, 38, 38, 0.4)',
+  crosshair: isDark ? '#6b7280' : '#d1d5db',
 })
 
 export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
@@ -37,17 +38,26 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
       horzLines: { color: colors.grid },
     },
     crosshair: {
+      mode: 0,
       vertLine: {
-        color: colors.line,
-        labelBackgroundColor: colors.line,
+        color: colors.crosshair,
+        width: 1,
+        style: 2,
+        labelBackgroundColor: colors.crosshair,
       },
       horzLine: {
-        color: colors.line,
-        labelBackgroundColor: colors.line,
+        color: colors.crosshair,
+        width: 1,
+        style: 2,
+        labelBackgroundColor: colors.crosshair,
       },
     },
     rightPriceScale: {
       borderColor: colors.grid,
+      scaleMargins: {
+        top: 0.1,
+        bottom: 0.1,
+      },
     },
     timeScale: {
       borderColor: colors.grid,
@@ -63,7 +73,7 @@ export const createAreaSeriesOptions = (
     topColor: colors.areaTop,
     bottomColor: colors.areaBottom,
     lineWidth: 2,
-    lastValueVisible: false,
+    lastValueVisible: true,
     priceLineVisible: false,
   }) as const
 
@@ -80,6 +90,6 @@ export const createBaselineSeriesOptions = (
     bottomFillColor1: colors.areaTopNegative,
     bottomFillColor2: colors.areaBottomNegative,
     lineWidth: 2,
-    lastValueVisible: false,
+    lastValueVisible: true,
     priceLineVisible: false,
   }) as const
