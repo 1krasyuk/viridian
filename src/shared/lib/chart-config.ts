@@ -17,6 +17,7 @@ export const getChartColors = (isDark: boolean) => ({
     ? 'rgba(239, 68, 68, 0.5)'
     : 'rgba(220, 38, 38, 0.4)',
   crosshair: isDark ? '#6b7280' : '#d1d5db',
+  baseLine: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)',
 })
 
 export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>

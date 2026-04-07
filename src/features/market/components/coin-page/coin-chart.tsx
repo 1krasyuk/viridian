@@ -9,6 +9,7 @@ import {
   Chart,
   TimeScale,
   TimeScaleFitContentTrigger,
+  LineSeries,
 } from 'lightweight-charts-react-components'
 import {
   getChartColors,
@@ -69,6 +70,26 @@ export function CoinChart({
     if (chart.prices.length === 0) return 0
     return chart.prices[0].value
   }, [chart.prices])
+
+  const baseLineData = useMemo(() => {
+    if (!chart.prices.length) return []
+
+    const firstTime = chart.prices[0].time
+    const lastTime = chart.prices[chart.prices.length - 1].time
+
+    return [
+      { time: firstTime, value: baseValue },
+      { time: lastTime, value: baseValue },
+    ]
+  }, [chart.prices, baseValue])
+
+  const baseLineOptions = {
+    color: colors.baseLine,
+    lineWidth: 1,
+    lineStyle: 2,
+    lastValueVisible: true,
+    priceLineVisible: false,
+  } as const
 
   const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
 
@@ -134,6 +155,7 @@ export function CoinChart({
               data={chart.prices}
               options={baselineSeriesOptions}
             />
+            <LineSeries data={baseLineData} options={baseLineOptions} />
             <TimeScale>
               <TimeScaleFitContentTrigger
                 deps={[chart.prices, theme, chartType, resizeKey]}
