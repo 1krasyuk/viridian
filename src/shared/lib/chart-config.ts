@@ -71,6 +71,13 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
     timeScale: {
       borderColor: colors.grid,
       timeVisible: true,
+      tickMarkFormatter: (time: number) => {
+        const date = new Date(time * 1000)
+        return date.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          hour12: true,
+        })
+      },
     },
   }) as const
 
