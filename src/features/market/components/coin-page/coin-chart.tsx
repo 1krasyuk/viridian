@@ -25,6 +25,13 @@ type ChartType = 'simple' | 'baseline' | 'tradingview'
 
 const CHART_TYPE_KEY = 'coin-chart-type'
 
+type TooltipState = {
+  x: number
+  y: number
+  time: string
+  value: number
+} | null
+
 export function CoinChart({
   symbol,
   chart,
@@ -33,18 +40,22 @@ export function CoinChart({
   chart: CoinChart
 }) {
   const { theme } = useTheme()
+
   const [chartType, setChartType] = useState<ChartType>(() => {
     const saved = localStorage.getItem(CHART_TYPE_KEY) as ChartType | null
     return saved && ['simple', 'baseline', 'tradingview'].includes(saved)
       ? saved
       : 'simple'
   })
+
   const [resizeKey, setResizeKey] = useState(0)
+  const [tooltip, setTooltip] = useState<TooltipState>(null)
+
   const containerRef = useRef<HTMLDivElement>(null)
   const chartApiRef = useRef<IChartApi | null>(null)
+
   const areaSeriesRef = useRef<SeriesApiRef<'Area'> | null>(null)
   const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
-  const tooltipRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
     if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
@@ -58,37 +69,32 @@ export function CoinChart({
   }
 
   const handleCrosshairMove = (param: MouseEventParams<Time>) => {
-    const tooltip = tooltipRef.current
-    if (!tooltip) return
-
     if (!param.point || !param.time) {
-      tooltip.style.opacity = '0'
+      setTooltip(null)
       return
     }
 
     const series =
       chartType === 'simple' ? areaSeriesRef.current : baselineSeriesRef.current
 
-    if (!series?._series) return
+    if (!series?._series) {
+      setTooltip(null)
+      return
+    }
 
     const data = param.seriesData.get(series._series)
 
     if (!data || !('value' in data)) {
-      tooltip.style.opacity = '0'
+      setTooltip(null)
       return
     }
 
-    tooltip.style.opacity = '1'
-    tooltip.style.transform = `translate(${param.point.x + 12}px, ${param.point.y + 12}px)`
-
-    tooltip.innerHTML = `
-    <div class="text-xs opacity-70">
-      ${new Date(Number(param.time) * 1000).toLocaleTimeString()}
-    </div>
-    <div class="font-medium">
-       ${formatPrice(data.value)}
-    </div>
-  `
+    setTooltip({
+      x: param.point.x,
+      y: param.point.y,
+      time: new Date(Number(param.time) * 1000).toLocaleTimeString(),
+      value: data.value,
+    })
   }
 
   useEffect(() => {
@@ -112,7 +118,7 @@ export function CoinChart({
   const areaSeriesOptions = createAreaSeriesOptions(colors)
 
   const baseValue = useMemo(() => {
-    if (chart.prices.length === 0) return 0
+    if (!chart.prices.length) return 0
     return chart.prices[0].value
   }, [chart.prices])
 
@@ -172,11 +178,22 @@ export function CoinChart({
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
+
       <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
-        <div
-          ref={tooltipRef}
-          className='absolute z-50 pointer-events-none bg-background border rounded px-2 py-1 text-xs shadow opacity-0'
-        />
+        {/* ✅ JSX TOOLTIP */}
+        {tooltip && (
+          <div
+            className='absolute z-50 pointer-events-none bg-background border rounded px-2 py-1 text-xs shadow'
+            style={{
+              left: tooltip.x + 12,
+              top: tooltip.y + 12,
+            }}
+          >
+            <div className='text-xs opacity-70'>{tooltip.time}</div>
+            <div className='font-medium'>{formatPrice(tooltip.value)}</div>
+          </div>
+        )}
+
         {chartType === 'simple' ? (
           <Chart
             key={`simple-${resizeKey}`}
