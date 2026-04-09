@@ -18,7 +18,6 @@ import {
   createChartOptions,
   createAreaSeriesOptions,
   createBaselineSeriesOptions,
-  formatPrice,
 } from '@/shared/lib/chart-config'
 
 type ChartType = 'simple' | 'baseline' | 'tradingview'
@@ -28,8 +27,10 @@ const CHART_TYPE_KEY = 'coin-chart-type'
 type TooltipState = {
   x: number
   y: number
+  date: string
   time: string
   value: number
+  isUp: boolean
 } | null
 
 export function CoinChart({
@@ -77,10 +78,7 @@ export function CoinChart({
     const series =
       chartType === 'simple' ? areaSeriesRef.current : baselineSeriesRef.current
 
-    if (!series?._series) {
-      setTooltip(null)
-      return
-    }
+    if (!series?._series) return
 
     const data = param.seriesData.get(series._series)
 
@@ -89,11 +87,27 @@ export function CoinChart({
       return
     }
 
+    const time = new Date(Number(param.time) * 1000)
+
+    const price = data.value
+    const prev = chart.prices.find((p) => p.time === param.time)?.value ?? price
+
     setTooltip({
       x: param.point.x,
       y: param.point.y,
-      time: new Date(Number(param.time) * 1000).toLocaleTimeString(),
-      value: data.value,
+      date: time.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
+      time: time.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      }),
+      value: price,
+      isUp: price >= prev,
     })
   }
 
@@ -180,17 +194,46 @@ export function CoinChart({
       </div>
 
       <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
-        {/* ✅ JSX TOOLTIP */}
         {tooltip && (
           <div
-            className='absolute z-50 pointer-events-none bg-background border rounded px-2 py-1 text-xs shadow'
+            className='absolute z-50 pointer-events-none bg-muted border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
             style={{
               left: tooltip.x + 12,
               top: tooltip.y + 12,
             }}
           >
-            <div className='text-xs opacity-70'>{tooltip.time}</div>
-            <div className='font-medium'>{formatPrice(tooltip.value)}</div>
+            {/* TOP ROW: date + time */}
+            <div className='flex items-center justify-between mb-2'>
+              <div className='font-bold text-xs text-sidebar-foreground'>
+                {tooltip.date}
+              </div>
+              <div className='text-muted-foreground font-semibold text-xs'>
+                {tooltip.time}
+              </div>
+            </div>
+
+            {/* PRICE ROW */}
+            <div className='flex gap-2 text-sm'>
+              <div className='flex items-center gap-1'>
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    tooltip.isUp ? 'bg-emerald-500' : 'bg-red-500'
+                  }`}
+                />
+                <span className='font-semibold text-muted-foreground'>
+                  Price:
+                </span>
+              </div>
+
+              <div className='font-bold '>
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(tooltip.value)}
+              </div>
+            </div>
           </div>
         )}
 
