@@ -18,6 +18,8 @@ import {
   createChartOptions,
   createAreaSeriesOptions,
   createBaselineSeriesOptions,
+  createBaseLineOptions,
+  getLineColor,
 } from '@/shared/lib/chart-config'
 
 type ChartType = 'simple' | 'baseline' | 'tradingview'
@@ -30,7 +32,6 @@ type TooltipState = {
   date: string
   time: string
   value: number
-  isUp: boolean
 } | null
 
 export function CoinChart({
@@ -90,7 +91,6 @@ export function CoinChart({
     const time = new Date(Number(param.time) * 1000)
 
     const price = data.value
-    const prev = chart.prices.find((p) => p.time === param.time)?.value ?? price
 
     setTooltip({
       x: param.point.x,
@@ -107,7 +107,6 @@ export function CoinChart({
         hour12: true,
       }),
       value: price,
-      isUp: price >= prev,
     })
   }
 
@@ -129,7 +128,7 @@ export function CoinChart({
 
   const colors = getChartColors(isDark)
   const chartOptions = createChartOptions(colors)
-  const areaSeriesOptions = createAreaSeriesOptions(colors)
+  const areaSeriesOptions = createAreaSeriesOptions(colors, chart.prices)
 
   const baseValue = useMemo(() => {
     if (!chart.prices.length) return 0
@@ -148,13 +147,7 @@ export function CoinChart({
     ]
   }, [chart.prices, baseValue])
 
-  const baseLineOptions = {
-    color: colors.baseLine,
-    lineWidth: 1,
-    lineStyle: 2,
-    lastValueVisible: true,
-    priceLineVisible: false,
-  } as const
+  const baseLineOptions = createBaseLineOptions(colors)
 
   const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
 
@@ -217,7 +210,16 @@ export function CoinChart({
               <div className='flex items-center gap-1'>
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    tooltip.isUp ? 'bg-emerald-500' : 'bg-red-500'
+                    chartType === 'simple'
+                      ? (() => {
+                          const lineColor = getLineColor(chart.prices, colors)
+                          return lineColor === colors.positive
+                            ? 'bg-emerald-500'
+                            : 'bg-red-500'
+                        })()
+                      : tooltip.value >= baseValue
+                        ? 'bg-emerald-500'
+                        : 'bg-red-500'
                   }`}
                 />
                 <span className='font-semibold text-muted-foreground'>
