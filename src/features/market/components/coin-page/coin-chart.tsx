@@ -3,6 +3,8 @@ import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import { ChartLine, ChartCandlestick, Activity } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
+import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
+import type { SeriesApiRef } from 'lightweight-charts-react-components'
 import {
   AreaSeries,
   BaselineSeries,
@@ -16,6 +18,7 @@ import {
   createChartOptions,
   createAreaSeriesOptions,
   createBaselineSeriesOptions,
+  formatPrice,
 } from '@/shared/lib/chart-config'
 
 type ChartType = 'simple' | 'baseline' | 'tradingview'
@@ -38,12 +41,54 @@ export function CoinChart({
   })
   const [resizeKey, setResizeKey] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const chartApiRef = useRef<IChartApi | null>(null)
+  const areaSeriesRef = useRef<SeriesApiRef<'Area'> | null>(null)
+  const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
 
   const handleChartTypeChange = (value: string) => {
     if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
       setChartType(value)
       localStorage.setItem(CHART_TYPE_KEY, value)
     }
+  }
+
+  const handleInit = (chart: IChartApi) => {
+    chartApiRef.current = chart
+  }
+
+  const handleCrosshairMove = (param: MouseEventParams<Time>) => {
+    const tooltip = tooltipRef.current
+    if (!tooltip) return
+
+    if (!param.point || !param.time) {
+      tooltip.style.opacity = '0'
+      return
+    }
+
+    const series =
+      chartType === 'simple' ? areaSeriesRef.current : baselineSeriesRef.current
+
+    if (!series?._series) return
+
+    const data = param.seriesData.get(series._series)
+
+    if (!data || !('value' in data)) {
+      tooltip.style.opacity = '0'
+      return
+    }
+
+    tooltip.style.opacity = '1'
+    tooltip.style.transform = `translate(${param.point.x + 12}px, ${param.point.y + 12}px)`
+
+    tooltip.innerHTML = `
+    <div class="text-xs opacity-70">
+      ${new Date(Number(param.time) * 1000).toLocaleTimeString()}
+    </div>
+    <div class="font-medium">
+       ${formatPrice(data.value)}
+    </div>
+  `
   }
 
   useEffect(() => {
@@ -128,6 +173,10 @@ export function CoinChart({
         </ToggleGroup>
       </div>
       <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
+        <div
+          ref={tooltipRef}
+          className='absolute z-50 pointer-events-none bg-background border rounded px-2 py-1 text-xs shadow opacity-0'
+        />
         {chartType === 'simple' ? (
           <Chart
             key={`simple-${resizeKey}`}
@@ -135,8 +184,14 @@ export function CoinChart({
               className: 'absolute inset-0 w-full h-full min-w-0',
             }}
             options={chartOptions}
+            onInit={handleInit}
+            onCrosshairMove={handleCrosshairMove}
           >
-            <AreaSeries data={chart.prices} options={areaSeriesOptions} />
+            <AreaSeries
+              ref={areaSeriesRef}
+              data={chart.prices}
+              options={areaSeriesOptions}
+            />
             <TimeScale>
               <TimeScaleFitContentTrigger
                 deps={[chart.prices, theme, chartType, resizeKey]}
@@ -146,12 +201,15 @@ export function CoinChart({
         ) : chartType === 'baseline' ? (
           <Chart
             key={`baseline-${resizeKey}`}
-            containerProps={{
-              className: 'absolute inset-0 w-full h-full min-w-0',
-            }}
             options={chartOptions}
+            containerProps={{
+              className: 'absolute inset-0',
+            }}
+            onInit={handleInit}
+            onCrosshairMove={handleCrosshairMove}
           >
             <BaselineSeries
+              ref={baselineSeriesRef}
               data={chart.prices}
               options={baselineSeriesOptions}
             />
