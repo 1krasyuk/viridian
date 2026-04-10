@@ -92,6 +92,22 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
         })
       },
     },
+    localization: {
+      timeFormatter: (time: number) => {
+        const date = new Date(time * 1000)
+        return date.toLocaleString('en-GB', {
+          year: '2-digit',
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      },
+      priceFormatter: (price: number) => {
+        return formatPrice(price)
+      },
+    },
   }) as const
 
 export const createAreaSeriesOptions = (
@@ -103,10 +119,10 @@ export const createAreaSeriesOptions = (
 
   return {
     lineColor,
-    topColor: isPositive
+    topColor: isPositive ? colors.areaTopPositive : colors.areaTopNegative,
+    bottomColor: isPositive
       ? colors.areaBottomPositive
       : colors.areaBottomNegative,
-    bottomColor: isPositive ? colors.areaTopPositive : colors.areaTopNegative,
     lineWidth: 2,
     lastValueVisible: true,
     priceLineVisible: false,

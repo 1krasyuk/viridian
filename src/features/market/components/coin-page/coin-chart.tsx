@@ -186,13 +186,13 @@ export function CoinChart({
         </ToggleGroup>
       </div>
 
-      <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
+      <div className='flex-1 min-h-0 relative min-w-0 ' ref={containerRef}>
         {tooltip && (
           <div
-            className='absolute z-50 pointer-events-none bg-muted border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
+            className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
             style={{
-              left: tooltip.x + 12,
-              top: tooltip.y + 12,
+              left: `clamp(12px, ${tooltip.x + 12}px, calc(100% - 212px))`,
+              top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 80px))`,
             }}
           >
             {/* TOP ROW: date + time */}
