@@ -24,16 +24,17 @@ export function useCoin(id: string) {
   })
 }
 
-export function useCoinChart(id: string) {
+export function useCoinChart(id: string, days: string) {
   return useQuery({
-    queryKey: [coinsKeys.detail(id), 'chart'],
-    queryFn: () => coinsApi.getCoinChart(id),
+    queryKey: [coinsKeys.detail(id), 'chart', days],
+    queryFn: () => coinsApi.getCoinChart(id, days),
     select: (data: CoinChartRaw): CoinChart => {
       const mapToSeries = (data: number[][]) =>
         data.map(([time, value]) => ({
           time: (time / 1000) as UTCTimestamp,
           value,
         }))
+
       return {
         ...data,
         prices: mapToSeries(data.prices),

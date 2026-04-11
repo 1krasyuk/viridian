@@ -26,7 +26,11 @@ export const Route = createFileRoute('/coins/$coinId')({
 function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading } = useCoin(coinId)
-  const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(coinId)
+  const [days, setDays] = useState('1')
+  const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(
+    coinId,
+    days,
+  )
   const [viewMode, setViewMode] = useState<'pagination' | 'infinite'>(
     () =>
       (localStorage.getItem('coin-view-mode') as 'pagination' | 'infinite') ||
@@ -37,7 +41,6 @@ function RouteComponent() {
     setViewMode(mode)
     localStorage.setItem('coin-view-mode', mode)
   }
-
   if (isLoading || isLoadingChart || !dataChart || !data) {
     return (
       <div className='text-3xl flex justify-center h-screen text-center items-center'>
@@ -82,7 +85,12 @@ function RouteComponent() {
           // Normal mode
           <div className='flex flex-col min-w-0'>
             <div className='h-175 min-w-0 relative w-full'>
-              <CoinChart chart={dataChart} symbol={data.symbol} />
+              <CoinChart
+                chart={dataChart}
+                symbol={data.symbol}
+                days={days}
+                onDaysChange={setDays}
+              />
             </div>
             <div className='flex flex-col p-5 gap-5'>
               <CoinDescription description={data.description} />
@@ -103,7 +111,12 @@ function RouteComponent() {
               className='min-h-0 min-w-0'
             >
               <div className='h-full min-h-0 min-w-0'>
-                <CoinChart chart={dataChart} symbol={data.symbol} />
+                <CoinChart
+                  chart={dataChart}
+                  symbol={data.symbol}
+                  days={days}
+                  onDaysChange={setDays}
+                />
               </div>
             </ResizablePanel>
 

@@ -37,9 +37,13 @@ type TooltipState = {
 export function CoinChart({
   symbol,
   chart,
+  days,
+  onDaysChange,
 }: {
   symbol: string | undefined
   chart: CoinChart
+  days: string
+  onDaysChange: (v: string) => void
 }) {
   const { theme } = useTheme()
 
@@ -76,12 +80,14 @@ export function CoinChart({
       return
     }
 
-    const series =
-      chartType === 'simple' ? areaSeriesRef.current : baselineSeriesRef.current
+    const seriesApi =
+      chartType === 'simple'
+        ? areaSeriesRef.current?._series
+        : baselineSeriesRef.current?._series
 
-    if (!series?._series) return
+    if (!seriesApi) return
 
-    const data = param.seriesData.get(series._series)
+    const data = param.seriesData.get(seriesApi)
 
     if (!data || !('value' in data)) {
       setTooltip(null)
@@ -153,7 +159,7 @@ export function CoinChart({
 
   return (
     <div className='flex flex-col h-full'>
-      <div className='flex justify-start p-2'>
+      <div className='flex justify-between p-2'>
         <ToggleGroup
           type='single'
           value={chartType}
@@ -182,6 +188,25 @@ export function CoinChart({
           >
             <ChartCandlestick className='h-4 w-4' />
             TradingView
+          </ToggleGroupItem>
+        </ToggleGroup>
+
+        <ToggleGroup
+          type='single'
+          value={days}
+          onValueChange={(v) => v && onDaysChange(v)}
+        >
+          <ToggleGroupItem value='1' variant='outline'>
+            24H
+          </ToggleGroupItem>
+          <ToggleGroupItem value='7' variant='outline'>
+            7D
+          </ToggleGroupItem>
+          <ToggleGroupItem value='30' variant='outline'>
+            30D
+          </ToggleGroupItem>
+          <ToggleGroupItem value='365' variant='outline'>
+            1Y
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

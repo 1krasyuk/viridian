@@ -32,11 +32,11 @@ export const coinsApi = {
     return data
   },
 
-  async getCoinChart(id: string): Promise<CoinChartRaw> {
+  async getCoinChart(id: string, days: string): Promise<CoinChartRaw> {
     const { data } = await http.get<CoinChartRaw>(`/coins/${id}/market_chart`, {
       params: {
         vs_currency: 'usd',
-        days: 1,
+        days,
       },
     })
     return data
