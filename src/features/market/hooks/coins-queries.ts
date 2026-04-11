@@ -43,6 +43,7 @@ export function useCoinChart(id: string, days: string) {
       }
     },
     enabled: !!id,
+    gcTime: 0,
   })
 }
 
