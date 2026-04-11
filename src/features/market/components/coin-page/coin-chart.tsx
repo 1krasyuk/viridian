@@ -133,7 +133,7 @@ export function CoinChart({
       window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   const colors = getChartColors(isDark)
-  const chartOptions = createChartOptions(colors)
+  const chartOptions = createChartOptions(colors, days)
   const areaSeriesOptions = createAreaSeriesOptions(colors, chart.prices)
 
   const baseValue = useMemo(() => {

@@ -44,7 +44,10 @@ export const getLineColor = (
   return change >= 0 ? colors.positive : colors.negative
 }
 
-export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
+export const createChartOptions = (
+  colors: ReturnType<typeof getChartColors>,
+  days: string,
+) =>
   ({
     autoSize: true,
     handleScroll: false,
@@ -86,9 +89,40 @@ export const createChartOptions = (colors: ReturnType<typeof getChartColors>) =>
       timeVisible: true,
       tickMarkFormatter: (time: number) => {
         const date = new Date(time * 1000)
-        return date.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          hour12: true,
+        if (days === '1') {
+          const hours = date.getHours()
+          const minutes = date.getMinutes()
+
+          if (hours === 0 && minutes < 30) {
+            return date.toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            })
+          }
+
+          const ampm = hours >= 12 ? 'PM' : 'AM'
+          const h = hours % 12 || 12
+          return `${h} ${ampm}`
+        }
+
+        if (days === '7') {
+          return date.toLocaleTimeString('en-US', {
+            weekday: 'short',
+            hour: 'numeric',
+            hour12: true,
+          })
+        }
+
+        if (days === '30' || days === '90') {
+          return date.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'short',
+          })
+        }
+
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          year: '2-digit',
         })
       },
     },
