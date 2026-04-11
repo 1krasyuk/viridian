@@ -157,6 +157,13 @@ export function CoinChart({
 
   const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
 
+  const [ytdDays] = useState(() => {
+    const now = new Date()
+    const startOfYear = new Date(now.getFullYear(), 0, 1)
+    const diffTime = now.getTime() - startOfYear.getTime()
+    return String(Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
+  })
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-between p-2'>
@@ -203,7 +210,13 @@ export function CoinChart({
             7D
           </ToggleGroupItem>
           <ToggleGroupItem value='30' variant='outline'>
-            30D
+            1M
+          </ToggleGroupItem>
+          <ToggleGroupItem value='90' variant='outline'>
+            3M
+          </ToggleGroupItem>
+          <ToggleGroupItem value={ytdDays} variant='outline'>
+            YTD
           </ToggleGroupItem>
           <ToggleGroupItem value='365' variant='outline'>
             1Y
