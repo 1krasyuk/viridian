@@ -14,12 +14,10 @@ export const getChartColors = (isDark: boolean) => ({
   areaBottomPositive: isDark
     ? 'rgba(82, 212, 173, 0.02)'
     : 'rgba(13, 159, 125, 0.02)',
-  areaTopNegative: isDark
+  areaTopNegative: isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(220, 38, 38, 0.4)',
+  areaBottomNegative: isDark
     ? 'rgba(239, 68, 68, 0.02)'
     : 'rgba(220, 38, 38, 0.02)',
-  areaBottomNegative: isDark
-    ? 'rgba(239, 68, 68, 0.5)'
-    : 'rgba(220, 38, 38, 0.4)',
   crosshair: isDark ? '#6b7280' : '#d1d5db',
   baseLine: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)',
 })
@@ -177,8 +175,8 @@ export const createBaselineSeriesOptions = (
     topFillColor1: colors.areaTopPositive,
     topFillColor2: colors.areaBottomPositive,
     bottomLineColor: colors.negative,
-    bottomFillColor1: colors.areaTopNegative,
-    bottomFillColor2: colors.areaBottomNegative,
+    bottomFillColor1: colors.areaBottomNegative,
+    bottomFillColor2: colors.areaTopNegative,
     lineWidth: 2,
     lastValueVisible: true,
     priceLineVisible: false,
