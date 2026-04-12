@@ -39,7 +39,7 @@ export function CoinPriceChange({ coin }: { coin: Coin }) {
       {periods.map(({ key, label, value }) => (
         <div key={key} className='flex flex-col'>
           <div className='flex items-center justify-center py-2 px-2 bg-card border-b border-border'>
-            <span className='text-xs font-semibold text-muted-foreground'>
+            <span className='text-xs  font-black text-muted-foreground'>
               {label}
             </span>
           </div>
@@ -54,8 +54,9 @@ export function CoinPriceChange({ coin }: { coin: Coin }) {
                       ? 'text-red-500'
                       : 'text-foreground'
                 }`}
+                title={value.toFixed(4)}
               >
-                <span className='inline-block scale-x-150 scale-y-80 mr-1 text-xs'>
+                <span className='inline-block scale-x-130 scale-y-60 mr-1 text-xs'>
                   {value >= 0 ? '▲' : '▼'}
                 </span>
                 {Math.abs(value).toFixed(1)}%

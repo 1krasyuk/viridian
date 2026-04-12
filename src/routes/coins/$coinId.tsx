@@ -18,6 +18,7 @@ import {
   ResizablePanelGroup,
 } from '@/shared/ui/resizable'
 import { LayoutGrid, TerminalSquare } from 'lucide-react'
+import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -93,6 +94,7 @@ function RouteComponent() {
               />
             </div>
             <div className='flex flex-col p-5 gap-5'>
+              <CoinPriceChange coin={data} />
               <CoinDescription description={data.description} />
               <CoinTickersTable
                 coinName={data.name}
@@ -107,7 +109,7 @@ function RouteComponent() {
           <ResizablePanelGroup orientation='vertical'>
             <ResizablePanel
               defaultSize='70%'
-              minSize='15%'
+              minSize='35%'
               className='min-h-0 min-w-0'
             >
               <div className='h-full min-h-0 min-w-0'>
