@@ -35,16 +35,16 @@ export function CoinPriceChange({ coin }: { coin: Coin }) {
   ] as const
 
   return (
-    <div className='grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden border'>
+    <div className='grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden border-2'>
       {periods.map(({ key, label, value }) => (
-        <div key={key} className='flex flex-col bg-card'>
-          <div className='flex items-center justify-center py-2 px-2 bg-muted border-b border-border'>
+        <div key={key} className='flex flex-col'>
+          <div className='flex items-center justify-center py-2 px-2 bg-card border-b border-border'>
             <span className='text-xs font-semibold text-muted-foreground'>
               {label}
             </span>
           </div>
 
-          <div className='flex items-center justify-center py-3 px-2'>
+          <div className='flex items-center justify-center py-3 px-2 bg-background'>
             {value !== null && value !== undefined ? (
               <span
                 className={`text-sm font-semibold ${
@@ -55,7 +55,9 @@ export function CoinPriceChange({ coin }: { coin: Coin }) {
                       : 'text-foreground'
                 }`}
               >
-                {value > 0 ? '▲' : value < 0 ? '▼' : ''}
+                <span className='inline-block scale-x-150 scale-y-80 mr-1 text-xs'>
+                  {value >= 0 ? '▲' : '▼'}
+                </span>
                 {Math.abs(value).toFixed(1)}%
               </span>
             ) : (
