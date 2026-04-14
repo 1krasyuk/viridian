@@ -196,3 +196,27 @@ export const createBaseLineOptions = (
     lastValueVisible: true,
     priceLineVisible: false,
   }) as const
+
+export const formatMarketCap = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+export const createLineSeriesOptions = (
+  colors: ReturnType<typeof getChartColors>,
+  isMarketCap: boolean = false,
+) => {
+  return {
+    color: isMarketCap ? '#3b82f6' : colors.positive,
+    lineWidth: 2,
+    lastValueVisible: true,
+    priceLineVisible: false,
+    priceFormat: {
+      type: 'custom' as const,
+      formatter: isMarketCap ? formatMarketCap : formatPrice,
+    },
+  } as const
+}

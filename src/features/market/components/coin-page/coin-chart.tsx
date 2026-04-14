@@ -8,10 +8,10 @@ import type { SeriesApiRef } from 'lightweight-charts-react-components'
 import {
   AreaSeries,
   BaselineSeries,
+  LineSeries,
   Chart,
   TimeScale,
   TimeScaleFitContentTrigger,
-  LineSeries,
 } from 'lightweight-charts-react-components'
 import {
   getChartColors,
@@ -19,10 +19,12 @@ import {
   createAreaSeriesOptions,
   createBaselineSeriesOptions,
   createBaseLineOptions,
+  createLineSeriesOptions,
   getLineColor,
 } from '@/shared/lib/chart-config'
 
 type ChartType = 'simple' | 'baseline' | 'tradingview'
+type DataType = 'price' | 'marketCap'
 
 const CHART_TYPE_KEY = 'coin-chart-type'
 
@@ -55,6 +57,8 @@ export function CoinChart({
       : 'simple'
   })
 
+  const [dataType, setDataType] = useState<DataType>('price')
+
   const [resizeKey, setResizeKey] = useState(0)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
 
@@ -63,6 +67,7 @@ export function CoinChart({
 
   const areaSeriesRef = useRef<SeriesApiRef<'Area'> | null>(null)
   const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
+  const lineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
 
   const handleChartTypeChange = (value: string) => {
     if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
@@ -81,10 +86,20 @@ export function CoinChart({
       return
     }
 
-    const seriesApi =
-      chartType === 'simple'
-        ? areaSeriesRef.current?._series
-        : baselineSeriesRef.current?._series
+    // Выбираем правильный реф в зависимости от chartType И dataType
+    let seriesApi = null
+
+    if (chartType === 'simple') {
+      seriesApi =
+        dataType === 'price'
+          ? areaSeriesRef.current?._series
+          : lineSeriesRef.current?._series
+    } else if (chartType === 'baseline') {
+      seriesApi =
+        dataType === 'price'
+          ? baselineSeriesRef.current?._series
+          : lineSeriesRef.current?._series
+    }
 
     if (!seriesApi) return
 
@@ -96,8 +111,7 @@ export function CoinChart({
     }
 
     const time = new Date(Number(param.time) * 1000)
-
-    const price = data.value
+    const value = data.value
     const volumeData = chart.total_volumes.find(
       (v) => v.time === Number(param.time),
     )
@@ -116,7 +130,7 @@ export function CoinChart({
         second: '2-digit',
         hour12: true,
       }),
-      value: price,
+      value: value,
       volume: volumeData?.value ?? 0,
     })
   }
@@ -159,8 +173,11 @@ export function CoinChart({
   }, [chart.prices, baseValue])
 
   const baseLineOptions = createBaseLineOptions(colors)
-
   const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
+  const lineSeriesOptions = createLineSeriesOptions(
+    colors,
+    dataType === 'marketCap',
+  )
 
   const [ytdDays] = useState(() => {
     const now = new Date()
@@ -172,6 +189,19 @@ export function CoinChart({
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-between p-2'>
+        <ToggleGroup
+          type='single'
+          value={dataType}
+          onValueChange={(v) => v && setDataType(v as DataType)}
+        >
+          <ToggleGroupItem value='price' variant='outline'>
+            Price
+          </ToggleGroupItem>
+          <ToggleGroupItem value='marketCap' variant='outline'>
+            Market Cap
+          </ToggleGroupItem>
+        </ToggleGroup>
+
         <ToggleGroup
           type='single'
           value={chartType}
@@ -248,29 +278,32 @@ export function CoinChart({
               </div>
             </div>
 
-            {/* PRICE ROW */}
+            {/* DATA ROW */}
             <div className='flex items-center gap-2 text-sm mb-1'>
               <span
                 className={`w-2 h-2 rounded-full ${
-                  chartType === 'simple'
-                    ? (() => {
-                        const lineColor = getLineColor(chart.prices, colors)
-                        return lineColor === colors.positive
-                          ? 'bg-emerald-500'
-                          : 'bg-red-500'
-                      })()
-                    : tooltip.value >= baseValue
-                      ? 'bg-emerald-500'
-                      : 'bg-red-500'
+                  dataType === 'marketCap'
+                    ? 'bg-blue-500'
+                    : chartType === 'simple'
+                      ? (() => {
+                          const lineColor = getLineColor(chart.prices, colors)
+                          return lineColor === colors.positive
+                            ? 'bg-emerald-500'
+                            : 'bg-red-500'
+                        })()
+                      : tooltip.value >= baseValue
+                        ? 'bg-emerald-500'
+                        : 'bg-red-500'
                 }`}
               />
               <span className='font-semibold text-muted-foreground'>
-                Price:
+                {dataType === 'price' ? 'Price:' : 'Market Cap:'}
               </span>
               <span className='font-bold'>
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
+                  notation: dataType === 'marketCap' ? 'compact' : undefined,
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 }).format(tooltip.value)}
@@ -297,7 +330,7 @@ export function CoinChart({
 
         {chartType === 'simple' ? (
           <Chart
-            key={`simple-${resizeKey}`}
+            key={`simple-${resizeKey}-${dataType}`}
             containerProps={{
               className: 'absolute inset-0 w-full h-full min-w-0',
             }}
@@ -305,20 +338,35 @@ export function CoinChart({
             onInit={handleInit}
             onCrosshairMove={handleCrosshairMove}
           >
-            <AreaSeries
-              ref={areaSeriesRef}
-              data={chart.prices}
-              options={areaSeriesOptions}
-            />
+            {dataType === 'price' ? (
+              <AreaSeries
+                ref={areaSeriesRef}
+                data={chart.prices}
+                options={areaSeriesOptions}
+              />
+            ) : (
+              <LineSeries
+                ref={lineSeriesRef}
+                data={chart.market_caps}
+                options={lineSeriesOptions}
+              />
+            )}
             <TimeScale>
               <TimeScaleFitContentTrigger
-                deps={[chart.prices, theme, chartType, resizeKey]}
+                deps={[
+                  chart.prices,
+                  chart.market_caps,
+                  theme,
+                  chartType,
+                  dataType,
+                  resizeKey,
+                ]}
               />
             </TimeScale>
           </Chart>
         ) : chartType === 'baseline' ? (
           <Chart
-            key={`baseline-${resizeKey}`}
+            key={`baseline-${resizeKey}-${dataType}`}
             options={chartOptions}
             containerProps={{
               className: 'absolute inset-0',
@@ -326,15 +374,32 @@ export function CoinChart({
             onInit={handleInit}
             onCrosshairMove={handleCrosshairMove}
           >
-            <BaselineSeries
-              ref={baselineSeriesRef}
-              data={chart.prices}
-              options={baselineSeriesOptions}
-            />
-            <LineSeries data={baseLineData} options={baseLineOptions} />
+            {dataType === 'price' ? (
+              <>
+                <BaselineSeries
+                  ref={baselineSeriesRef}
+                  data={chart.prices}
+                  options={baselineSeriesOptions}
+                />
+                <LineSeries data={baseLineData} options={baseLineOptions} />
+              </>
+            ) : (
+              <LineSeries
+                ref={lineSeriesRef}
+                data={chart.market_caps}
+                options={lineSeriesOptions}
+              />
+            )}
             <TimeScale>
               <TimeScaleFitContentTrigger
-                deps={[chart.prices, theme, chartType, resizeKey]}
+                deps={[
+                  chart.prices,
+                  chart.market_caps,
+                  theme,
+                  chartType,
+                  dataType,
+                  resizeKey,
+                ]}
               />
             </TimeScale>
           </Chart>
