@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { ChartLine, ChartCandlestick, Activity } from 'lucide-react'
+import { ChartLine, ChartCandlestick, Activity, BarChart2 } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
 import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
 import type { SeriesApiRef } from 'lightweight-charts-react-components'
@@ -32,6 +32,7 @@ type TooltipState = {
   date: string
   time: string
   value: number
+  volume: number
 } | null
 
 export function CoinChart({
@@ -97,6 +98,9 @@ export function CoinChart({
     const time = new Date(Number(param.time) * 1000)
 
     const price = data.value
+    const volumeData = chart.total_volumes.find(
+      (v) => v.time === Number(param.time),
+    )
 
     setTooltip({
       x: param.point.x,
@@ -113,6 +117,7 @@ export function CoinChart({
         hour12: true,
       }),
       value: price,
+      volume: volumeData?.value ?? 0,
     })
   }
 
@@ -244,35 +249,48 @@ export function CoinChart({
             </div>
 
             {/* PRICE ROW */}
-            <div className='flex gap-2 text-sm'>
-              <div className='flex items-center gap-1'>
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    chartType === 'simple'
-                      ? (() => {
-                          const lineColor = getLineColor(chart.prices, colors)
-                          return lineColor === colors.positive
-                            ? 'bg-emerald-500'
-                            : 'bg-red-500'
-                        })()
-                      : tooltip.value >= baseValue
-                        ? 'bg-emerald-500'
-                        : 'bg-red-500'
-                  }`}
-                />
-                <span className='font-semibold text-muted-foreground'>
-                  Price:
-                </span>
-              </div>
-
-              <div className='font-bold '>
+            <div className='flex items-center gap-2 text-sm mb-1'>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  chartType === 'simple'
+                    ? (() => {
+                        const lineColor = getLineColor(chart.prices, colors)
+                        return lineColor === colors.positive
+                          ? 'bg-emerald-500'
+                          : 'bg-red-500'
+                      })()
+                    : tooltip.value >= baseValue
+                      ? 'bg-emerald-500'
+                      : 'bg-red-500'
+                }`}
+              />
+              <span className='font-semibold text-muted-foreground'>
+                Price:
+              </span>
+              <span className='font-bold'>
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 }).format(tooltip.value)}
-              </div>
+              </span>
+            </div>
+
+            {/* VOLUME ROW */}
+            <div className='flex items-center gap-1.5 text-sm'>
+              <BarChart2 className='w-3 h-3 text-muted-foreground' />
+              <span className='font-semibold text-muted-foreground'>
+                Volume:
+              </span>
+              <span className='font-bold'>
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  notation: 'compact',
+                  maximumFractionDigits: 2,
+                }).format(tooltip.volume)}
+              </span>
             </div>
           </div>
         )}
