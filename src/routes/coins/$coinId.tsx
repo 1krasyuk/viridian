@@ -28,6 +28,8 @@ function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading } = useCoin(coinId)
   const [days, setDays] = useState('1')
+  const [dataType, setDataType] = useState<'price' | 'marketCap'>('price')
+
   const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(
     coinId,
     days,
@@ -91,6 +93,8 @@ function RouteComponent() {
                 symbol={data.symbol}
                 days={days}
                 onDaysChange={setDays}
+                dataType={dataType}
+                onDataTypeChange={setDataType}
               />
             </div>
             <div className='flex flex-col p-5 gap-5'>
@@ -118,6 +122,8 @@ function RouteComponent() {
                   symbol={data.symbol}
                   days={days}
                   onDaysChange={setDays}
+                  dataType={dataType}
+                  onDataTypeChange={setDataType}
                 />
               </div>
             </ResizablePanel>

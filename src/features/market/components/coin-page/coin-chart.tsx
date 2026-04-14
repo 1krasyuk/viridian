@@ -42,11 +42,15 @@ export function CoinChart({
   chart,
   days,
   onDaysChange,
+  dataType,
+  onDataTypeChange,
 }: {
   symbol: string | undefined
   chart: CoinChart
   days: string
   onDaysChange: (v: string) => void
+  dataType: 'price' | 'marketCap'
+  onDataTypeChange: (v: 'price' | 'marketCap') => void
 }) {
   const { theme } = useTheme()
 
@@ -56,8 +60,6 @@ export function CoinChart({
       ? saved
       : 'simple'
   })
-
-  const [dataType, setDataType] = useState<DataType>('price')
 
   const [resizeKey, setResizeKey] = useState(0)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
@@ -192,7 +194,7 @@ export function CoinChart({
         <ToggleGroup
           type='single'
           value={dataType}
-          onValueChange={(v) => v && setDataType(v as DataType)}
+          onValueChange={(v) => v && onDataTypeChange(v as DataType)}
         >
           <ToggleGroupItem value='price' variant='outline'>
             Price
