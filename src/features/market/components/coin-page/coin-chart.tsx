@@ -267,7 +267,7 @@ export function CoinChart({
             className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
             style={{
               left: `clamp(12px, ${tooltip.x + 12}px, calc(100% - 212px))`,
-              top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 80px))`,
+              top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 90px))`,
             }}
           >
             {/* TOP ROW: date + time */}

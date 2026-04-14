@@ -23,6 +23,12 @@ export const getChartColors = (isDark: boolean) => ({
 })
 
 export const formatPrice = (price: number) => {
+  // Formatter for market cap
+  if (price >= 1e12) return (price / 1e12).toFixed(2) + 'T'
+  if (price >= 1e9) return (price / 1e9).toFixed(2) + 'B'
+  if (price >= 1e6) return (price / 1e6).toFixed(2) + 'M'
+
+  // Formatter for price
   if (price >= 1) return price.toFixed(2)
   if (price >= 0.01) return price.toFixed(4)
   if (price >= 0.0001) return price.toFixed(6)
@@ -197,14 +203,6 @@ export const createBaseLineOptions = (
     priceLineVisible: false,
   }) as const
 
-export const formatMarketCap = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    compactDisplay: 'short',
-    maximumFractionDigits: 2,
-  }).format(value)
-}
-
 export const createLineSeriesOptions = (
   colors: ReturnType<typeof getChartColors>,
   isMarketCap: boolean = false,
@@ -216,7 +214,7 @@ export const createLineSeriesOptions = (
     priceLineVisible: false,
     priceFormat: {
       type: 'custom' as const,
-      formatter: isMarketCap ? formatMarketCap : formatPrice,
+      formatter: formatPrice,
     },
   } as const
 }
