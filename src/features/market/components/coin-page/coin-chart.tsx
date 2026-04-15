@@ -191,49 +191,39 @@ export function CoinChart({
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-between p-2'>
-        <ToggleGroup
-          type='single'
-          value={dataType}
-          onValueChange={(v) => v && onDataTypeChange(v as DataType)}
-        >
-          <ToggleGroupItem value='price' variant='outline'>
-            Price
-          </ToggleGroupItem>
-          <ToggleGroupItem value='marketCap' variant='outline'>
-            Market Cap
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className='flex gap-2'>
+          <ToggleGroup
+            type='single'
+            value={dataType}
+            onValueChange={(v) => v && onDataTypeChange(v as DataType)}
+          >
+            <ToggleGroupItem value='price' variant='outline'>
+              Price
+            </ToggleGroupItem>
+            <ToggleGroupItem value='marketCap' variant='outline'>
+              Market Cap
+            </ToggleGroupItem>
+          </ToggleGroup>
 
-        <ToggleGroup
-          type='single'
-          value={chartType}
-          onValueChange={handleChartTypeChange}
-        >
-          <ToggleGroupItem
-            variant='outline'
-            value='simple'
-            className='h-8 text-sm'
+          <ToggleGroup
+            type='single'
+            value={chartType}
+            onValueChange={handleChartTypeChange}
           >
-            <ChartLine className='h-4 w-4' />
-            Simple
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            variant='outline'
-            value='baseline'
-            className='h-8 text-sm'
-          >
-            <Activity className='h-4 w-4' />
-            Baseline
-          </ToggleGroupItem>
-          <ToggleGroupItem
-            variant='outline'
-            value='tradingview'
-            className='h-8 text-sm'
-          >
-            <ChartCandlestick className='h-4 w-4' />
-            TradingView
-          </ToggleGroupItem>
-        </ToggleGroup>
+            <ToggleGroupItem variant='outline' value='simple'>
+              <ChartLine className='h-4 w-4' />
+              Simple
+            </ToggleGroupItem>
+            <ToggleGroupItem variant='outline' value='baseline'>
+              <Activity className='h-4 w-4' />
+              Baseline
+            </ToggleGroupItem>
+            <ToggleGroupItem variant='outline' value='tradingview'>
+              <ChartCandlestick className='h-4 w-4' />
+              TradingView
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
 
         <ToggleGroup
           type='single'
