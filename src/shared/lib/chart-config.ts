@@ -54,8 +54,9 @@ export const createChartOptions = (
 ) =>
   ({
     autoSize: true,
-    handleScroll: false,
-    handleScale: false,
+    handleScroll: true,
+    handleScale: true,
+    pinch: true,
     layout: {
       attributionLogo: false,
       background: {
@@ -91,6 +92,8 @@ export const createChartOptions = (
     timeScale: {
       borderColor: colors.grid,
       timeVisible: true,
+      fixRightEdge: true,
+      fixLeftEdge: true,
       tickMarkFormatter: (time: number) => {
         const date = new Date(time * 1000)
         if (days === '1') {
