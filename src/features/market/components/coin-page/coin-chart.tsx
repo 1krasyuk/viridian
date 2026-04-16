@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
-import { ChartLine, ChartCandlestick, Activity, BarChart2 } from 'lucide-react'
+import {
+  ChartLine,
+  ChartCandlestick,
+  Activity,
+  BarChart2,
+  Maximize,
+} from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
 import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
 import type { SeriesApiRef } from 'lightweight-charts-react-components'
@@ -22,6 +28,7 @@ import {
   createLineSeriesOptions,
   getLineColor,
 } from '@/shared/lib/chart-config'
+import { Button } from '@/shared/ui/button'
 
 type ChartType = 'simple' | 'baseline' | 'tradingview'
 type DataType = 'price' | 'marketCap'
@@ -88,7 +95,6 @@ export function CoinChart({
       return
     }
 
-    // Выбираем правильный реф в зависимости от chartType И dataType
     let seriesApi = null
 
     if (chartType === 'simple') {
@@ -188,6 +194,14 @@ export function CoinChart({
     return String(Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
   })
 
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    } else {
+      containerRef.current?.requestFullscreen()
+    }
+  }
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-between p-2'>
@@ -225,30 +239,36 @@ export function CoinChart({
           </ToggleGroup>
         </div>
 
-        <ToggleGroup
-          type='single'
-          value={days}
-          onValueChange={(v) => v && onDaysChange(v)}
-        >
-          <ToggleGroupItem value='1' variant='outline'>
-            24H
-          </ToggleGroupItem>
-          <ToggleGroupItem value='7' variant='outline'>
-            7D
-          </ToggleGroupItem>
-          <ToggleGroupItem value='30' variant='outline'>
-            1M
-          </ToggleGroupItem>
-          <ToggleGroupItem value='90' variant='outline'>
-            3M
-          </ToggleGroupItem>
-          <ToggleGroupItem value={ytdDays} variant='outline'>
-            YTD
-          </ToggleGroupItem>
-          <ToggleGroupItem value='365' variant='outline'>
-            1Y
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className='flex gap-2'>
+          <ToggleGroup
+            type='single'
+            value={days}
+            onValueChange={(v) => v && onDaysChange(v)}
+          >
+            <ToggleGroupItem value='1' variant='outline'>
+              24H
+            </ToggleGroupItem>
+            <ToggleGroupItem value='7' variant='outline'>
+              7D
+            </ToggleGroupItem>
+            <ToggleGroupItem value='30' variant='outline'>
+              1M
+            </ToggleGroupItem>
+            <ToggleGroupItem value='90' variant='outline'>
+              3M
+            </ToggleGroupItem>
+            <ToggleGroupItem value={ytdDays} variant='outline'>
+              YTD
+            </ToggleGroupItem>
+            <ToggleGroupItem value='365' variant='outline'>
+              1Y
+            </ToggleGroupItem>
+          </ToggleGroup>
+
+          <Button size='icon' variant='outline' onClick={toggleFullscreen}>
+            <Maximize className='h-4 w-4' />
+          </Button>
+        </div>
       </div>
 
       <div className='flex-1 min-h-0 relative min-w-0 ' ref={containerRef}>
