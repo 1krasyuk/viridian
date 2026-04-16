@@ -238,7 +238,27 @@ export function CoinChart({
 
     const filename = `${coin}-${period}-chart-viridian Desktop ${date}-${time}.png`
 
-    const canvas = chartApi.takeScreenshot()
+    const original = chartApi.takeScreenshot()
+
+    const canvas = document.createElement('canvas')
+    canvas.width = 1920
+    canvas.height = 1080
+
+    const ctx = canvas.getContext('2d')!
+
+    ctx.fillStyle = isDark ? '#09090b' : '#ffffff'
+    ctx.fillRect(0, 0, 1920, 1080)
+
+    const scale = Math.min(1920 / original.width, 1080 / original.height)
+    const w = original.width * scale
+    const h = original.height * scale
+    const x = (1920 - w) / 2
+    const y = (1080 - h) / 2
+
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(original, x, y, w, h)
+
     const link = document.createElement('a')
     link.href = canvas.toDataURL('image/png')
     link.download = filename
