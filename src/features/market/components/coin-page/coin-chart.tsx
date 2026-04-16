@@ -7,6 +7,7 @@ import {
   Activity,
   BarChart2,
   Maximize,
+  Download,
 } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
 import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
@@ -202,6 +203,36 @@ export function CoinChart({
     }
   }
 
+  const downloadChart = () => {
+    const chartApi = chartApiRef.current
+    if (!chartApi) return
+
+    const periodMap: Record<string, string> = {
+      '1': '1d',
+      '7': '7d',
+      '30': '30d',
+      '90': '90d',
+      [ytdDays]: 'ytd',
+      '365': '1y',
+    }
+
+    const period = periodMap[days] || `${days}d`
+    const coin = (symbol || 'unknown').toLowerCase()
+
+    const now = new Date()
+
+    const date = now.toLocaleDateString('en-CA').replaceAll('-', '.')
+    const time = now.toTimeString().slice(0, 5).replace(':', '.')
+
+    const filename = `${coin}-${period}-chart-viridian Desktop ${date}-${time}.png`
+
+    const canvas = chartApi.takeScreenshot()
+    const link = document.createElement('a')
+    link.href = canvas.toDataURL('image/png')
+    link.download = filename
+    link.click()
+  }
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex justify-between p-2'>
@@ -264,6 +295,15 @@ export function CoinChart({
               1Y
             </ToggleGroupItem>
           </ToggleGroup>
+
+          <Button
+            variant='outline'
+            size='icon'
+            onClick={downloadChart}
+            disabled={chartType === 'tradingview'}
+          >
+            <Download className='h-4 w-4' />
+          </Button>
 
           <Button size='icon' variant='outline' onClick={toggleFullscreen}>
             <Maximize className='h-4 w-4' />
