@@ -8,6 +8,7 @@ import {
   BarChart2,
   Maximize,
   Download,
+  Minimize,
 } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
 import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
@@ -71,7 +72,9 @@ export function CoinChart({
 
   const [resizeKey, setResizeKey] = useState(0)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const chartApiRef = useRef<IChartApi | null>(null)
 
@@ -155,6 +158,16 @@ export function CoinChart({
     return () => resizeObserver.disconnect()
   }, [])
 
+  useEffect(() => {
+    const handler = () => {
+      const fullscreen = !!document.fullscreenElement
+      setIsFullscreen(fullscreen)
+      setTimeout(() => setResizeKey((prev) => prev + 1), 100)
+    }
+    document.addEventListener('fullscreenchange', handler)
+    return () => document.removeEventListener('fullscreenchange', handler)
+  }, [])
+
   const isDark =
     theme === 'dark' ||
     (theme === 'system' &&
@@ -199,7 +212,7 @@ export function CoinChart({
     if (document.fullscreenElement) {
       document.exitFullscreen()
     } else {
-      containerRef.current?.requestFullscreen()
+      wrapperRef.current?.requestFullscreen()
     }
   }
 
@@ -220,7 +233,6 @@ export function CoinChart({
     const coin = (symbol || 'unknown').toLowerCase()
 
     const now = new Date()
-
     const date = now.toLocaleDateString('en-CA').replaceAll('-', '.')
     const time = now.toTimeString().slice(0, 5).replace(':', '.')
 
@@ -234,7 +246,7 @@ export function CoinChart({
   }
 
   return (
-    <div className='flex flex-col h-full'>
+    <div ref={wrapperRef} className='flex flex-col h-full bg-background'>
       <div className='flex justify-between p-2'>
         <div className='flex gap-2'>
           <ToggleGroup
@@ -306,12 +318,16 @@ export function CoinChart({
           </Button>
 
           <Button size='icon' variant='outline' onClick={toggleFullscreen}>
-            <Maximize className='h-4 w-4' />
+            {isFullscreen ? (
+              <Minimize className='h-4 w-4' />
+            ) : (
+              <Maximize className='h-4 w-4' />
+            )}
           </Button>
         </div>
       </div>
 
-      <div className='flex-1 min-h-0 relative min-w-0 ' ref={containerRef}>
+      <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
         {tooltip && (
           <div
             className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
@@ -320,7 +336,6 @@ export function CoinChart({
               top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 90px))`,
             }}
           >
-            {/* TOP ROW: date + time */}
             <div className='flex items-center justify-between mb-2'>
               <div className='font-bold text-xs text-sidebar-foreground'>
                 {tooltip.date}
@@ -330,7 +345,6 @@ export function CoinChart({
               </div>
             </div>
 
-            {/* DATA ROW */}
             <div className='flex items-center gap-2 text-sm mb-1'>
               <span
                 className={`w-2 h-2 rounded-full ${
@@ -362,7 +376,6 @@ export function CoinChart({
               </span>
             </div>
 
-            {/* VOLUME ROW */}
             <div className='flex items-center gap-1.5 text-sm'>
               <BarChart2 className='w-3 h-3 text-muted-foreground' />
               <span className='font-semibold text-muted-foreground'>
