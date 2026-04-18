@@ -3,10 +3,15 @@ import { Button } from '@/shared/ui/button'
 import type { Coin } from '../../types/coin'
 import { Badge } from '@/shared/ui/badge'
 import { Star, Share, Check } from 'lucide-react'
+import { Skeleton } from '@/shared/ui/skeleton'
 
-export function CoinHeader({ coin }: { coin: Coin }) {
-  const priceChange = coin.market_data.price_change_percentage_24h
-
+export function CoinHeader({
+  coin,
+  isLoading,
+}: {
+  coin: Coin | undefined
+  isLoading?: boolean
+}) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -14,6 +19,32 @@ export function CoinHeader({ coin }: { coin: Coin }) {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  if (isLoading || !coin) {
+    return (
+      <div className='w-full space-y-3'>
+        <div className='flex flex-wrap items-center justify-between gap-2'>
+          <div className='flex flex-wrap items-center gap-1.5 min-w-40 flex-1'>
+            <Skeleton className='h-5 w-5 rounded-full' />
+            <Skeleton className='h-6 w-32' />
+            <Skeleton className='h-4 w-12' />
+            <Skeleton className='h-5 w-10' />
+          </div>
+          <div className='flex gap-1'>
+            <Skeleton className='h-8 w-16' />
+            <Skeleton className='h-8 w-8' />
+          </div>
+        </div>
+
+        <div className='flex flex-wrap items-center gap-3'>
+          <Skeleton className='h-9 w-32' />
+          <Skeleton className='h-6 w-20' />
+        </div>
+      </div>
+    )
+  }
+
+  const priceChange = coin.market_data.price_change_percentage_24h
 
   return (
     <div className='w-full space-y-3'>
