@@ -22,20 +22,24 @@ import {
   Check,
 } from 'lucide-react'
 import type { Coin } from '../../types/coin'
+import { Skeleton } from '@/shared/ui/skeleton'
 
 const InfoRow = ({
   label,
   children,
+  isLoading,
 }: {
   label: string
-  children: React.ReactNode
+  children?: React.ReactNode
+  isLoading?: boolean
 }) => (
-  <div className='flex items-start gap-2'>
+  <div className='flex items-center gap-2'>
     <span className='font-bold pr-3 text-sm text-muted-foreground shrink-0'>
       {label}
     </span>
-
-    <div className='ml-auto flex flex-wrap justify-end gap-1'>{children}</div>
+    <div className='ml-auto flex flex-wrap justify-end gap-1'>
+      {isLoading ? <Skeleton className='h-6 w-24' /> : children}
+    </div>
   </div>
 )
 
@@ -52,13 +56,13 @@ const LinkBtn = ({
     variant='secondary'
     size='sm'
     asChild
-    className='h-7 gap-1.5 text-xs max-w-50 w-auto '
+    className='h-7 gap-1.5 text-xs max-w-50 w-auto'
   >
     <Link
       to={href}
       target='_blank'
       rel='noopener noreferrer'
-      className='overflow-hidden '
+      className='overflow-hidden'
     >
       {Icon && <Icon className='h-3.5 w-3.5 shrink-0' />}
       <span className='truncate'>
@@ -101,7 +105,6 @@ const CopyValue = ({ value, label }: { value: string; label: string }) => {
   return (
     <div className='flex items-center gap-2'>
       <code className='text-xs'>{label}</code>
-
       <Button
         variant='ghost'
         size='icon'
@@ -122,7 +125,27 @@ const CopyValue = ({ value, label }: { value: string; label: string }) => {
   )
 }
 
-export function CoinInfo({ coin }: { coin: Coin }) {
+export function CoinInfo({
+  coin,
+  isLoading,
+}: {
+  coin: Coin | undefined
+  isLoading?: boolean
+}) {
+  if (isLoading || !coin) {
+    return (
+      <div className='flex flex-col gap-3'>
+        <InfoRow label='Website' isLoading />
+        <InfoRow label='Explorers' isLoading />
+        <InfoRow label='Socials' isLoading />
+        <InfoRow label='Community' isLoading />
+        <InfoRow label='Source code' isLoading />
+        <InfoRow label='Categories' isLoading />
+        <InfoRow label='API ID' isLoading />
+      </div>
+    )
+  }
+
   const website = coin.links.homepage.find(Boolean)
   const explorers = coin.links.blockchain_site.filter(Boolean)
   const github = coin.links.repos_url?.github?.[0]
@@ -150,11 +173,10 @@ export function CoinInfo({ coin }: { coin: Coin }) {
 
   return (
     <div className='flex flex-col gap-3'>
-      {/* Website & Whitepaper */}
       {(website || coin.links.whitepaper) && (
         <InfoRow label='Website'>
           {website && (
-            <LinkBtn href={coin.links.homepage.find(Boolean)!} icon={Globe}>
+            <LinkBtn href={website} icon={Globe}>
               Website
             </LinkBtn>
           )}
@@ -166,7 +188,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Explorers */}
       {explorers.length > 0 && (
         <InfoRow label='Explorers'>
           <LinkBtn href={explorers[0]} icon={ExternalLink} />
@@ -174,7 +195,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Socials */}
       {socials.length > 0 && (
         <InfoRow label='Socials'>
           {socials.map((s, i) => (
@@ -193,7 +213,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Forum */}
       {coin.links.official_forum_url?.find(Boolean) && (
         <InfoRow label='Community'>
           <LinkBtn
@@ -205,7 +224,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Source Code */}
       {github && (
         <InfoRow label='Source Code'>
           <LinkBtn href={github} icon={Github}>
@@ -214,7 +232,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Contract Address */}
       {contract && (
         <InfoRow label='Contract'>
           <CopyValue
@@ -224,7 +241,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* Categories */}
       {coin.categories.length > 0 && (
         <InfoRow label='Categories'>
           <Badge variant='secondary' className='text-xs shrink-0'>
@@ -277,7 +293,6 @@ export function CoinInfo({ coin }: { coin: Coin }) {
         </InfoRow>
       )}
 
-      {/* API ID */}
       <InfoRow label='API ID'>
         <CopyValue value={coin.id} label={coin.id} />
       </InfoRow>

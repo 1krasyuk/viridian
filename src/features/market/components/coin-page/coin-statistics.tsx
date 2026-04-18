@@ -6,6 +6,7 @@ import {
 } from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
 import { InfinityIcon, Info } from 'lucide-react'
+import { Skeleton } from '@/shared/ui/skeleton'
 
 type Format = 'currency' | 'number' | 'percent' | 'suffix'
 
@@ -17,6 +18,7 @@ type StatCardProps = {
   isInfinite?: boolean
   change?: number | null
   suffix?: string
+  isLoading?: boolean
 }
 
 function formatValue(value: number, format?: Format, suffix?: string) {
@@ -39,13 +41,13 @@ function formatValue(value: number, format?: Format, suffix?: string) {
       return value.toLocaleString()
   }
 }
+
 function formatTooltipValue(
   value: number | null | undefined,
   format?: 'currency' | 'percent' | 'suffix' | 'number',
   suffix?: string,
 ) {
   if (value == null) return '--'
-
   switch (format) {
     case 'currency':
       return `$${value.toLocaleString('en-US')}`
@@ -57,6 +59,7 @@ function formatTooltipValue(
       return value.toLocaleString()
   }
 }
+
 function ChangeBadge({ value }: { value: number }) {
   const isPositive = value >= 0
   return (
@@ -81,6 +84,7 @@ function StatCard({
   format,
   change,
   suffix,
+  isLoading,
 }: StatCardProps) {
   const formattedValue = isInfinite ? (
     <InfinityIcon className='w-5 h-5' />
@@ -98,57 +102,129 @@ function StatCard({
           {tooltip ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className='inline-flex items-center gap-1'>
-                  <Info size='14' className='shrink-0' />
-                </span>
+                <Info size='14' className='shrink-0 cursor-help' />
               </TooltipTrigger>
               <TooltipContent side='bottom'>
                 <span className='whitespace-pre-line'>{tooltip}</span>
               </TooltipContent>
             </Tooltip>
-          ) : (
-            <span>{label}</span>
-          )}
+          ) : null}
         </div>
       </TooltipProvider>
 
       <div className='flex items-center justify-center flex-wrap gap-2 w-full'>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className='font-bold text-sm cursor-default truncate'>
-                {formattedValue}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent className='text-xs' side='bottom'>
-              <span className='whitespace-pre-line'>
-                {isInfinite ? (
-                  <InfinityIcon className='w-4 h-4' />
-                ) : value == null ? (
-                  '—'
-                ) : (
-                  formatTooltipValue(value, format, suffix)
-                )}
-              </span>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        {change != null && <ChangeBadge value={change} />}
+        {isLoading ? (
+          <Skeleton className='h-5 w-20' />
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className='font-bold text-sm cursor-default truncate'>
+                  {formattedValue}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className='text-xs' side='bottom'>
+                <span className='whitespace-pre-line'>
+                  {isInfinite ? (
+                    <InfinityIcon className='w-4 h-4' />
+                  ) : value == null ? (
+                    '—'
+                  ) : (
+                    formatTooltipValue(value, format, suffix)
+                  )}
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+        {!isLoading && change != null && <ChangeBadge value={change} />}
       </div>
     </div>
   )
 }
 
-export function CoinStatistics({ coin }: { coin: Coin }) {
+export function CoinStatistics({
+  coin,
+  isLoading,
+}: {
+  coin: Coin | undefined
+  isLoading?: boolean
+}) {
+  if (!coin) {
+    return (
+      <div className='grid grid-cols-6 gap-2 items-stretch'>
+        <div className='col-span-6'>
+          <StatCard
+            label='Market Cap'
+            tooltip='The total market value of a cryptocurrency circulating supply.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-3'>
+          <StatCard
+            label='Volume (24h)'
+            tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-3'>
+          <StatCard
+            label='Vol/MCap (24h)'
+            tooltip='Indicator of liquidity. Higher = more liquid and easier to trade.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-6'>
+          <StatCard
+            label='FDV'
+            tooltip='Fully-diluted value (FDV) = price x max supply.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-2'>
+          <StatCard
+            label='Total supply'
+            tooltip='Total coins created - burned.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-2'>
+          <StatCard
+            label='Max. supply'
+            tooltip='Maximum number of coins that can ever exist.'
+            value={null}
+            isLoading
+          />
+        </div>
+        <div className='col-span-2'>
+          <StatCard
+            label='Circ. supply'
+            tooltip='Coins currently available on the market.'
+            value={null}
+            isLoading
+          />
+        </div>
+      </div>
+    )
+  }
+
+  const data = coin.market_data
+
   return (
     <div className='grid grid-cols-6 gap-2 items-stretch'>
       <div className='col-span-6'>
         <StatCard
           label='Market Cap'
           tooltip='The total market value of a cryptocurrency circulating supply.'
-          value={coin.market_data.market_cap.usd}
+          value={data.market_cap.usd}
           format='currency'
-          change={coin.market_data.price_change_percentage_24h}
+          change={data.price_change_percentage_24h}
+          isLoading={isLoading}
         />
       </div>
 
@@ -156,20 +232,18 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
         <StatCard
           label='Volume (24h)'
           tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours. Shows current market activity.'
-          value={coin.market_data.total_volume.usd}
+          value={data.total_volume.usd}
           format='currency'
+          isLoading={isLoading}
         />
       </div>
       <div className='col-span-3'>
         <StatCard
           label='Vol/MCap (24h)'
           tooltip='Indicator of liquidity. Higher = more liquid and easier to trade.'
-          value={
-            (coin.market_data.total_volume.usd /
-              coin.market_data.market_cap.usd) *
-            100
-          }
+          value={(data.total_volume.usd / data.market_cap.usd) * 100}
           format='percent'
+          isLoading={isLoading}
         />
       </div>
 
@@ -177,8 +251,9 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
         <StatCard
           label='FDV'
           tooltip='Fully-diluted value (FDV) = price x max supply. Market cap if all coins were in circulation. Helps estimate potential future valuation.'
-          value={coin.market_data.fully_diluted_valuation.usd}
+          value={data.fully_diluted_valuation.usd}
           format='currency'
+          isLoading={isLoading}
         />
       </div>
 
@@ -186,29 +261,31 @@ export function CoinStatistics({ coin }: { coin: Coin }) {
         <StatCard
           label='Total supply'
           tooltip='Total supply = Total coins created - coins that have been burned. Helps estimate potential future valuation.'
-          value={coin.market_data.total_supply}
+          value={data.total_supply}
           format='suffix'
           suffix={coin.symbol.toUpperCase()}
+          isLoading={isLoading}
         />
       </div>
       <div className='col-span-2'>
         <StatCard
           label='Max. supply'
-          tooltip='Maximum number of coins that can ever exist.      
-           ∞ means no fixed limit.'
-          value={coin.market_data.max_supply}
-          isInfinite={coin.market_data.max_supply_infinite}
+          tooltip='Maximum number of coins that can ever exist. ∞ means no fixed limit.'
+          value={data.max_supply}
+          isInfinite={data.max_supply_infinite}
           format='suffix'
           suffix={coin.symbol.toUpperCase()}
+          isLoading={isLoading}
         />
       </div>
       <div className='col-span-2'>
         <StatCard
           label='Circ. supply'
           tooltip='Coins currently available on the market.'
-          value={coin.market_data.circulating_supply}
+          value={data.circulating_supply}
           format='suffix'
           suffix={coin.symbol.toUpperCase()}
+          isLoading={isLoading}
         />
       </div>
     </div>
