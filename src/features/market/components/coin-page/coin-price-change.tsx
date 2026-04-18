@@ -1,51 +1,89 @@
 import type { Coin } from '../../types/coin'
+import { Skeleton } from '@/shared/ui/skeleton'
 
-export function CoinPriceChange({ coin }: { coin: Coin }) {
-  const periods = [
+const PERIODS = [
+  { key: '1h', label: '1h' },
+  { key: '24h', label: '24h' },
+  { key: '7d', label: '7d' },
+  { key: '14d', label: '14d' },
+  { key: '30d', label: '30d' },
+  { key: '1y', label: '1y' },
+] as const
+
+export function CoinPriceChange({
+  coin,
+  isLoading,
+}: {
+  coin: Coin | undefined
+  isLoading?: boolean
+}) {
+  if (!coin) {
+    return (
+      <div className='grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden border-2'>
+        {PERIODS.map(({ key, label }) => (
+          <div key={key} className='flex flex-col'>
+            <div className='flex items-center justify-center py-2 px-2 bg-card border-b border-border'>
+              <span className='text-xs font-black text-muted-foreground'>
+                {label}
+              </span>
+            </div>
+            <div className='flex items-center justify-center py-3 px-2 bg-background'>
+              <Skeleton className='h-4 w-12' />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const data = coin.market_data
+
+  const periodValues = [
     {
       key: '1h',
       label: '1h',
-      value: coin.market_data.price_change_percentage_1h_in_currency?.usd,
+      value: data.price_change_percentage_1h_in_currency?.usd,
     },
     {
       key: '24h',
       label: '24h',
-      value: coin.market_data.price_change_percentage_24h_in_currency?.usd,
+      value: data.price_change_percentage_24h_in_currency?.usd,
     },
     {
       key: '7d',
       label: '7d',
-      value: coin.market_data.price_change_percentage_7d_in_currency?.usd,
+      value: data.price_change_percentage_7d_in_currency?.usd,
     },
     {
       key: '14d',
       label: '14d',
-      value: coin.market_data.price_change_percentage_14d_in_currency?.usd,
+      value: data.price_change_percentage_14d_in_currency?.usd,
     },
     {
       key: '30d',
       label: '30d',
-      value: coin.market_data.price_change_percentage_30d_in_currency?.usd,
+      value: data.price_change_percentage_30d_in_currency?.usd,
     },
     {
       key: '1y',
       label: '1y',
-      value: coin.market_data.price_change_percentage_1y_in_currency?.usd,
+      value: data.price_change_percentage_1y_in_currency?.usd,
     },
   ] as const
 
   return (
     <div className='grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden border-2'>
-      {periods.map(({ key, label, value }) => (
+      {periodValues.map(({ key, label, value }) => (
         <div key={key} className='flex flex-col'>
           <div className='flex items-center justify-center py-2 px-2 bg-card border-b border-border'>
-            <span className='text-xs  font-black text-muted-foreground'>
+            <span className='text-xs font-black text-muted-foreground'>
               {label}
             </span>
           </div>
-
           <div className='flex items-center justify-center py-3 px-2 bg-background'>
-            {value !== null && value !== undefined ? (
+            {isLoading ? (
+              <Skeleton className='h-4 w-12' />
+            ) : value !== null && value !== undefined ? (
               <span
                 className={`text-sm font-semibold ${
                   value > 0
