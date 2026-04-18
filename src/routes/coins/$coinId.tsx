@@ -17,7 +17,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/shared/ui/resizable'
-import { LayoutGrid, TerminalSquare } from 'lucide-react'
+import { LayoutGrid, Loader2, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 
 export const Route = createFileRoute('/coins/$coinId')({
@@ -26,7 +26,7 @@ export const Route = createFileRoute('/coins/$coinId')({
 
 function RouteComponent() {
   const { coinId } = Route.useParams()
-  const { data, isLoading } = useCoin(coinId)
+  const { data, isLoading: isLoadingCoin } = useCoin(coinId)
   const [days, setDays] = useState('1')
   const [dataType, setDataType] = useState<'price' | 'marketCap'>('price')
 
@@ -43,13 +43,6 @@ function RouteComponent() {
   const handleModeChange = (mode: 'pagination' | 'infinite') => {
     setViewMode(mode)
     localStorage.setItem('coin-view-mode', mode)
-  }
-  if (isLoading || isLoadingChart || !dataChart || !data) {
-    return (
-      <div className='text-3xl flex justify-center h-screen text-center items-center'>
-        LOADING...
-      </div>
-    )
   }
 
   return (
@@ -85,31 +78,41 @@ function RouteComponent() {
         </div>
 
         {viewMode === 'pagination' ? (
-          // Normal mode
+          /* Normal mode */
           <div className='flex flex-col min-w-0'>
             <div className='h-150 min-w-0 relative w-full'>
-              <CoinChart
-                chart={dataChart}
-                symbol={data.symbol}
-                days={days}
-                onDaysChange={setDays}
-                dataType={dataType}
-                onDataTypeChange={setDataType}
-              />
+              {dataChart ? (
+                <CoinChart
+                  chart={dataChart}
+                  symbol={data?.symbol}
+                  days={days}
+                  onDaysChange={setDays}
+                  dataType={dataType}
+                  onDataTypeChange={setDataType}
+                  isLoading={isLoadingChart}
+                />
+              ) : (
+                <div className='h-full flex items-center justify-center'>
+                  <Loader2 className='h-10 w-10 animate-spin text-muted-foreground' />
+                </div>
+              )}
             </div>
             <div className='flex flex-col p-5 gap-5'>
-              <CoinPriceChange coin={data} />
-              <CoinDescription description={data.description} />
+              <CoinPriceChange coin={data} isLoading={isLoadingCoin} />
+              <CoinDescription
+                description={data?.description}
+                isLoading={isLoadingCoin}
+              />
               <CoinTickersTable
-                coinName={data.name}
-                tickers={data.tickers ?? []}
-                loading={isLoading}
+                coinName={data?.name || ''}
+                tickers={data?.tickers ?? []}
+                loading={isLoadingCoin}
                 mode='pagination'
               />
             </div>
           </div>
         ) : (
-          // Terminal mode
+          /* Terminal mode */
           <ResizablePanelGroup orientation='vertical'>
             <ResizablePanel
               defaultSize='70%'
@@ -117,26 +120,33 @@ function RouteComponent() {
               className='min-h-0 min-w-0'
             >
               <div className='h-full min-h-0 min-w-0'>
-                <CoinChart
-                  chart={dataChart}
-                  symbol={data.symbol}
-                  days={days}
-                  onDaysChange={setDays}
-                  dataType={dataType}
-                  onDataTypeChange={setDataType}
-                />
+                {dataChart ? (
+                  <CoinChart
+                    chart={dataChart}
+                    symbol={data?.symbol}
+                    days={days}
+                    onDaysChange={setDays}
+                    dataType={dataType}
+                    onDataTypeChange={setDataType}
+                    isLoading={isLoadingChart}
+                  />
+                ) : (
+                  <div className='h-full flex items-center justify-center'>
+                    <Loader2 className='h-10 w-10 animate-spin text-muted-foreground' />
+                  </div>
+                )}
               </div>
             </ResizablePanel>
 
             <ResizableHandle withHandle />
 
             <ResizablePanel defaultSize='30%' minSize='15%'>
-              <div className='relative h-full overflow-auto  [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
+              <div className='relative h-full overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
                 <div className='py-5'>
                   <CoinTickersTable
-                    coinName={data.name}
-                    tickers={data.tickers ?? []}
-                    loading={isLoading}
+                    coinName={data?.name || ''}
+                    tickers={data?.tickers ?? []}
+                    loading={isLoadingCoin}
                     mode='infinite'
                   />
                 </div>
@@ -149,15 +159,15 @@ function RouteComponent() {
       {/* RIGHT */}
       <div className='min-w-1/4 sticky top-0 h-screen flex flex-col border-l'>
         <div className='bg-background px-5 pt-5 pb-6 relative'>
-          <CoinHeader coin={data} />
+          <CoinHeader coin={data} isLoading={isLoadingCoin} />
         </div>
 
         <div className='flex-1 overflow-y-auto no-scrollbar px-5 pb-5 flex flex-col gap-3'>
-          <CoinStatistics coin={data} />
-          <CoinInfo coin={data} />
-          <CoinSentiment coin={data} />
-          <CoinPricePerformance coin={data} />
-          <CoinConverter coin={data} />
+          <CoinStatistics coin={data} isLoading={isLoadingCoin} />
+          <CoinInfo coin={data} isLoading={isLoadingCoin} />
+          <CoinSentiment coin={data} isLoading={isLoadingCoin} />
+          <CoinPricePerformance coin={data} isLoading={isLoadingCoin} />
+          <CoinConverter coin={data} isLoading={isLoadingCoin} />
         </div>
       </div>
     </div>
