@@ -18,6 +18,10 @@ export function CoinConverter({
   const [coinInput, setCoinInput] = useState('1')
   const [usdInput, setUsdInput] = useState(price?.toString() || '')
 
+  if (price && !usdInput) {
+    setUsdInput(price.toString())
+  }
+
   const parse = (val: string) => {
     const num = Number(val)
     return isNaN(num) ? null : num
@@ -59,7 +63,9 @@ export function CoinConverter({
               converter
             </span>
           </div>
-          <Skeleton className='h-6 w-6 rounded-full' />
+          <Button variant='ghost' className='rounded-full w-6 h-6' disabled>
+            <RotateCcw className='opacity-50' />
+          </Button>
         </div>
 
         <div className='rounded-lg border-2 border-muted-foreground overflow-hidden'>
