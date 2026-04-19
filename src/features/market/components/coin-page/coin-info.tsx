@@ -38,7 +38,7 @@ const InfoRow = ({
       {label}
     </span>
     <div className='ml-auto flex flex-wrap justify-end gap-1'>
-      {isLoading ? <Skeleton className='h-6 w-24' /> : children}
+      {isLoading ? <Skeleton className='rounded-md h-5 w-20' /> : children}
     </div>
   </div>
 )
@@ -134,12 +134,12 @@ export function CoinInfo({
 }) {
   if (isLoading || !coin) {
     return (
-      <div className='flex flex-col gap-3'>
+      <div className='flex flex-col gap-4.5'>
         <InfoRow label='Website' isLoading />
         <InfoRow label='Explorers' isLoading />
         <InfoRow label='Socials' isLoading />
         <InfoRow label='Community' isLoading />
-        <InfoRow label='Source code' isLoading />
+        <InfoRow label='Source Code' isLoading />
         <InfoRow label='Categories' isLoading />
         <InfoRow label='API ID' isLoading />
       </div>
@@ -281,7 +281,7 @@ export function CoinInfo({
                           .replace(/[^a-z0-9]+/g, '-')
                           .replace(/(^-|-$)/g, ''),
                       }}
-                      className='block w-full px-2 py-1'
+                      className='block w-full px-2 py-1.5'
                     >
                       {c}
                     </Link>

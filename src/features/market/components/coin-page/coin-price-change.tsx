@@ -28,7 +28,7 @@ export function CoinPriceChange({
               </span>
             </div>
             <div className='flex items-center justify-center py-3 px-2 bg-background'>
-              <Skeleton className='h-4 w-12' />
+              <Skeleton className='h-5 w-12' />
             </div>
           </div>
         ))}
