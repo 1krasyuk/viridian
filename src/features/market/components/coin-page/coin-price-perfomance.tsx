@@ -44,37 +44,38 @@ function PriceRow({
   change?: number
   isLoading?: boolean
 }) {
+  if (isLoading) {
+    return (
+      <div className='flex justify-between items-center'>
+        <div>
+          <div className='text-sm text-muted-foreground font-bold'>{label}</div>
+          <Skeleton className='h-4 w-20 mt-1' />
+        </div>
+        <div className='text-right'>
+          <Skeleton className='h-4 w-20' />
+          <Skeleton className='h-3 w-12 mt-1 ml-auto' />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='flex justify-between items-center'>
       <div>
         <div className='text-sm text-muted-foreground font-bold'>{label}</div>
-        <div className='text-sm text-ring'>
-          {isLoading ? (
-            <Skeleton className='h-4 w-20 mt-1' />
-          ) : (
-            formatDate(date)
-          )}
-        </div>
+        <div className='text-sm text-ring'>{formatDate(date)}</div>
       </div>
       <div className='text-right'>
-        <div className='text-sm font-bold'>
-          {isLoading ? (
-            <Skeleton className='h-4 w-20 ml-auto' />
-          ) : (
-            formatCurrency(price)
+        <div className='text-sm font-bold'>{formatCurrency(price)}</div>
+        <div
+          className={cn(
+            'text-xs font-semibold',
+            change != null &&
+              (change > 0 ? 'text-emerald-400' : 'text-red-500'),
           )}
+        >
+          {formatPercent(change)}
         </div>
-        {!isLoading && (
-          <div
-            className={cn(
-              'text-xs font-semibold',
-              change != null &&
-                (change > 0 ? 'text-emerald-400' : 'text-red-500'),
-            )}
-          >
-            {formatPercent(change)}
-          </div>
-        )}
       </div>
     </div>
   )
