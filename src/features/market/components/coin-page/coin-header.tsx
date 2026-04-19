@@ -24,15 +24,26 @@ export function CoinHeader({
     return (
       <div className='w-full space-y-3'>
         <div className='flex flex-wrap items-center justify-between gap-2'>
-          <div className='flex flex-wrap items-center gap-1.5 min-w-40 flex-1'>
+          <div className='flex flex-wrap items-center gap-1 min-w-40 flex-1'>
             <Skeleton className='h-5 w-5 rounded-full' />
             <Skeleton className='h-6 w-32' />
-            <Skeleton className='h-4 w-12' />
-            <Skeleton className='h-5 w-10' />
+            <Skeleton className='h-4 w-8' />
+            <Skeleton className='h-5 w-7' />
           </div>
           <div className='flex gap-1'>
-            <Skeleton className='h-8 w-16' />
-            <Skeleton className='h-8 w-8' />
+            <Button variant='secondary' size='sm' disabled className='gap-1.5'>
+              <Star className='h-4 w-4' />
+              <Skeleton className='h-4 w-8' />
+            </Button>
+
+            <Button
+              variant='secondary'
+              size='sm'
+              disabled
+              className='w-8 h-8 p-0 flex items-center justify-center'
+            >
+              <Share className='h-4 w-4 opacity-50' />
+            </Button>
           </div>
         </div>
 
@@ -51,7 +62,10 @@ export function CoinHeader({
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex flex-wrap items-center gap-1.5 min-w-40 flex-1'>
           <img src={coin.image.thumb} alt={coin.name} className='shrink-0' />
-          <p className='font-bold text-xl truncate'>{coin.name}</p>
+
+          <p className='font-bold text-xl truncate max-w-30' title={coin.name}>
+            {coin.name}
+          </p>
           <p className='text-muted-foreground text-sm shrink-0'>
             {coin.symbol.toUpperCase()}
           </p>
@@ -62,15 +76,24 @@ export function CoinHeader({
           )}
         </div>
         <div className='flex gap-1'>
-          <Button variant='secondary' size='sm'>
-            <Star />
+          <Button variant='secondary' size='sm' className='gap-1.5'>
+            <Star className='h-4 w-4 shrink-0' />
             {new Intl.NumberFormat('en', {
               notation: 'compact',
               maximumFractionDigits: 1,
             }).format(coin.watchlist_portfolio_users)}
           </Button>
-          <Button variant='secondary' onClick={handleCopy} size='sm'>
-            {copied ? <Check /> : <Share />}
+          <Button
+            variant='secondary'
+            onClick={handleCopy}
+            size='sm'
+            className='w-8 h-8 p-0 flex items-center justify-center'
+          >
+            {copied ? (
+              <Check className='h-4 w-4' />
+            ) : (
+              <Share className='h-4 w-4' />
+            )}
           </Button>
         </div>
       </div>
