@@ -148,7 +148,7 @@ function RouteComponent() {
       {/* RIGHT */}
       <div className='min-w-1/4 sticky top-0 h-screen flex flex-col border-l'>
         <div className='bg-background px-5 pt-5 pb-6 relative'>
-          <CoinHeader coin={data} isLoading={isLoadingCoin} />
+          <CoinHeader coin={data} isLoading={isLoadingCoin} days={days} />
         </div>
 
         <div className='flex-1 overflow-y-auto no-scrollbar px-5 pb-5 flex flex-col gap-3'>

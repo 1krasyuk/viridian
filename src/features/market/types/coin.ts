@@ -37,6 +37,7 @@ export interface Coin {
     price_change_percentage_7d_in_currency?: Record<string, number>
     price_change_percentage_14d_in_currency?: Record<string, number>
     price_change_percentage_30d_in_currency?: Record<string, number>
+    price_change_percentage_60d_in_currency?: Record<string, number>
     price_change_percentage_1y_in_currency?: Record<string, number>
 
     market_cap: Record<string, number>

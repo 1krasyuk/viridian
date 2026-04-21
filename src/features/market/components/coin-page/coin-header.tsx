@@ -8,9 +8,11 @@ import { Skeleton } from '@/shared/ui/skeleton'
 export function CoinHeader({
   coin,
   isLoading,
+  days,
 }: {
   coin: Coin | undefined
   isLoading?: boolean
+  days?: string
 }) {
   const [copied, setCopied] = useState(false)
 
@@ -55,7 +57,53 @@ export function CoinHeader({
     )
   }
 
-  const priceChange = coin.market_data.price_change_percentage_24h
+  const getPriceChange = () => {
+    if (!coin?.market_data) return null
+
+    switch (days) {
+      case '1':
+        return coin.market_data.price_change_percentage_24h
+      case '7':
+        return coin.market_data.price_change_percentage_7d_in_currency
+      case '30':
+        return coin.market_data.price_change_percentage_30d_in_currency
+      case '90':
+        return coin.market_data.price_change_percentage_60d_in_currency
+      case '365':
+        return coin.market_data.price_change_percentage_1y_in_currency
+      case 'ytd':
+        return coin.market_data.price_change_percentage_1y_in_currency
+      default:
+        return null
+    }
+  }
+
+  const normalizePriceChange = (
+    value: number | Record<string, number> | null | undefined,
+  ): number | null => {
+    if (value == null) return null
+    if (typeof value === 'number') return value
+
+    const v = value.usd
+    return typeof v === 'number' ? v : null
+  }
+  const label =
+    days === '1'
+      ? '(24h)'
+      : days === '7'
+        ? '(7d)'
+        : days === '30'
+          ? '(1m)'
+          : days === '90'
+            ? '(3m)'
+            : days === '365'
+              ? '(1y)'
+              : days === 'ytdDays'
+                ? 'ytd'
+                : '(YTD)'
+
+  const priceChangeRaw = getPriceChange()
+  const priceChange = normalizePriceChange(priceChangeRaw)
 
   return (
     <div className='w-full space-y-3'>
@@ -122,7 +170,7 @@ export function CoinHeader({
           <span className='inline-block scale-x-150 scale-y-80 mr-1 text-xs'>
             {priceChange == null ? '—' : priceChange >= 0 ? '▲' : '▼'}
           </span>
-          {priceChange != null ? priceChange.toFixed(2) : ''}% (24h)
+          {priceChange != null ? priceChange.toFixed(2) : ''}% {label}
         </p>
       </div>
     </div>
