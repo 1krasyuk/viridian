@@ -11,13 +11,14 @@ import { CoinPricePerformance } from '@/features/market/components/coin-page/coi
 import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
+import CoinChartLoader from '@/features/market/components/coin-page/coin-chart-loader'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/shared/ui/resizable'
-import { LayoutGrid, Loader2, TerminalSquare } from 'lucide-react'
+import { LayoutGrid, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 
 export const Route = createFileRoute('/coins/$coinId')({
@@ -92,9 +93,7 @@ function RouteComponent() {
                   isLoading={isLoadingChart}
                 />
               ) : (
-                <div className='h-full flex items-center justify-center'>
-                  <Loader2 className='h-10 w-10 animate-spin text-muted-foreground' />
-                </div>
+                <CoinChartLoader />
               )}
             </div>
             <div className='flex flex-col p-5 gap-5'>
@@ -131,9 +130,7 @@ function RouteComponent() {
                     isLoading={isLoadingChart}
                   />
                 ) : (
-                  <div className='h-full flex items-center justify-center'>
-                    <Loader2 className='h-10 w-10 animate-spin text-muted-foreground' />
-                  </div>
+                  <CoinChartLoader />
                 )}
               </div>
             </ResizablePanel>

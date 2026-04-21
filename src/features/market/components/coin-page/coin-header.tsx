@@ -61,7 +61,11 @@ export function CoinHeader({
     <div className='w-full space-y-3'>
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex flex-wrap items-center gap-1.5 min-w-40 flex-1'>
-          <img src={coin.image.thumb} alt={coin.name} className='shrink-0' />
+          <img
+            src={coin.image.thumb}
+            alt={coin.name}
+            className='rounded-full shrink-0'
+          />
 
           <p className='font-bold text-xl truncate max-w-30' title={coin.name}>
             {coin.name}
