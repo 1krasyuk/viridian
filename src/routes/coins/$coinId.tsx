@@ -11,7 +11,7 @@ import { CoinPricePerformance } from '@/features/market/components/coin-page/coi
 import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
-import CoinChartLoader from '@/features/market/components/coin-page/coin-chart-loader'
+
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   ResizableHandle,
@@ -82,19 +82,15 @@ function RouteComponent() {
           /* Normal mode */
           <div className='flex flex-col min-w-0'>
             <div className='h-150 min-w-0 relative w-full'>
-              {dataChart ? (
-                <CoinChart
-                  chart={dataChart}
-                  symbol={data?.symbol}
-                  days={days}
-                  onDaysChange={setDays}
-                  dataType={dataType}
-                  onDataTypeChange={setDataType}
-                  isLoading={isLoadingChart}
-                />
-              ) : (
-                <CoinChartLoader />
-              )}
+              <CoinChart
+                chart={dataChart}
+                symbol={data?.symbol}
+                days={days}
+                onDaysChange={setDays}
+                dataType={dataType}
+                onDataTypeChange={setDataType}
+                isLoading={isLoadingChart}
+              />
             </div>
             <div className='flex flex-col p-5 gap-5'>
               <CoinPriceChange coin={data} isLoading={isLoadingCoin} />
@@ -119,19 +115,15 @@ function RouteComponent() {
               className='min-h-0 min-w-0'
             >
               <div className='h-full min-h-0 min-w-0'>
-                {dataChart ? (
-                  <CoinChart
-                    chart={dataChart}
-                    symbol={data?.symbol}
-                    days={days}
-                    onDaysChange={setDays}
-                    dataType={dataType}
-                    onDataTypeChange={setDataType}
-                    isLoading={isLoadingChart}
-                  />
-                ) : (
-                  <CoinChartLoader />
-                )}
+                <CoinChart
+                  chart={dataChart}
+                  symbol={data?.symbol}
+                  days={days}
+                  onDaysChange={setDays}
+                  dataType={dataType}
+                  onDataTypeChange={setDataType}
+                  isLoading={isLoadingChart}
+                />
               </div>
             </ResizablePanel>
 
