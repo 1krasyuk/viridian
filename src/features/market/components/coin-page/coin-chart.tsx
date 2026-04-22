@@ -4,7 +4,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   ChartLine,
   ChartCandlestick,
-  Activity,
   BarChart2,
   Maximize,
   Download,
@@ -33,10 +32,10 @@ import {
 import { Button } from '@/shared/ui/button'
 import { Loader2 } from 'lucide-react'
 
-type ChartType = 'simple' | 'baseline' | 'tradingview'
 type DataType = 'price' | 'marketCap'
+type ChartMode = 'classic' | 'tradingview'
 
-const CHART_TYPE_KEY = 'coin-chart-type'
+const CHART_MODE_KEY = 'coin-chart-mode'
 
 type TooltipState = {
   x: number
@@ -55,6 +54,7 @@ export function CoinChart({
   dataType,
   onDataTypeChange,
   isLoading,
+  mode,
 }: {
   symbol: string | undefined
   chart?: CoinChart
@@ -63,14 +63,15 @@ export function CoinChart({
   dataType: 'price' | 'marketCap'
   onDataTypeChange: (v: 'price' | 'marketCap') => void
   isLoading?: boolean
+  mode: 'classic' | 'terminal'
 }) {
   const { theme } = useTheme()
 
-  const [chartType, setChartType] = useState<ChartType>(() => {
-    const saved = localStorage.getItem(CHART_TYPE_KEY) as ChartType | null
-    return saved && ['simple', 'baseline', 'tradingview'].includes(saved)
+  const [chartMode, setChartMode] = useState<ChartMode>(() => {
+    const saved = localStorage.getItem(CHART_MODE_KEY) as ChartMode | null
+    return saved && ['classic', 'tradingview'].includes(saved)
       ? saved
-      : 'simple'
+      : 'classic'
   })
 
   const [resizeKey, setResizeKey] = useState(0)
@@ -85,10 +86,10 @@ export function CoinChart({
   const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
   const lineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
 
-  const handleChartTypeChange = (value: string) => {
-    if (value === 'simple' || value === 'baseline' || value === 'tradingview') {
-      setChartType(value)
-      localStorage.setItem(CHART_TYPE_KEY, value)
+  const handleChartModeChange = (value: string) => {
+    if (value === 'classic' || value === 'tradingview') {
+      setChartMode(value)
+      localStorage.setItem(CHART_MODE_KEY, value)
     }
   }
 
@@ -104,12 +105,12 @@ export function CoinChart({
 
     let seriesApi = null
 
-    if (chartType === 'simple') {
+    if (mode === 'classic') {
       seriesApi =
         dataType === 'price'
           ? areaSeriesRef.current?._series
           : lineSeriesRef.current?._series
-    } else if (chartType === 'baseline') {
+    } else {
       seriesApi =
         dataType === 'price'
           ? baselineSeriesRef.current?._series
@@ -294,18 +295,13 @@ export function CoinChart({
 
           <ToggleGroup
             type='single'
-            value={chartType}
-            onValueChange={handleChartTypeChange}
+            value={chartMode}
+            onValueChange={handleChartModeChange}
             disabled={isLoading}
             className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
-            <ToggleGroupItem variant='outline' value='simple'>
+            <ToggleGroupItem variant='outline' value='classic'>
               <ChartLine className='h-4 w-4' />
-              Simple
-            </ToggleGroupItem>
-            <ToggleGroupItem variant='outline' value='baseline'>
-              <Activity className='h-4 w-4' />
-              Baseline
             </ToggleGroupItem>
             <ToggleGroupItem variant='outline' value='tradingview'>
               <ChartCandlestick className='h-4 w-4' />
@@ -346,7 +342,7 @@ export function CoinChart({
             variant='outline'
             size='icon'
             onClick={downloadChart}
-            disabled={chartType === 'tradingview' || isLoading}
+            disabled={chartMode === 'tradingview' || isLoading}
           >
             <Download className='h-4 w-4' />
           </Button>
@@ -376,7 +372,7 @@ export function CoinChart({
           </div>
         ) : (
           <>
-            {tooltip && (
+            {tooltip && chartMode === 'classic' && (
               <div
                 className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
                 style={{
@@ -398,7 +394,7 @@ export function CoinChart({
                     className={`w-2 h-2 rounded-full ${
                       dataType === 'marketCap'
                         ? 'bg-blue-500'
-                        : chartType === 'simple'
+                        : mode === 'classic'
                           ? (() => {
                               const lineColor = getLineColor(prices, colors)
                               return lineColor === colors.positive
@@ -442,81 +438,86 @@ export function CoinChart({
               </div>
             )}
 
-            {chartType === 'simple' ? (
-              <Chart
-                key={`simple-${resizeKey}-${dataType}`}
-                containerProps={{
-                  className: 'absolute inset-0 w-full h-full min-w-0',
-                }}
-                options={chartOptions}
-                onInit={handleInit}
-                onCrosshairMove={handleCrosshairMove}
-              >
-                {dataType === 'price' ? (
-                  <AreaSeries
-                    ref={areaSeriesRef}
-                    data={prices}
-                    options={areaSeriesOptions}
-                  />
-                ) : (
-                  <LineSeries
-                    ref={lineSeriesRef}
-                    data={marketCaps}
-                    options={lineSeriesOptions}
-                  />
-                )}
-                <TimeScale>
-                  <TimeScaleFitContentTrigger
-                    deps={[
-                      prices,
-                      marketCaps,
-                      theme,
-                      chartType,
-                      dataType,
-                      resizeKey,
-                    ]}
-                  />
-                </TimeScale>
-              </Chart>
-            ) : chartType === 'baseline' ? (
-              <Chart
-                key={`baseline-${resizeKey}-${dataType}`}
-                options={chartOptions}
-                containerProps={{
-                  className: 'absolute inset-0',
-                }}
-                onInit={handleInit}
-                onCrosshairMove={handleCrosshairMove}
-              >
-                {dataType === 'price' ? (
-                  <>
-                    <BaselineSeries
-                      ref={baselineSeriesRef}
+            {chartMode === 'classic' ? (
+              mode === 'classic' ? (
+                <Chart
+                  key={`classic-${resizeKey}-${dataType}`}
+                  containerProps={{
+                    className: 'absolute inset-0 w-full h-full min-w-0',
+                  }}
+                  options={chartOptions}
+                  onInit={handleInit}
+                  onCrosshairMove={handleCrosshairMove}
+                >
+                  {dataType === 'price' ? (
+                    <AreaSeries
+                      ref={areaSeriesRef}
                       data={prices}
-                      options={baselineSeriesOptions}
+                      options={areaSeriesOptions}
                     />
-                    <LineSeries data={baseLineData} options={baseLineOptions} />
-                  </>
-                ) : (
-                  <LineSeries
-                    ref={lineSeriesRef}
-                    data={marketCaps}
-                    options={lineSeriesOptions}
-                  />
-                )}
-                <TimeScale>
-                  <TimeScaleFitContentTrigger
-                    deps={[
-                      prices,
-                      marketCaps,
-                      theme,
-                      chartType,
-                      dataType,
-                      resizeKey,
-                    ]}
-                  />
-                </TimeScale>
-              </Chart>
+                  ) : (
+                    <LineSeries
+                      ref={lineSeriesRef}
+                      data={marketCaps}
+                      options={lineSeriesOptions}
+                    />
+                  )}
+                  <TimeScale>
+                    <TimeScaleFitContentTrigger
+                      deps={[
+                        prices,
+                        marketCaps,
+                        theme,
+                        mode,
+                        dataType,
+                        resizeKey,
+                      ]}
+                    />
+                  </TimeScale>
+                </Chart>
+              ) : (
+                <Chart
+                  key={`terminal-${resizeKey}-${dataType}`}
+                  options={chartOptions}
+                  containerProps={{
+                    className: 'absolute inset-0',
+                  }}
+                  onInit={handleInit}
+                  onCrosshairMove={handleCrosshairMove}
+                >
+                  {dataType === 'price' ? (
+                    <>
+                      <BaselineSeries
+                        ref={baselineSeriesRef}
+                        data={prices}
+                        options={baselineSeriesOptions}
+                      />
+                      <LineSeries
+                        data={baseLineData}
+                        options={baseLineOptions}
+                      />
+                    </>
+                  ) : (
+                    <LineSeries
+                      ref={lineSeriesRef}
+                      data={marketCaps}
+                      options={lineSeriesOptions}
+                    />
+                  )}
+                  <TimeScale>
+                    <TimeScaleFitContentTrigger
+                      deps={[
+                        prices,
+                        marketCaps,
+                        theme,
+                        mode,
+                        dataType,
+                        resizeKey,
+                      ]}
+                    />
+                  </TimeScale>
+                </Chart>
+              )
             ) : (
               <iframe
                 key={`tradingview-${resizeKey}`}

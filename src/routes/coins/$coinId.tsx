@@ -79,7 +79,7 @@ function RouteComponent() {
         </div>
 
         {viewMode === 'pagination' ? (
-          /* Normal mode */
+          /* Classic mode */
           <div className='flex flex-col min-w-0'>
             <div className='h-150 min-w-0 relative w-full'>
               <CoinChart
@@ -90,6 +90,7 @@ function RouteComponent() {
                 dataType={dataType}
                 onDataTypeChange={setDataType}
                 isLoading={isLoadingChart}
+                mode='classic'
               />
             </div>
             <div className='flex flex-col p-5 gap-5'>
@@ -123,6 +124,7 @@ function RouteComponent() {
                   dataType={dataType}
                   onDataTypeChange={setDataType}
                   isLoading={isLoadingChart}
+                  mode='terminal'
                 />
               </div>
             </ResizablePanel>
