@@ -282,6 +282,7 @@ export function CoinChart({
             value={dataType}
             onValueChange={(v) => v && onDataTypeChange(v as DataType)}
             disabled={isLoading}
+            className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
             <ToggleGroupItem value='price' variant='outline'>
               Price
@@ -296,6 +297,7 @@ export function CoinChart({
             value={chartType}
             onValueChange={handleChartTypeChange}
             disabled={isLoading}
+            className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
             <ToggleGroupItem variant='outline' value='simple'>
               <ChartLine className='h-4 w-4' />
@@ -318,6 +320,7 @@ export function CoinChart({
             value={days}
             onValueChange={(v) => v && onDaysChange(v)}
             disabled={isLoading}
+            className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
             <ToggleGroupItem value='1' variant='outline'>
               24H
