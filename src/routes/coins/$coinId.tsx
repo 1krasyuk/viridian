@@ -12,7 +12,6 @@ import { CoinSentiment } from '@/features/market/components/coin-page/coin-senti
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
 
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -20,6 +19,7 @@ import {
 } from '@/shared/ui/resizable'
 import { LayoutGrid, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
+import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -50,33 +50,31 @@ function RouteComponent() {
     <div className='flex min-h-screen'>
       {/* LEFT */}
       <div className='w-3/4 flex flex-col'>
-        {/* TOGGLE */}
-        <div className='flex justify-start p-4 border-b'>
-          <ToggleGroup
-            type='single'
-            value={viewMode}
-            onValueChange={(value) =>
-              value && handleModeChange(value as 'pagination' | 'infinite')
-            }
-          >
-            <ToggleGroupItem
-              variant='outline'
+        {/* TABS */}
+        <Tabs
+          value={viewMode}
+          onValueChange={(value) =>
+            value && handleModeChange(value as 'pagination' | 'infinite')
+          }
+          className='w-full border-b'
+        >
+          <TabsList className='w-full p-0 bg-card rounded-sm'>
+            <TabsTrigger
               value='pagination'
-              className='h-8 px-3 text-sm gap-2'
+              className='flex-1 gap-2 rounded-md text-md font-medium transition-all'
             >
               <LayoutGrid className='h-4 w-4' />
-              Сlassic mode
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              variant='outline'
+              Classic mode
+            </TabsTrigger>
+            <TabsTrigger
               value='infinite'
-              className='h-8 px-3 text-sm gap-2'
+              className='flex-1 gap-2 rounded-md text-md font-medium transition-all'
             >
               <TerminalSquare className='h-4 w-4' />
               Terminal mode
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {viewMode === 'pagination' ? (
           /* Classic mode */
