@@ -81,6 +81,7 @@ function RouteComponent() {
           <div className='flex flex-col min-w-0'>
             <div className='h-150 min-w-0 relative w-full'>
               <CoinChart
+                coinId={coinId}
                 chart={dataChart}
                 symbol={data?.symbol}
                 days={days}
@@ -115,6 +116,7 @@ function RouteComponent() {
             >
               <div className='h-full min-h-0 min-w-0'>
                 <CoinChart
+                  coinId={coinId}
                   chart={dataChart}
                   symbol={data?.symbol}
                   days={days}

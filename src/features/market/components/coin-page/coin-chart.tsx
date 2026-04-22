@@ -10,7 +10,12 @@ import {
   Minimize,
 } from 'lucide-react'
 import type { CoinChart } from '../../types/coin-chart'
-import type { IChartApi, MouseEventParams, Time } from 'lightweight-charts'
+import type {
+  IChartApi,
+  MouseEventParams,
+  Time,
+  UTCTimestamp,
+} from 'lightweight-charts'
 import type { SeriesApiRef } from 'lightweight-charts-react-components'
 import {
   AreaSeries,
@@ -31,6 +36,7 @@ import {
 } from '@/shared/lib/chart-config'
 import { Button } from '@/shared/ui/button'
 import { Loader2 } from 'lucide-react'
+import { useCoinCurrentPrice } from '../../hooks/coins-queries'
 
 type DataType = 'price' | 'marketCap'
 type ChartMode = 'classic' | 'tradingview'
@@ -47,6 +53,7 @@ type TooltipState = {
 } | null
 
 export function CoinChart({
+  coinId,
   symbol,
   chart,
   days,
@@ -56,6 +63,7 @@ export function CoinChart({
   isLoading,
   mode,
 }: {
+  coinId: string
   symbol: string | undefined
   chart?: CoinChart
   days: string
@@ -66,6 +74,11 @@ export function CoinChart({
   mode: 'classic' | 'terminal'
 }) {
   const { theme } = useTheme()
+
+  const { data: currentPrice } = useCoinCurrentPrice(
+    coinId,
+    mode === 'terminal',
+  )
 
   const [chartMode, setChartMode] = useState<ChartMode>(() => {
     const saved = localStorage.getItem(CHART_MODE_KEY) as ChartMode | null
@@ -171,6 +184,26 @@ export function CoinChart({
     document.addEventListener('fullscreenchange', handler)
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
+
+  useEffect(() => {
+    if (!currentPrice || mode !== 'terminal') return
+
+    const newPoint = {
+      time: Math.floor(Date.now() / 1000) as UTCTimestamp,
+      value: dataType === 'price' ? currentPrice.price : currentPrice.marketCap,
+    }
+
+    // Обновляем соответствующий series
+    if (dataType === 'price') {
+      if (mode === 'terminal') {
+        baselineSeriesRef.current?._series?.update(newPoint)
+      } else {
+        areaSeriesRef.current?._series?.update(newPoint)
+      }
+    } else {
+      lineSeriesRef.current?._series?.update(newPoint)
+    }
+  }, [currentPrice, mode, dataType])
 
   const isDark =
     theme === 'dark' ||

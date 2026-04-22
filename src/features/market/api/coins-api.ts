@@ -42,6 +42,32 @@ export const coinsApi = {
     return data
   },
 
+  async getCoinCurrentPrice(
+    id: string,
+  ): Promise<{
+    price: number
+    marketCap: number
+    volume: number
+    timestamp: number
+  }> {
+    const { data } = await http.get(`/coins/${id}`, {
+      params: {
+        localization: false,
+        tickers: false,
+        market_data: true,
+        community_data: false,
+        developer_data: false,
+        sparkline: false,
+      },
+    })
+    return {
+      price: data.market_data.current_price.usd,
+      marketCap: data.market_data.market_cap.usd,
+      volume: data.market_data.total_volume.usd,
+      timestamp: Date.now(),
+    }
+  },
+
   async getCategoriesList(): Promise<Category[]> {
     const { data } = await http.get<Category[]>('/coins/categories/list')
     return data

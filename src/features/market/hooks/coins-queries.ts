@@ -44,6 +44,18 @@ export function useCoinChart(id: string, days: string) {
     },
     enabled: !!id,
     gcTime: 0,
+    refetchIntervalInBackground: false,
+  })
+}
+
+export function useCoinCurrentPrice(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [coinsKeys.detail(id), 'current'],
+    queryFn: () => coinsApi.getCoinCurrentPrice(id),
+    enabled: enabled && !!id,
+    refetchInterval: 10000,
+    refetchIntervalInBackground: false,
+    staleTime: 5000,
   })
 }
 
