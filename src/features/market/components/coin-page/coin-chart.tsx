@@ -39,6 +39,7 @@ import {
 import { Button } from '@/shared/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useCoinCurrentPrice, useCoinOHLC } from '../../hooks/coins-queries'
+import { cn } from '@/shared/lib/utils'
 
 type DataType = 'price' | 'marketCap'
 type ChartMode = 'classic' | 'candles' | 'tradingview'
@@ -51,6 +52,10 @@ type TooltipState = {
   date: string
   time: string
   value: number
+  open?: number
+  high?: number
+  low?: number
+  close?: number
   volume: number
 } | null
 
@@ -114,7 +119,6 @@ export function CoinChart({
   const handleInit = (chart: IChartApi) => {
     chartApiRef.current = chart
   }
-
   const handleCrosshairMove = (param: MouseEventParams<Time>) => {
     if (!param.point || !param.time) {
       setTooltip(null)
@@ -141,36 +145,60 @@ export function CoinChart({
 
     const data = param.seriesData.get(seriesApi)
 
-    if (!data || !('value' in data)) {
+    if (!data) {
       setTooltip(null)
       return
     }
 
     const time = new Date(Number(param.time) * 1000)
-    const value = data.value
     const volumeData = chart?.total_volumes.find(
       (v) => v.time === Number(param.time),
     )
 
-    setTooltip({
-      x: param.point.x,
-      y: param.point.y,
-      date: time.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }),
-      time: time.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      }),
-      value: value,
-      volume: volumeData?.value ?? 0,
-    })
+    if (chartMode === 'candles' && 'open' in data) {
+      setTooltip({
+        x: param.point.x,
+        y: param.point.y,
+        date: time.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+        time: time.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+        value: data.close,
+        open: data.open,
+        high: data.high,
+        low: data.low,
+        close: data.close,
+        volume: volumeData?.value ?? 0,
+      })
+    } else if ('value' in data) {
+      setTooltip({
+        x: param.point.x,
+        y: param.point.y,
+        date: time.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+        time: time.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        }),
+        value: data.value,
+        volume: volumeData?.value ?? 0,
+      })
+    } else {
+      setTooltip(null)
+    }
   }
-
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -481,6 +509,73 @@ export function CoinChart({
                 </div>
               </div>
             )}
+
+            {tooltip &&
+              chartMode === 'candles' &&
+              (() => {
+                const priceFormatter = new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })
+
+                return (
+                  <div
+                    className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
+                    style={{
+                      left: `clamp(12px, ${tooltip.x + 12}px, calc(100% - 232px))`,
+                      top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 90px))`,
+                    }}
+                  >
+                    <div className='flex items-center justify-between mb-2'>
+                      <div className='font-bold text-xs text-sidebar-foreground'>
+                        {tooltip.date}
+                      </div>
+                      <div className='text-muted-foreground font-semibold text-xs'>
+                        {tooltip.time}
+                      </div>
+                    </div>
+
+                    <div className='grid grid-cols-2 gap-x-3 gap-y-1 text-sm'>
+                      <div className='flex items-center gap-2'>
+                        <span className='text-muted-foreground'>Open:</span>
+                        <span className='font-mono font-bold text-foreground'>
+                          {priceFormatter.format(tooltip.open!)}
+                        </span>
+                      </div>
+
+                      <div className='flex items-center gap-2'>
+                        <span className='text-muted-foreground'>Close:</span>
+                        <span
+                          className={cn(
+                            'font-mono font-bold',
+                            tooltip.close! >= tooltip.open!
+                              ? 'text-emerald-500'
+                              : 'text-red-500',
+                          )}
+                        >
+                          {priceFormatter.format(tooltip.close!)}
+                        </span>
+                      </div>
+
+                      <div className='flex items-center gap-2'>
+                        <span className='text-muted-foreground'>High:</span>
+                        <span className='font-mono font-bold text-muted-foreground'>
+                          {priceFormatter.format(tooltip.high!)}
+                        </span>
+                      </div>
+
+                      <div className='flex items-center gap-2'>
+                        <span className='text-muted-foreground'>Low:</span>
+                        <span className='font-mono font-bold text-muted-foreground '>
+                          {priceFormatter.format(tooltip.low!)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
 
             {chartMode === 'candles' && hasOHLC ? (
               <Chart
