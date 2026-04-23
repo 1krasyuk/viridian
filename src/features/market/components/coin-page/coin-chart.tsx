@@ -21,6 +21,7 @@ import {
   AreaSeries,
   BaselineSeries,
   LineSeries,
+  CandlestickSeries,
   Chart,
   TimeScale,
   TimeScaleFitContentTrigger,
@@ -32,14 +33,15 @@ import {
   createBaselineSeriesOptions,
   createBaseLineOptions,
   createLineSeriesOptions,
+  createCandlestickSeriesOptions,
   getLineColor,
 } from '@/shared/lib/chart-config'
 import { Button } from '@/shared/ui/button'
 import { Loader2 } from 'lucide-react'
-import { useCoinCurrentPrice } from '../../hooks/coins-queries'
+import { useCoinCurrentPrice, useCoinOHLC } from '../../hooks/coins-queries'
 
 type DataType = 'price' | 'marketCap'
-type ChartMode = 'classic' | 'tradingview'
+type ChartMode = 'classic' | 'candles' | 'tradingview'
 
 const CHART_MODE_KEY = 'coin-chart-mode'
 
@@ -61,7 +63,7 @@ export function CoinChart({
   dataType,
   onDataTypeChange,
   isLoading,
-  mode,
+  view,
 }: {
   coinId: string
   symbol: string | undefined
@@ -71,21 +73,23 @@ export function CoinChart({
   dataType: 'price' | 'marketCap'
   onDataTypeChange: (v: 'price' | 'marketCap') => void
   isLoading?: boolean
-  mode: 'classic' | 'terminal'
+  view: 'classic' | 'terminal'
 }) {
   const { theme } = useTheme()
 
-  const { data: currentPrice } = useCoinCurrentPrice(
-    coinId,
-    mode === 'terminal',
-  )
-
   const [chartMode, setChartMode] = useState<ChartMode>(() => {
     const saved = localStorage.getItem(CHART_MODE_KEY) as ChartMode | null
-    return saved && ['classic', 'tradingview'].includes(saved)
+    return saved && ['classic', 'candles', 'tradingview'].includes(saved)
       ? saved
       : 'classic'
   })
+
+  const { data: currentPrice } = useCoinCurrentPrice(
+    coinId,
+    view === 'terminal',
+  )
+
+  const { data: ohlcData } = useCoinOHLC(coinId, days, chartMode === 'candles')
 
   const [resizeKey, setResizeKey] = useState(0)
   const [tooltip, setTooltip] = useState<TooltipState>(null)
@@ -98,9 +102,10 @@ export function CoinChart({
   const areaSeriesRef = useRef<SeriesApiRef<'Area'> | null>(null)
   const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
   const lineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
+  const candlestickSeriesRef = useRef<SeriesApiRef<'Candlestick'> | null>(null)
 
   const handleChartModeChange = (value: string) => {
-    if (value === 'classic' || value === 'tradingview') {
+    if (value === 'classic' || value === 'candles' || value === 'tradingview') {
       setChartMode(value)
       localStorage.setItem(CHART_MODE_KEY, value)
     }
@@ -118,7 +123,9 @@ export function CoinChart({
 
     let seriesApi = null
 
-    if (mode === 'classic') {
+    if (chartMode === 'candles') {
+      seriesApi = candlestickSeriesRef.current?._series
+    } else if (view === 'classic') {
       seriesApi =
         dataType === 'price'
           ? areaSeriesRef.current?._series
@@ -186,16 +193,15 @@ export function CoinChart({
   }, [])
 
   useEffect(() => {
-    if (!currentPrice || mode !== 'terminal') return
+    if (!currentPrice || view !== 'terminal' || chartMode === 'candles') return
 
     const newPoint = {
       time: Math.floor(Date.now() / 1000) as UTCTimestamp,
       value: dataType === 'price' ? currentPrice.price : currentPrice.marketCap,
     }
 
-    // Обновляем соответствующий series
     if (dataType === 'price') {
-      if (mode === 'terminal') {
+      if (view === 'terminal') {
         baselineSeriesRef.current?._series?.update(newPoint)
       } else {
         areaSeriesRef.current?._series?.update(newPoint)
@@ -203,7 +209,7 @@ export function CoinChart({
     } else {
       lineSeriesRef.current?._series?.update(newPoint)
     }
-  }, [currentPrice, mode, dataType])
+  }, [currentPrice, view, dataType, chartMode])
 
   const isDark =
     theme === 'dark' ||
@@ -240,6 +246,7 @@ export function CoinChart({
     colors,
     dataType === 'marketCap',
   )
+  const candlestickSeriesOptions = createCandlestickSeriesOptions(colors)
 
   const [ytdDays] = useState(() => {
     const now = new Date()
@@ -306,6 +313,7 @@ export function CoinChart({
   }
 
   const hasData = !isLoading && !!chart && prices.length > 0
+  const hasOHLC = !!ohlcData && ohlcData.length > 0
 
   return (
     <div ref={wrapperRef} className='flex flex-col h-full bg-background'>
@@ -315,7 +323,7 @@ export function CoinChart({
             type='single'
             value={dataType}
             onValueChange={(v) => v && onDataTypeChange(v as DataType)}
-            disabled={isLoading}
+            disabled={isLoading || chartMode === 'candles'}
             className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
             <ToggleGroupItem value='price' variant='outline'>
@@ -335,6 +343,9 @@ export function CoinChart({
           >
             <ToggleGroupItem variant='outline' value='classic'>
               <ChartLine className='h-4 w-4' />
+            </ToggleGroupItem>
+            <ToggleGroupItem variant='outline' value='candles'>
+              <ChartCandlestick className='h-4 w-4' />
             </ToggleGroupItem>
             <ToggleGroupItem variant='outline' value='tradingview'>
               <ChartCandlestick className='h-4 w-4' />
@@ -375,7 +386,7 @@ export function CoinChart({
             variant='outline'
             size='icon'
             onClick={downloadChart}
-            disabled={chartMode === 'tradingview' || isLoading}
+            disabled={chartMode !== 'classic' || isLoading}
           >
             <Download className='h-4 w-4' />
           </Button>
@@ -427,7 +438,7 @@ export function CoinChart({
                     className={`w-2 h-2 rounded-full ${
                       dataType === 'marketCap'
                         ? 'bg-blue-500'
-                        : mode === 'classic'
+                        : view === 'classic'
                           ? (() => {
                               const lineColor = getLineColor(prices, colors)
                               return lineColor === colors.positive
@@ -471,8 +482,29 @@ export function CoinChart({
               </div>
             )}
 
-            {chartMode === 'classic' ? (
-              mode === 'classic' ? (
+            {chartMode === 'candles' && hasOHLC ? (
+              <Chart
+                key={`candles-${resizeKey}-${days}`}
+                containerProps={{
+                  className: 'absolute inset-0 w-full h-full min-w-0',
+                }}
+                options={chartOptions}
+                onInit={handleInit}
+                onCrosshairMove={handleCrosshairMove}
+              >
+                <CandlestickSeries
+                  ref={candlestickSeriesRef}
+                  data={ohlcData}
+                  options={candlestickSeriesOptions}
+                />
+                <TimeScale>
+                  <TimeScaleFitContentTrigger
+                    deps={[ohlcData, theme, chartMode, resizeKey]}
+                  />
+                </TimeScale>
+              </Chart>
+            ) : chartMode === 'classic' ? (
+              view === 'classic' ? (
                 <Chart
                   key={`classic-${resizeKey}-${dataType}`}
                   containerProps={{
@@ -501,7 +533,7 @@ export function CoinChart({
                         prices,
                         marketCaps,
                         theme,
-                        mode,
+                        view,
                         dataType,
                         resizeKey,
                       ]}
@@ -543,7 +575,7 @@ export function CoinChart({
                         prices,
                         marketCaps,
                         theme,
-                        mode,
+                        view,
                         dataType,
                         resizeKey,
                       ]}

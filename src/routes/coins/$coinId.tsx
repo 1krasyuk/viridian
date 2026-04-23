@@ -89,7 +89,7 @@ function RouteComponent() {
                 dataType={dataType}
                 onDataTypeChange={setDataType}
                 isLoading={isLoadingChart}
-                mode='classic'
+                view={'classic'}
               />
             </div>
             <div className='flex flex-col p-5 gap-5'>
@@ -124,14 +124,14 @@ function RouteComponent() {
                   dataType={dataType}
                   onDataTypeChange={setDataType}
                   isLoading={isLoadingChart}
-                  mode='terminal'
+                  view={'terminal'}
                 />
               </div>
             </ResizablePanel>
 
             <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize='30%' minSize='15%'>
+            <ResizablePanel defaultSize='30%' minSize='20%'>
               <div className='relative h-full overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
                 <div className='py-5'>
                   <CoinTickersTable

@@ -221,3 +221,18 @@ export const createLineSeriesOptions = (
     },
   } as const
 }
+export const createCandlestickSeriesOptions = (
+  colors: ReturnType<typeof getChartColors>,
+) =>
+  ({
+    upColor: colors.positive,
+    downColor: colors.negative,
+    borderUpColor: colors.positive,
+    borderDownColor: colors.negative,
+    wickUpColor: colors.positive,
+    wickDownColor: colors.negative,
+    priceFormat: {
+      type: 'custom' as const,
+      formatter: formatPrice,
+    },
+  }) as const
