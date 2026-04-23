@@ -42,9 +42,17 @@ export const coinsApi = {
     return data
   },
 
-  async getCoinCurrentPrice(
-    id: string,
-  ): Promise<{
+  async getCoinOHLC(id: string, days: string): Promise<number[][]> {
+    const { data } = await http.get<number[][]>(`/coins/${id}/ohlc`, {
+      params: {
+        vs_currency: 'usd',
+        days,
+      },
+    })
+    return data
+  },
+
+  async getCoinCurrentPrice(id: string): Promise<{
     price: number
     marketCap: number
     volume: number

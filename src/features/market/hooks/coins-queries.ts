@@ -48,6 +48,26 @@ export function useCoinChart(id: string, days: string) {
   })
 }
 
+import type { OhlcData } from 'lightweight-charts'
+
+export function useCoinOHLC(id: string, days: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [coinsKeys.detail(id), 'ohlc', days],
+    queryFn: () => coinsApi.getCoinOHLC(id, days),
+    select: (data: number[][]): OhlcData[] => {
+      return data.map(([time, open, high, low, close]) => ({
+        time: (time / 1000) as UTCTimestamp,
+        open,
+        high,
+        low,
+        close,
+      }))
+    },
+    enabled: enabled && !!id,
+    gcTime: 0,
+  })
+}
+
 export function useCoinCurrentPrice(id: string, enabled: boolean) {
   return useQuery({
     queryKey: [coinsKeys.detail(id), 'current'],
