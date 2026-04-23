@@ -42,7 +42,7 @@ import { useCoinCurrentPrice, useCoinOHLC } from '../../hooks/coins-queries'
 import { cn } from '@/shared/lib/utils'
 
 type DataType = 'price' | 'marketCap'
-type ChartMode = 'classic' | 'candles' | 'tradingview'
+type ChartMode = 'line' | 'candles' | 'tradingview'
 
 const CHART_MODE_KEY = 'coin-chart-mode'
 
@@ -84,9 +84,9 @@ export function CoinChart({
 
   const [chartMode, setChartMode] = useState<ChartMode>(() => {
     const saved = localStorage.getItem(CHART_MODE_KEY) as ChartMode | null
-    return saved && ['classic', 'candles', 'tradingview'].includes(saved)
+    return saved && ['line', 'candles', 'tradingview'].includes(saved)
       ? saved
-      : 'classic'
+      : 'line'
   })
 
   const { data: currentPrice } = useCoinCurrentPrice(
@@ -110,7 +110,7 @@ export function CoinChart({
   const candlestickSeriesRef = useRef<SeriesApiRef<'Candlestick'> | null>(null)
 
   const handleChartModeChange = (value: string) => {
-    if (value === 'classic' || value === 'candles' || value === 'tradingview') {
+    if (value === 'line' || value === 'candles' || value === 'tradingview') {
       setChartMode(value)
       localStorage.setItem(CHART_MODE_KEY, value)
     }
@@ -311,7 +311,7 @@ export function CoinChart({
     const date = now.toLocaleDateString('en-CA').replaceAll('-', '.')
     const time = now.toTimeString().slice(0, 5).replace(':', '.')
 
-    const filename = `${coin}-${period}-chart-viridian Desktop ${date}-${time}.png`
+    const filename = `${coin}-${period}-${chartMode}-chart-viridian ${date}-${time}.png`
 
     const original = chartApi.takeScreenshot()
 
@@ -369,7 +369,7 @@ export function CoinChart({
             disabled={isLoading}
             className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
-            <ToggleGroupItem variant='outline' value='classic'>
+            <ToggleGroupItem variant='outline' value='line'>
               <ChartLine className='h-4 w-4' />
             </ToggleGroupItem>
             <ToggleGroupItem variant='outline' value='candles'>
@@ -414,7 +414,7 @@ export function CoinChart({
             variant='outline'
             size='icon'
             onClick={downloadChart}
-            disabled={chartMode !== 'classic' || isLoading}
+            disabled={chartMode === 'tradingview' || isLoading}
           >
             <Download className='h-4 w-4' />
           </Button>
@@ -444,7 +444,7 @@ export function CoinChart({
           </div>
         ) : (
           <>
-            {tooltip && chartMode === 'classic' && (
+            {tooltip && chartMode === 'line' && (
               <div
                 className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
                 style={{
@@ -598,7 +598,7 @@ export function CoinChart({
                   />
                 </TimeScale>
               </Chart>
-            ) : chartMode === 'classic' ? (
+            ) : chartMode === 'line' ? (
               view === 'classic' ? (
                 <Chart
                   key={`classic-${resizeKey}-${dataType}`}
