@@ -119,14 +119,14 @@ export function CoinChart({
   const handleInit = (chart: IChartApi) => {
     chartApiRef.current = chart
   }
+
   const handleCrosshairMove = (param: MouseEventParams<Time>) => {
     if (!param.point || !param.time) {
-      setTooltip(null)
+      if (tooltip !== null) setTooltip(null)
       return
     }
 
     let seriesApi = null
-
     if (chartMode === 'candles') {
       seriesApi = candlestickSeriesRef.current?._series
     } else if (view === 'classic') {
@@ -141,64 +141,70 @@ export function CoinChart({
           : lineSeriesRef.current?._series
     }
 
-    if (!seriesApi) return
+    if (!seriesApi) {
+      if (tooltip !== null) setTooltip(null)
+      return
+    }
 
     const data = param.seriesData.get(seriesApi)
-
     if (!data) {
-      setTooltip(null)
+      if (tooltip !== null) setTooltip(null)
       return
     }
 
     const time = new Date(Number(param.time) * 1000)
-    const volumeData = chart?.total_volumes.find(
+    const volumeData = chart?.total_volumes?.find(
       (v) => v.time === Number(param.time),
     )
 
-    if (chartMode === 'candles' && 'open' in data) {
-      setTooltip({
-        x: param.point.x,
-        y: param.point.y,
-        date: time.toLocaleDateString('en-US', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        time: time.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        }),
-        value: data.close,
-        open: data.open,
-        high: data.high,
-        low: data.low,
-        close: data.close,
-        volume: volumeData?.value ?? 0,
-      })
-    } else if ('value' in data) {
-      setTooltip({
-        x: param.point.x,
-        y: param.point.y,
-        date: time.toLocaleDateString('en-US', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-        time: time.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        }),
-        value: data.value,
-        volume: volumeData?.value ?? 0,
-      })
-    } else {
-      setTooltip(null)
+    const newTooltip: TooltipState =
+      chartMode === 'candles' && 'open' in data
+        ? {
+            x: param.point.x,
+            y: param.point.y,
+            date: time.toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            }),
+            time: time.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: true,
+            }),
+            value: data.close,
+            open: data.open,
+            high: data.high,
+            low: data.low,
+            close: data.close,
+            volume: volumeData?.value ?? 0,
+          }
+        : 'value' in data
+          ? {
+              x: param.point.x,
+              y: param.point.y,
+              date: time.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              }),
+              time: time.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+              }),
+              value: data.value,
+              volume: volumeData?.value ?? 0,
+            }
+          : null
+
+    if (JSON.stringify(newTooltip) !== JSON.stringify(tooltip)) {
+      setTooltip(newTooltip)
     }
   }
+
   useEffect(() => {
     if (!containerRef.current) return
 
