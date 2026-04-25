@@ -75,8 +75,8 @@ export function CoinChart({
   chart?: CoinChart
   days: string
   onDaysChange: (v: string) => void
-  dataType: 'price' | 'marketCap'
-  onDataTypeChange: (v: 'price' | 'marketCap') => void
+  dataType: DataType
+  onDataTypeChange: (v: DataType) => void
   isLoading?: boolean
   view: 'classic' | 'terminal'
 }) {
@@ -93,7 +93,6 @@ export function CoinChart({
     coinId,
     view === 'terminal',
   )
-
   const { data: ohlcData } = useCoinOHLC(coinId, days, chartMode === 'candles')
 
   const [resizeKey, setResizeKey] = useState(0)
@@ -108,13 +107,7 @@ export function CoinChart({
   const baselineSeriesRef = useRef<SeriesApiRef<'Baseline'> | null>(null)
   const lineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
   const candlestickSeriesRef = useRef<SeriesApiRef<'Candlestick'> | null>(null)
-
-  const handleChartModeChange = (value: string) => {
-    if (value === 'line' || value === 'candles' || value === 'tradingview') {
-      setChartMode(value)
-      localStorage.setItem(CHART_MODE_KEY, value)
-    }
-  }
+  const baseLineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
 
   const handleInit = (chart: IChartApi) => {
     chartApiRef.current = chart
@@ -122,40 +115,36 @@ export function CoinChart({
 
   const handleCrosshairMove = (param: MouseEventParams<Time>) => {
     if (!param.point || !param.time) {
-      if (tooltip !== null) setTooltip(null)
+      setTooltip(null)
       return
     }
 
-    let seriesApi = null
-    if (chartMode === 'candles') {
-      seriesApi = candlestickSeriesRef.current?._series
-    } else if (view === 'classic') {
-      seriesApi =
-        dataType === 'price'
-          ? areaSeriesRef.current?._series
-          : lineSeriesRef.current?._series
-    } else {
-      seriesApi =
-        dataType === 'price'
-          ? baselineSeriesRef.current?._series
-          : lineSeriesRef.current?._series
-    }
+    const seriesApi =
+      chartMode === 'candles'
+        ? candlestickSeriesRef.current?._series
+        : view === 'classic'
+          ? dataType === 'price'
+            ? areaSeriesRef.current?._series
+            : lineSeriesRef.current?._series
+          : dataType === 'price'
+            ? baselineSeriesRef.current?._series
+            : lineSeriesRef.current?._series
 
     if (!seriesApi) {
-      if (tooltip !== null) setTooltip(null)
+      setTooltip(null)
       return
     }
 
     const data = param.seriesData.get(seriesApi)
     if (!data) {
-      if (tooltip !== null) setTooltip(null)
+      setTooltip(null)
       return
     }
 
     const time = new Date(Number(param.time) * 1000)
-    const volumeData = chart?.total_volumes?.find(
-      (v) => v.time === Number(param.time),
-    )
+    const volume =
+      chart?.total_volumes?.find((v) => v.time === Number(param.time))?.value ??
+      0
 
     const newTooltip: TooltipState =
       chartMode === 'candles' && 'open' in data
@@ -178,7 +167,7 @@ export function CoinChart({
             high: data.high,
             low: data.low,
             close: data.close,
-            volume: volumeData?.value ?? 0,
+            volume,
           }
         : 'value' in data
           ? {
@@ -196,7 +185,7 @@ export function CoinChart({
                 hour12: true,
               }),
               value: data.value,
-              volume: volumeData?.value ?? 0,
+              volume,
             }
           : null
 
@@ -205,82 +194,71 @@ export function CoinChart({
     }
   }
 
+  const prices = useMemo(() => chart?.prices ?? [], [chart])
+  const marketCaps = useMemo(() => chart?.market_caps ?? [], [chart])
+  const baseValue = useMemo(() => prices[0]?.value ?? 0, [prices])
+
   useEffect(() => {
-    if (!containerRef.current) return
+    if (
+      !currentPrice ||
+      view !== 'terminal' ||
+      chartMode === 'candles' ||
+      dataType !== 'price'
+    )
+      return
 
-    const resizeObserver = new ResizeObserver(() => {
-      setResizeKey((prev) => prev + 1)
-    })
+    const newTime = Math.floor(Date.now() / 1000) as UTCTimestamp
+    const newPoint = { time: newTime, value: currentPrice.price }
 
-    resizeObserver.observe(containerRef.current)
-    return () => resizeObserver.disconnect()
+    baselineSeriesRef.current?._series?.update(newPoint)
+
+    if (baseLineSeriesRef.current?._series && prices.length > 0) {
+      const firstTime = prices[0].time
+      baseLineSeriesRef.current._series.setData([
+        { time: firstTime, value: baseValue },
+        { time: newTime, value: baseValue },
+      ])
+    }
+  }, [currentPrice, view, chartMode, dataType, baseValue, prices])
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => setResizeKey((prev) => prev + 1))
+    if (containerRef.current) ro.observe(containerRef.current)
+    return () => ro.disconnect()
   }, [])
 
   useEffect(() => {
     const handler = () => {
-      const fullscreen = !!document.fullscreenElement
-      setIsFullscreen(fullscreen)
+      setIsFullscreen(!!document.fullscreenElement)
       setTimeout(() => setResizeKey((prev) => prev + 1), 100)
     }
     document.addEventListener('fullscreenchange', handler)
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
-  useEffect(() => {
-    if (!currentPrice || view !== 'terminal' || chartMode === 'candles') return
-
-    const newPoint = {
-      time: Math.floor(Date.now() / 1000) as UTCTimestamp,
-      value: dataType === 'price' ? currentPrice.price : currentPrice.marketCap,
-    }
-
-    if (dataType === 'price') {
-      if (view === 'terminal') {
-        baselineSeriesRef.current?._series?.update(newPoint)
-      } else {
-        areaSeriesRef.current?._series?.update(newPoint)
-      }
-    } else {
-      lineSeriesRef.current?._series?.update(newPoint)
-    }
-  }, [currentPrice, view, dataType, chartMode])
-
   const isDark =
     theme === 'dark' ||
     (theme === 'system' &&
       window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-  const prices = useMemo(() => chart?.prices ?? [], [chart])
-  const marketCaps = useMemo(() => chart?.market_caps ?? [], [chart])
-
   const colors = getChartColors(isDark)
   const chartOptions = createChartOptions(colors, days)
   const areaSeriesOptions = createAreaSeriesOptions(colors, prices)
-
-  const baseValue = useMemo(() => {
-    if (!prices.length) return 0
-    return prices[0].value
-  }, [prices])
-
-  const baseLineData = useMemo(() => {
-    if (!prices.length) return []
-
-    const firstTime = prices[0].time
-    const lastTime = prices[prices.length - 1].time
-
-    return [
-      { time: firstTime, value: baseValue },
-      { time: lastTime, value: baseValue },
-    ]
-  }, [prices, baseValue])
-
-  const baseLineOptions = createBaseLineOptions(colors)
   const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
+  const baseLineOptions = createBaseLineOptions(colors)
   const lineSeriesOptions = createLineSeriesOptions(
     colors,
     dataType === 'marketCap',
   )
   const candlestickSeriesOptions = createCandlestickSeriesOptions(colors)
+
+  const baseLineData = useMemo(() => {
+    if (!prices.length) return []
+    return [
+      { time: prices[0].time, value: baseValue },
+      { time: prices[prices.length - 1].time, value: baseValue },
+    ]
+  }, [prices, baseValue])
 
   const [ytdDays] = useState(() => {
     const now = new Date()
@@ -320,11 +298,9 @@ export function CoinChart({
     const filename = `${coin}-${period}-${chartMode}-chart-viridian ${date}-${time}.png`
 
     const original = chartApi.takeScreenshot()
-
     const canvas = document.createElement('canvas')
     canvas.width = 1920
     canvas.height = 1080
-
     const ctx = canvas.getContext('2d')!
 
     ctx.fillStyle = isDark ? '#09090b' : '#ffffff'
@@ -351,6 +327,7 @@ export function CoinChart({
 
   return (
     <div ref={wrapperRef} className='flex flex-col h-full bg-background'>
+      {/* Controls */}
       <div className='flex justify-between p-2'>
         <div className='flex gap-2'>
           <ToggleGroup
@@ -371,7 +348,16 @@ export function CoinChart({
           <ToggleGroup
             type='single'
             value={chartMode}
-            onValueChange={handleChartModeChange}
+            onValueChange={(value) => {
+              if (
+                value === 'line' ||
+                value === 'candles' ||
+                value === 'tradingview'
+              ) {
+                setChartMode(value)
+                localStorage.setItem(CHART_MODE_KEY, value)
+              }
+            }}
             disabled={isLoading}
             className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
           >
@@ -382,8 +368,7 @@ export function CoinChart({
               <ChartCandlestick className='h-4 w-4' />
             </ToggleGroupItem>
             <ToggleGroupItem variant='outline' value='tradingview'>
-              <ChartCandlestick className='h-4 w-4' />
-              TradingView
+              <ChartCandlestick className='h-4 w-4' /> TradingView
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
@@ -440,6 +425,7 @@ export function CoinChart({
         </div>
       </div>
 
+      {/* Chart Container */}
       <div className='flex-1 min-h-0 relative min-w-0' ref={containerRef}>
         {!hasData ? (
           <div className='absolute inset-0 flex flex-col items-center justify-center gap-4'>
@@ -450,6 +436,7 @@ export function CoinChart({
           </div>
         ) : (
           <>
+            {/* Line Tooltip */}
             {tooltip && chartMode === 'line' && (
               <div
                 className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
@@ -516,73 +503,81 @@ export function CoinChart({
               </div>
             )}
 
-            {tooltip &&
-              chartMode === 'candles' &&
-              (() => {
-                const priceFormatter = new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })
-
-                return (
-                  <div
-                    className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
-                    style={{
-                      left: `clamp(12px, ${tooltip.x + 12}px, calc(100% - 232px))`,
-                      top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 90px))`,
-                    }}
-                  >
-                    <div className='flex items-center justify-between mb-2'>
-                      <div className='font-bold text-xs text-sidebar-foreground'>
-                        {tooltip.date}
-                      </div>
-                      <div className='text-muted-foreground font-semibold text-xs'>
-                        {tooltip.time}
-                      </div>
-                    </div>
-
-                    <div className='grid grid-cols-2 gap-x-3 gap-y-1 text-sm'>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-muted-foreground'>Open:</span>
-                        <span className='font-mono font-bold text-foreground'>
-                          {priceFormatter.format(tooltip.open!)}
-                        </span>
-                      </div>
-
-                      <div className='flex items-center gap-2'>
-                        <span className='text-muted-foreground'>Close:</span>
-                        <span
-                          className={cn(
-                            'font-mono font-bold',
-                            tooltip.close! >= tooltip.open!
-                              ? 'text-emerald-500'
-                              : 'text-red-500',
-                          )}
-                        >
-                          {priceFormatter.format(tooltip.close!)}
-                        </span>
-                      </div>
-
-                      <div className='flex items-center gap-2'>
-                        <span className='text-muted-foreground'>High:</span>
-                        <span className='font-mono font-bold text-muted-foreground'>
-                          {priceFormatter.format(tooltip.high!)}
-                        </span>
-                      </div>
-
-                      <div className='flex items-center gap-2'>
-                        <span className='text-muted-foreground'>Low:</span>
-                        <span className='font-mono font-bold text-muted-foreground '>
-                          {priceFormatter.format(tooltip.low!)}
-                        </span>
-                      </div>
-                    </div>
+            {/* Candles Tooltip */}
+            {tooltip && chartMode === 'candles' && (
+              <div
+                className='absolute z-50 pointer-events-none bg-card border rounded-sm px-3 py-2 text-xs shadow-md min-w-50'
+                style={{
+                  left: `clamp(12px, ${tooltip.x + 12}px, calc(100% - 232px))`,
+                  top: `clamp(12px, ${tooltip.y + 12}px, calc(100% - 90px))`,
+                }}
+              >
+                <div className='flex items-center justify-between mb-2'>
+                  <div className='font-bold text-xs text-sidebar-foreground'>
+                    {tooltip.date}
                   </div>
-                )
-              })()}
+                  <div className='text-muted-foreground font-semibold text-xs'>
+                    {tooltip.time}
+                  </div>
+                </div>
 
+                <div className='grid grid-cols-2 gap-x-3 gap-y-1 text-sm'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-muted-foreground'>Open:</span>
+                    <span className='font-mono font-bold text-foreground'>
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(tooltip.open!)}
+                    </span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-muted-foreground'>Close:</span>
+                    <span
+                      className={cn(
+                        'font-mono font-bold',
+                        tooltip.close! >= tooltip.open!
+                          ? 'text-emerald-500'
+                          : 'text-red-500',
+                      )}
+                    >
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(tooltip.close!)}
+                    </span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-muted-foreground'>High:</span>
+                    <span className='font-mono font-bold text-muted-foreground'>
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(tooltip.high!)}
+                    </span>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-muted-foreground'>Low:</span>
+                    <span className='font-mono font-bold text-muted-foreground'>
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      }).format(tooltip.low!)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* === CHARTS === */}
             {chartMode === 'candles' && hasOHLC ? (
               <Chart
                 key={`candles-${resizeKey}-${days}`}
@@ -599,9 +594,7 @@ export function CoinChart({
                   options={candlestickSeriesOptions}
                 />
                 <TimeScale>
-                  <TimeScaleFitContentTrigger
-                    deps={[ohlcData, theme, chartMode, resizeKey]}
-                  />
+                  <TimeScaleFitContentTrigger deps={[ohlcData, resizeKey]} />
                 </TimeScale>
               </Chart>
             ) : chartMode === 'line' ? (
@@ -630,24 +623,16 @@ export function CoinChart({
                   )}
                   <TimeScale>
                     <TimeScaleFitContentTrigger
-                      deps={[
-                        prices,
-                        marketCaps,
-                        theme,
-                        view,
-                        dataType,
-                        resizeKey,
-                      ]}
+                      deps={[prices, marketCaps, resizeKey]}
                     />
                   </TimeScale>
                 </Chart>
               ) : (
+                // Terminal Mode
                 <Chart
                   key={`terminal-${resizeKey}-${dataType}`}
                   options={chartOptions}
-                  containerProps={{
-                    className: 'absolute inset-0',
-                  }}
+                  containerProps={{ className: 'absolute inset-0' }}
                   onInit={handleInit}
                   onCrosshairMove={handleCrosshairMove}
                 >
@@ -659,6 +644,7 @@ export function CoinChart({
                         options={baselineSeriesOptions}
                       />
                       <LineSeries
+                        ref={baseLineSeriesRef}
                         data={baseLineData}
                         options={baseLineOptions}
                       />
@@ -671,16 +657,7 @@ export function CoinChart({
                     />
                   )}
                   <TimeScale>
-                    <TimeScaleFitContentTrigger
-                      deps={[
-                        prices,
-                        marketCaps,
-                        theme,
-                        view,
-                        dataType,
-                        resizeKey,
-                      ]}
-                    />
+                    <TimeScaleFitContentTrigger deps={[prices, resizeKey]} />
                   </TimeScale>
                 </Chart>
               )
