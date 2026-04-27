@@ -59,6 +59,11 @@ type TooltipState = {
   volume: number
 } | null
 
+type VolumePoint = {
+  time: number
+  value: number
+}
+
 export function CoinChart({
   coinId,
   symbol,
@@ -108,6 +113,7 @@ export function CoinChart({
   const lineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
   const candlestickSeriesRef = useRef<SeriesApiRef<'Candlestick'> | null>(null)
   const baseLineSeriesRef = useRef<SeriesApiRef<'Line'> | null>(null)
+  const realtimeVolumesRef = useRef<VolumePoint[]>([])
 
   const handleInit = (chart: IChartApi) => {
     chartApiRef.current = chart
@@ -142,9 +148,27 @@ export function CoinChart({
     }
 
     const time = new Date(Number(param.time) * 1000)
-    const volume =
-      chart?.total_volumes?.find((v) => v.time === Number(param.time))?.value ??
-      0
+    const paramTime = Number(param.time)
+
+    let volume = chart?.total_volumes?.find((v) => v.time === paramTime)?.value
+
+    if (volume == null) {
+      const realtimeVolume = realtimeVolumesRef.current.find(
+        (v) => v.time === paramTime,
+      )
+      if (realtimeVolume) {
+        volume = realtimeVolume.value
+      }
+    }
+
+    if (volume == null) {
+      const lastRealtime = realtimeVolumesRef.current.at(-1)
+      if (lastRealtime) {
+        volume = lastRealtime.value
+      }
+    }
+
+    volume ??= 0
 
     const newTooltip: TooltipState =
       chartMode === 'candles' && 'open' in data
@@ -196,7 +220,7 @@ export function CoinChart({
 
   const prices = useMemo(() => chart?.prices ?? [], [chart])
   const marketCaps = useMemo(() => chart?.market_caps ?? [], [chart])
-  const baseValue = useMemo(() => prices[0]?.value ?? 0, [prices])
+  const baseValue = prices[0]?.value ?? 0
 
   useEffect(() => {
     if (
@@ -211,6 +235,15 @@ export function CoinChart({
     const newPoint = { time: newTime, value: currentPrice.price }
 
     baselineSeriesRef.current?._series?.update(newPoint)
+
+    realtimeVolumesRef.current.push({
+      time: newTime,
+      value: currentPrice.volume,
+    })
+
+    if (realtimeVolumesRef.current.length > 1000) {
+      realtimeVolumesRef.current = realtimeVolumesRef.current.slice(-1000)
+    }
 
     if (baseLineSeriesRef.current?._series && prices.length > 0) {
       const firstTime = prices[0].time
@@ -235,6 +268,10 @@ export function CoinChart({
     document.addEventListener('fullscreenchange', handler)
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
+
+  useEffect(() => {
+    realtimeVolumesRef.current = []
+  }, [coinId, days])
 
   const isDark =
     theme === 'dark' ||
@@ -492,12 +529,14 @@ export function CoinChart({
                     Volume:
                   </span>
                   <span className='font-bold'>
-                    {new Intl.NumberFormat('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                      notation: 'compact',
-                      maximumFractionDigits: 2,
-                    }).format(tooltip.volume)}
+                    {tooltip.volume > 0
+                      ? new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: 'USD',
+                          notation: 'compact',
+                          maximumFractionDigits: 2,
+                        }).format(tooltip.volume)
+                      : '—'}
                   </span>
                 </div>
               </div>
