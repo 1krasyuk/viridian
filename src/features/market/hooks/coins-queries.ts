@@ -73,7 +73,7 @@ export function useCoinCurrentPrice(id: string, enabled: boolean) {
     queryKey: [coinsKeys.detail(id), 'current'],
     queryFn: () => coinsApi.getCoinCurrentPrice(id),
     enabled: enabled && !!id,
-    refetchInterval: 10000,
+    refetchInterval: 60000,
     refetchIntervalInBackground: false,
     staleTime: 5000,
   })

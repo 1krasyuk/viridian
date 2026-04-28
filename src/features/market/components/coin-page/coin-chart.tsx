@@ -304,6 +304,14 @@ export function CoinChart({
     return String(Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
   })
 
+  useEffect(() => {
+    if (chartMode === 'candles' && days === ytdDays) {
+      onDaysChange('180')
+    } else if (chartMode !== 'candles' && days === '180') {
+      onDaysChange(ytdDays)
+    }
+  }, [chartMode])
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen()
@@ -430,9 +438,14 @@ export function CoinChart({
             <ToggleGroupItem value='90' variant='outline'>
               3M
             </ToggleGroupItem>
-            <ToggleGroupItem value={ytdDays} variant='outline'>
-              YTD
+
+            <ToggleGroupItem
+              value={chartMode === 'candles' ? '180' : ytdDays}
+              variant='outline'
+            >
+              {chartMode === 'candles' ? '6M' : 'YTD'}
             </ToggleGroupItem>
+
             <ToggleGroupItem value='365' variant='outline'>
               1Y
             </ToggleGroupItem>
