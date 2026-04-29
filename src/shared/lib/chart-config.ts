@@ -88,6 +88,8 @@ export const createChartOptions = (
     rightPriceScale: {
       borderColor: colors.grid,
       scaleMargins: { top: 0.1, bottom: 0.1 },
+      autoScale: true,
+      entireTextOnly: false,
     },
     timeScale: {
       borderColor: colors.grid,
