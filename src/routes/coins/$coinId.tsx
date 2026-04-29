@@ -20,6 +20,7 @@ import {
 import { LayoutGrid, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -98,6 +99,7 @@ function RouteComponent() {
                 description={data?.description}
                 isLoading={isLoadingCoin}
               />
+              <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinTickersTable
                 coinName={data?.name || ''}
                 tickers={data?.tickers ?? []}
