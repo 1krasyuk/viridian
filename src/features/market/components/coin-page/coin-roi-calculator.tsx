@@ -1,4 +1,3 @@
-// features/market/components/coin-page/coin-roi-calculator.tsx
 import { useState } from 'react'
 import {
   Calculator,
@@ -6,58 +5,95 @@ import {
   TrendingUp,
   TrendingDown,
   RotateCcw,
+  Info,
 } from 'lucide-react'
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
-
-type PeriodConfig = {
-  label: string
-  getPercent: (coin: Coin | undefined) => number | null | undefined
-}
-
-const PERIODS: PeriodConfig[] = [
-  {
-    label: '1H',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_1h_in_currency?.usd,
-  },
-  {
-    label: '24H',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_24h_in_currency?.usd,
-  },
-  {
-    label: '7D',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_7d_in_currency?.usd,
-  },
-  {
-    label: '14D',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_14d_in_currency?.usd,
-  },
-  {
-    label: '30D',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_30d_in_currency?.usd,
-  },
-  {
-    label: '60D',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_60d_in_currency?.usd,
-  },
-  {
-    label: '1Y',
-    getPercent: (c) =>
-      c?.market_data?.price_change_percentage_1y_in_currency?.usd,
-  },
-]
 
 const INVESTMENT_PRESETS = [
   1000, 2500, 5000, 10000, 15000, 30000, 50000, 100000,
 ]
+
+type PricePresetButtonProps = {
+  label: string
+  value: number
+  icon?: React.ReactNode
+  active: boolean
+  onClick: () => void
+}
+
+function PricePresetButton({
+  label,
+  value,
+  icon,
+  active,
+  onClick,
+}: PricePresetButtonProps) {
+  return (
+    <Button
+      variant={active ? 'default' : 'outline'}
+      size='sm'
+      className='text-xs gap-1.5 px-2.5'
+      onClick={onClick}
+    >
+      {icon}
+      {label}
+      <span className='font-mono opacity-70'>
+        ${value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value.toFixed(0)}
+      </span>
+    </Button>
+  )
+}
+
+type TimePresetButtonProps = {
+  period: string
+  label: string
+  coin: Coin | undefined
+  currentPrice: number | undefined
+  buyPrice: string
+  setBuyPrice: (value: string) => void
+}
+
+function TimePresetButton({
+  period,
+  label,
+  coin,
+  currentPrice,
+  buyPrice,
+  setBuyPrice,
+}: TimePresetButtonProps) {
+  const raw =
+    coin?.market_data?.[
+      `price_change_percentage_${period}_in_currency` as keyof typeof coin.market_data
+    ]
+
+  const percent =
+    typeof raw === 'object' && raw !== null
+      ? (raw as Record<string, number>).usd
+      : undefined
+
+  if (!percent || !currentPrice) return null
+
+  const price = Math.round(currentPrice / (1 + percent / 100))
+
+  return (
+    <PricePresetButton
+      label={label}
+      value={price}
+      icon={<Clock className='h-3 w-3' />}
+      active={buyPrice === String(price)}
+      onClick={() => setBuyPrice(String(price))}
+    />
+  )
+}
 
 export function CoinRoiCalculator({
   coin,
@@ -70,17 +106,30 @@ export function CoinRoiCalculator({
   const ath = coin?.market_data?.ath?.usd
   const atl = coin?.market_data?.atl?.usd
 
-  const [investment, setInvestment] = useState('1000')
-  const [buyPrice, setBuyPrice] = useState('')
+  const getPercent = (key: string): number | undefined => {
+    const raw =
+      coin?.market_data?.[
+        `price_change_percentage_${key}_in_currency` as keyof typeof coin.market_data
+      ]
+    return typeof raw === 'object' && raw !== null
+      ? (raw as Record<string, number>).usd
+      : undefined
+  }
 
-  const default24h = currentPrice
-    ? currentPrice /
-      (1 +
-        (coin?.market_data?.price_change_percentage_24h_in_currency?.usd ?? 0) /
-          100)
-    : null
+  const getHistoricalPrice = (percent: number | undefined): number | null => {
+    if (percent == null || !currentPrice) return null
+    return currentPrice / (1 + percent / 100)
+  }
+
+  const default24h = Math.round(getHistoricalPrice(getPercent('24h')) ?? 0)
+
+  const [investment, setInvestment] = useState('1000')
+  const [buyPrice, setBuyPrice] = useState(() =>
+    default24h > 0 ? String(default24h) : '',
+  )
+
   const priceKey = currentPrice
-    ? `price-${Math.round(currentPrice)}-${Math.round(default24h ?? 0)}`
+    ? `price-${Math.round(currentPrice)}-${default24h}`
     : 'loading'
 
   if (isLoading) {
@@ -102,13 +151,6 @@ export function CoinRoiCalculator({
   const profit = valueNow - investNum
   const roi = investNum > 0 ? (profit / investNum) * 100 : 0
 
-  const getHistoricalPrice = (
-    percent: number | null | undefined,
-  ): number | null => {
-    if (percent == null || !currentPrice) return null
-    return currentPrice / (1 + percent / 100)
-  }
-
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -116,54 +158,43 @@ export function CoinRoiCalculator({
       maximumFractionDigits: n >= 1000 ? 0 : 2,
     }).format(n)
 
-  const formatPriceLabel = (n: number) =>
-    n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n.toFixed(0)
-
   const formatInvestment = (n: number) =>
     n >= 1000 ? (n / 1000).toFixed(0) + 'k' : String(n)
 
-  const presetPrices = [
-    ...PERIODS.map((period) => {
-      const price = getHistoricalPrice(period.getPercent(coin))
-      return price
-        ? {
-            label: period.label,
-            value: price,
-            icon: <Clock className='h-3 w-3' />,
-          }
-        : null
-    }).filter(Boolean),
-    ...(ath
-      ? [{ label: 'ATH', value: ath, icon: <TrendingUp className='h-3 w-3' /> }]
-      : []),
-    ...(atl
-      ? [
-          {
-            label: 'ATL',
-            value: atl,
-            icon: <TrendingDown className='h-3 w-3' />,
-          },
-        ]
-      : []),
-  ] as { label: string; value: number; icon: React.ReactNode }[]
+  const isActive = (value: number) => buyPrice === String(Math.round(value))
 
   return (
-    <div
-      key={priceKey}
-      className='rounded-lg border bg-background p-2 space-y-4'
-    >
+    <div key={priceKey} className='rounded-lg border bg-card p-4 space-y-4'>
+      {/* Header */}
       <div className='flex items-center justify-between'>
-        <h3 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2'>
-          <Calculator className='h-4 w-4' />
-          ROI Calculator
-        </h3>
+        <div className='flex items-center gap-2'>
+          <h3 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2'>
+            <Calculator className='h-4 w-4' />
+            ROI Calculator
+          </h3>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className='h-4 w-4 text-muted-foreground cursor-help' />
+              </TooltipTrigger>
+              <TooltipContent side='right' className='max-w-xs'>
+                <p className='text-xs leading-relaxed'>
+                  Enter how much you invested and at what price you bought.
+                  Calculates your profit or loss if you sold at the current
+                  price. Use preset buttons to quickly set historical prices
+                  (ATH, ATL, or past periods).
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <Button
           variant='ghost'
           size='icon'
           className='h-6 w-6 rounded-full'
           onClick={() => {
             setInvestment('1000')
-            setBuyPrice(default24h ? String(Math.round(default24h)) : '')
+            setBuyPrice(default24h > 0 ? String(default24h) : '')
           }}
         >
           <RotateCcw className='h-3 w-3' />
@@ -180,10 +211,9 @@ export function CoinRoiCalculator({
             type='number'
             value={investment}
             onChange={(e) => setInvestment(e.target.value)}
-            className='h-9 font-mono rounded-md'
+            className='h-9 font-mono'
             placeholder='1000'
           />
-          {/* Investment presets */}
           <div className='flex flex-wrap gap-1'>
             {INVESTMENT_PRESETS.map((preset) => (
               <Button
@@ -208,35 +238,51 @@ export function CoinRoiCalculator({
             type='number'
             value={buyPrice}
             onChange={(e) => setBuyPrice(e.target.value)}
-            className='h-9 font-mono rounded-md'
-            placeholder={default24h ? String(Math.round(default24h)) : '0'}
+            className='h-9 font-mono'
+            placeholder={default24h > 0 ? String(default24h) : '0'}
           />
         </div>
 
         {/* Price presets */}
-        {presetPrices.length > 0 && (
-          <div className='flex flex-wrap gap-1.5'>
-            {presetPrices.map((preset) => (
-              <Button
-                key={preset.label}
-                variant={
-                  buyPrice === String(Math.round(preset.value))
-                    ? 'default'
-                    : 'outline'
-                }
-                size='sm'
-                className='h-7 text-xs gap-1.5 px-2.5'
-                onClick={() => setBuyPrice(String(Math.round(preset.value)))}
-              >
-                {preset.icon}
-                {preset.label}
-                <span className='font-mono opacity-70'>
-                  ${formatPriceLabel(preset.value)}
-                </span>
-              </Button>
-            ))}
-          </div>
-        )}
+        <div className='flex flex-wrap gap-1.5'>
+          {[
+            { period: '1h', label: '1H' },
+            { period: '24h', label: '24H' },
+            { period: '7d', label: '7D' },
+            { period: '14d', label: '14D' },
+            { period: '30d', label: '30D' },
+            { period: '60d', label: '60D' },
+            { period: '1y', label: '1Y' },
+          ].map(({ period, label }) => (
+            <TimePresetButton
+              key={period}
+              period={period}
+              label={label}
+              coin={coin}
+              currentPrice={currentPrice}
+              buyPrice={buyPrice}
+              setBuyPrice={setBuyPrice}
+            />
+          ))}
+          {ath && (
+            <PricePresetButton
+              label='ATH'
+              value={ath}
+              icon={<TrendingUp className='h-3 w-3' />}
+              active={isActive(ath)}
+              onClick={() => setBuyPrice(String(Math.round(ath)))}
+            />
+          )}
+          {atl && (
+            <PricePresetButton
+              label='ATL'
+              value={atl}
+              icon={<TrendingDown className='h-3 w-3' />}
+              active={isActive(atl)}
+              onClick={() => setBuyPrice(String(Math.round(atl)))}
+            />
+          )}
+        </div>
 
         {/* Results */}
         <div className='rounded-md bg-muted/50 p-3 space-y-2'>
