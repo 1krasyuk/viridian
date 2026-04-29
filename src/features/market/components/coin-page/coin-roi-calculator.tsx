@@ -5,10 +5,17 @@ import {
   TrendingUp,
   TrendingDown,
   RotateCcw,
+  Info,
 } from 'lucide-react'
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@/shared/ui/tooltip' // ← добавить
 import type { Coin } from '../../types/coin'
 
 const INVESTMENT_PRESETS = [
@@ -163,10 +170,29 @@ export function CoinRoiCalculator({
   return (
     <div className='rounded-lg border bg-background p-2 space-y-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2'>
-          <Calculator className='h-4 w-4' />
-          ROI Calculator
-        </h3>
+        <div className='flex items-center gap-2'>
+          <h2 className='text-lg font-semibold uppercase flex items-center gap-2'>
+            <Calculator className='h-4 w-4' />
+            ROI Calculator
+          </h2>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className='h-4 w-4 text-muted-foreground cursor-help' />
+              </TooltipTrigger>
+              <TooltipContent side='right' className='max-w-xs'>
+                <p className='text-xs leading-relaxed'>
+                  Enter your{' '}
+                  <span className='text-emerald-500'>investment</span> and{' '}
+                  <span className='text-emerald-500'>buy price</span> to see{' '}
+                  <span className='text-emerald-500'>profit</span>/
+                  <span className='text-destructive'> loss</span> at current
+                  price. Use presets for quick historical prices.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <Button
           variant='ghost'
           size='icon'
@@ -179,7 +205,7 @@ export function CoinRoiCalculator({
 
       <div className='space-y-3'>
         {/* Investment */}
-        <div className='space-y-1'>
+        <div className='space-y-3'>
           <label className='text-xs text-muted-foreground font-medium'>
             Investment ($)
           </label>
