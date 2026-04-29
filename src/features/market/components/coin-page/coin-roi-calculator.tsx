@@ -5,22 +5,36 @@ import {
   TrendingUp,
   TrendingDown,
   RotateCcw,
-  Info,
 } from 'lucide-react'
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
 
 const INVESTMENT_PRESETS = [
   1000, 2500, 5000, 10000, 15000, 30000, 50000, 100000,
 ]
+
+function formatCompact(n: number): string {
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
+  return n.toFixed(0)
+}
+
+function formatCurrency(n: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: n >= 1000 ? 0 : 2,
+  }).format(n)
+}
+
+function getHistoricalPrice(
+  currentPrice: number | undefined,
+  percent: number | null | undefined,
+): number | null {
+  if (percent == null || !currentPrice) return null
+  return currentPrice / (1 + percent / 100)
+}
 
 type PricePresetButtonProps = {
   label: string
@@ -41,14 +55,12 @@ function PricePresetButton({
     <Button
       variant={active ? 'default' : 'outline'}
       size='sm'
-      className='text-xs gap-1.5 px-2.5'
+      className='h-7 text-xs gap-1.5 px-2.5'
       onClick={onClick}
     >
       {icon}
       {label}
-      <span className='font-mono opacity-70'>
-        ${value >= 1000 ? (value / 1000).toFixed(1) + 'k' : value.toFixed(0)}
-      </span>
+      <span className='font-mono opacity-70'>${formatCompact(value)}</span>
     </Button>
   )
 }
@@ -80,17 +92,19 @@ function TimePresetButton({
       ? (raw as Record<string, number>).usd
       : undefined
 
-  if (!percent || !currentPrice) return null
+  const price = getHistoricalPrice(currentPrice, percent)
 
-  const price = Math.round(currentPrice / (1 + percent / 100))
+  if (!price) return null
+
+  const rounded = Math.round(price)
 
   return (
     <PricePresetButton
       label={label}
-      value={price}
+      value={rounded}
       icon={<Clock className='h-3 w-3' />}
-      active={buyPrice === String(price)}
-      onClick={() => setBuyPrice(String(price))}
+      active={buyPrice === String(rounded)}
+      onClick={() => setBuyPrice(String(rounded))}
     />
   )
 }
@@ -106,35 +120,23 @@ export function CoinRoiCalculator({
   const ath = coin?.market_data?.ath?.usd
   const atl = coin?.market_data?.atl?.usd
 
-  const getPercent = (key: string): number | undefined => {
-    const raw =
-      coin?.market_data?.[
-        `price_change_percentage_${key}_in_currency` as keyof typeof coin.market_data
-      ]
-    return typeof raw === 'object' && raw !== null
-      ? (raw as Record<string, number>).usd
-      : undefined
-  }
-
-  const getHistoricalPrice = (percent: number | undefined): number | null => {
-    if (percent == null || !currentPrice) return null
-    return currentPrice / (1 + percent / 100)
-  }
-
-  const default24h = Math.round(getHistoricalPrice(getPercent('24h')) ?? 0)
-
   const [investment, setInvestment] = useState('1000')
-  const [buyPrice, setBuyPrice] = useState(() =>
-    default24h > 0 ? String(default24h) : '',
-  )
+  const [buyPrice, setBuyPrice] = useState('')
 
-  const priceKey = currentPrice
-    ? `price-${Math.round(currentPrice)}-${default24h}`
-    : 'loading'
+  const raw24h = coin?.market_data?.price_change_percentage_24h_in_currency
+  const percent24h =
+    typeof raw24h === 'object' && raw24h !== null
+      ? (raw24h as Record<string, number>).usd
+      : undefined
+  const default24h = getHistoricalPrice(currentPrice, percent24h)
+
+  if (default24h && !buyPrice) {
+    setBuyPrice(String(Math.round(default24h)))
+  }
 
   if (isLoading) {
     return (
-      <div className='rounded-lg border bg-card p-4 space-y-3'>
+      <div className='rounded-lg border bg-background p-2 space-y-3'>
         <Skeleton className='h-4 w-32' />
         <Skeleton className='h-10 w-full' />
         <Skeleton className='h-10 w-full' />
@@ -151,51 +153,25 @@ export function CoinRoiCalculator({
   const profit = valueNow - investNum
   const roi = investNum > 0 ? (profit / investNum) * 100 : 0
 
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: n >= 1000 ? 0 : 2,
-    }).format(n)
-
-  const formatInvestment = (n: number) =>
-    n >= 1000 ? (n / 1000).toFixed(0) + 'k' : String(n)
-
   const isActive = (value: number) => buyPrice === String(Math.round(value))
 
+  const handleReset = () => {
+    setInvestment('1000')
+    setBuyPrice(default24h ? String(Math.round(default24h)) : '')
+  }
+
   return (
-    <div key={priceKey} className='rounded-lg border bg-card p-4 space-y-4'>
-      {/* Header */}
+    <div className='rounded-lg border bg-background p-2 space-y-4'>
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <h3 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2'>
-            <Calculator className='h-4 w-4' />
-            ROI Calculator
-          </h3>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-help' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <p className='text-xs leading-relaxed'>
-                  Enter how much you invested and at what price you bought.
-                  Calculates your profit or loss if you sold at the current
-                  price. Use preset buttons to quickly set historical prices
-                  (ATH, ATL, or past periods).
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <h3 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2'>
+          <Calculator className='h-4 w-4' />
+          ROI Calculator
+        </h3>
         <Button
           variant='ghost'
           size='icon'
           className='h-6 w-6 rounded-full'
-          onClick={() => {
-            setInvestment('1000')
-            setBuyPrice(default24h > 0 ? String(default24h) : '')
-          }}
+          onClick={handleReset}
         >
           <RotateCcw className='h-3 w-3' />
         </Button>
@@ -211,7 +187,7 @@ export function CoinRoiCalculator({
             type='number'
             value={investment}
             onChange={(e) => setInvestment(e.target.value)}
-            className='h-9 font-mono'
+            className='h-9 font-mono rounded-md'
             placeholder='1000'
           />
           <div className='flex flex-wrap gap-1'>
@@ -223,7 +199,7 @@ export function CoinRoiCalculator({
                 className='h-6 text-xs px-2 font-mono'
                 onClick={() => setInvestment(String(preset))}
               >
-                ${formatInvestment(preset)}
+                ${formatCompact(preset)}
               </Button>
             ))}
           </div>
@@ -238,8 +214,8 @@ export function CoinRoiCalculator({
             type='number'
             value={buyPrice}
             onChange={(e) => setBuyPrice(e.target.value)}
-            className='h-9 font-mono'
-            placeholder={default24h > 0 ? String(default24h) : '0'}
+            className='h-9 font-mono rounded-md'
+            placeholder={default24h ? String(Math.round(default24h)) : '0'}
           />
         </div>
 
