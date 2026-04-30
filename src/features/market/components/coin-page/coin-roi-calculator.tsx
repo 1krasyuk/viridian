@@ -15,7 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
-} from '@/shared/ui/tooltip' // ← добавить
+} from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
 
 const INVESTMENT_PRESETS = [
@@ -49,6 +49,7 @@ type PricePresetButtonProps = {
   icon?: React.ReactNode
   active: boolean
   onClick: () => void
+  isLoading?: boolean
 }
 
 function PricePresetButton({
@@ -57,7 +58,12 @@ function PricePresetButton({
   icon,
   active,
   onClick,
+  isLoading = false,
 }: PricePresetButtonProps) {
+  if (isLoading) {
+    return <Skeleton className='h-7 w-16 rounded-md' />
+  }
+
   return (
     <Button
       variant={active ? 'default' : 'outline'}
@@ -79,6 +85,7 @@ type TimePresetButtonProps = {
   currentPrice: number | undefined
   buyPrice: string
   setBuyPrice: (value: string) => void
+  isLoading: boolean
 }
 
 function TimePresetButton({
@@ -88,7 +95,12 @@ function TimePresetButton({
   currentPrice,
   buyPrice,
   setBuyPrice,
+  isLoading,
 }: TimePresetButtonProps) {
+  if (isLoading) {
+    return <Skeleton className='h-7 w-25 rounded-md' />
+  }
+
   const raw =
     coin?.market_data?.[
       `price_change_percentage_${period}_in_currency` as keyof typeof coin.market_data
@@ -100,7 +112,6 @@ function TimePresetButton({
       : undefined
 
   const price = getHistoricalPrice(currentPrice, percent)
-
   if (!price) return null
 
   const rounded = Math.round(price)
@@ -118,7 +129,7 @@ function TimePresetButton({
 
 export function CoinRoiCalculator({
   coin,
-  isLoading,
+  isLoading = false,
 }: {
   coin: Coin | undefined
   isLoading?: boolean
@@ -135,21 +146,8 @@ export function CoinRoiCalculator({
     typeof raw24h === 'object' && raw24h !== null
       ? (raw24h as Record<string, number>).usd
       : undefined
+
   const default24h = getHistoricalPrice(currentPrice, percent24h)
-
-  if (default24h && !buyPrice) {
-    setBuyPrice(String(Math.round(default24h)))
-  }
-
-  if (isLoading) {
-    return (
-      <div className='rounded-lg border bg-background p-2 space-y-3'>
-        <Skeleton className='h-4 w-32' />
-        <Skeleton className='h-10 w-full' />
-        <Skeleton className='h-10 w-full' />
-      </div>
-    )
-  }
 
   const investNum = parseFloat(investment) || 0
   const buyNum = parseFloat(buyPrice) || 0
@@ -169,6 +167,7 @@ export function CoinRoiCalculator({
 
   return (
     <div className='rounded-lg border bg-background p-2 space-y-4'>
+      {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <h2 className='text-lg font-semibold uppercase flex items-center gap-2'>
@@ -186,8 +185,8 @@ export function CoinRoiCalculator({
                   <span className='text-emerald-500'>investment</span> and{' '}
                   <span className='text-emerald-500'>buy price</span> to see{' '}
                   <span className='text-emerald-500'>profit</span>/
-                  <span className='text-destructive'> loss</span> at current
-                  price. Use presets for quick historical prices.
+                  <span className='text-destructive'>loss</span> at current
+                  price.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -198,6 +197,7 @@ export function CoinRoiCalculator({
           size='icon'
           className='h-6 w-6 rounded-full'
           onClick={handleReset}
+          disabled={isLoading}
         >
           <RotateCcw className='h-3 w-3' />
         </Button>
@@ -242,10 +242,11 @@ export function CoinRoiCalculator({
             onChange={(e) => setBuyPrice(e.target.value)}
             className='h-9 font-mono rounded-md'
             placeholder={default24h ? String(Math.round(default24h)) : '0'}
+            disabled={isLoading}
           />
         </div>
 
-        {/* Price presets */}
+        {/* Price Presets */}
         <div className='flex flex-wrap gap-1.5'>
           {[
             { period: '1h', label: '1H' },
@@ -264,25 +265,36 @@ export function CoinRoiCalculator({
               currentPrice={currentPrice}
               buyPrice={buyPrice}
               setBuyPrice={setBuyPrice}
+              isLoading={isLoading}
             />
           ))}
-          {ath && (
-            <PricePresetButton
-              label='ATH'
-              value={ath}
-              icon={<TrendingUp className='h-3 w-3' />}
-              active={isActive(ath)}
-              onClick={() => setBuyPrice(String(Math.round(ath)))}
-            />
-          )}
-          {atl && (
-            <PricePresetButton
-              label='ATL'
-              value={atl}
-              icon={<TrendingDown className='h-3 w-3' />}
-              active={isActive(atl)}
-              onClick={() => setBuyPrice(String(Math.round(atl)))}
-            />
+
+          {isLoading ? (
+            <>
+              <Skeleton className='h-7 w-14 rounded-md' />
+              <Skeleton className='h-7 w-14 rounded-md' />
+            </>
+          ) : (
+            <>
+              {ath && (
+                <PricePresetButton
+                  label='ATH'
+                  value={ath}
+                  icon={<TrendingUp className='h-3 w-3' />}
+                  active={isActive(ath)}
+                  onClick={() => setBuyPrice(String(Math.round(ath)))}
+                />
+              )}
+              {atl && (
+                <PricePresetButton
+                  label='ATL'
+                  value={atl}
+                  icon={<TrendingDown className='h-3 w-3' />}
+                  active={isActive(atl)}
+                  onClick={() => setBuyPrice(String(Math.round(atl)))}
+                />
+              )}
+            </>
           )}
         </div>
 
@@ -291,29 +303,54 @@ export function CoinRoiCalculator({
           <div className='flex items-center justify-between text-sm'>
             <span className='text-muted-foreground'>Coins bought</span>
             <span className='font-mono font-semibold'>
-              {coins > 0 ? coins.toFixed(coins < 0.01 ? 6 : 4) : '—'}
+              {isLoading ? (
+                <Skeleton className='h-5 w-20 inline-block' />
+              ) : coins > 0 ? (
+                coins.toFixed(coins < 0.01 ? 6 : 4)
+              ) : (
+                '—'
+              )}
             </span>
           </div>
+
           <div className='flex items-center justify-between text-sm'>
             <span className='text-muted-foreground'>Current value</span>
             <span className='font-mono font-semibold'>
-              {valueNow > 0 ? formatCurrency(valueNow) : '—'}
+              {isLoading ? (
+                <Skeleton className='h-5 w-24 inline-block' />
+              ) : valueNow > 0 ? (
+                formatCurrency(valueNow)
+              ) : (
+                '—'
+              )}
             </span>
           </div>
+
           <div className='h-px bg-border' />
+
           <div className='flex items-center justify-between'>
             <span className='text-sm font-medium'>Profit / Loss</span>
-            <span
-              className={`font-mono font-bold ${
-                profit >= 0 ? 'text-emerald-500' : 'text-red-500'
-              }`}
-            >
-              {profit >= 0 ? '+' : '−'}
-              {formatCurrency(Math.abs(profit))}
-              <span className='text-xs ml-1.5 opacity-70'>
-                ({roi >= 0 ? '+' : '−'}
-                {Math.abs(roi).toFixed(1)}%)
-              </span>
+            <span className='font-mono font-bold'>
+              {isLoading ? (
+                <Skeleton className='h-6 w-28 inline-block' />
+              ) : profit !== 0 ? (
+                <>
+                  <span
+                    className={
+                      profit >= 0 ? 'text-emerald-500' : 'text-red-500'
+                    }
+                  >
+                    {profit >= 0 ? '+' : '−'}
+                    {formatCurrency(Math.abs(profit))}
+                  </span>
+                  <span className='text-xs ml-1.5 opacity-70'>
+                    ({roi >= 0 ? '+' : '−'}
+                    {Math.abs(roi).toFixed(1)}%)
+                  </span>
+                </>
+              ) : (
+                '—'
+              )}
             </span>
           </div>
         </div>
