@@ -45,7 +45,7 @@ function getHistoricalPrice(
 
 type PricePresetButtonProps = {
   label: string
-  value: number
+  value?: number
   icon?: React.ReactNode
   active: boolean
   onClick: () => void
@@ -60,20 +60,23 @@ function PricePresetButton({
   onClick,
   isLoading = false,
 }: PricePresetButtonProps) {
-  if (isLoading) {
-    return <Skeleton className='h-7 w-16 rounded-md' />
-  }
-
   return (
     <Button
       variant={active ? 'default' : 'outline'}
       size='sm'
       className='h-7 text-xs gap-1.5 px-2.5'
       onClick={onClick}
+      disabled={isLoading}
     >
       {icon}
       {label}
-      <span className='font-mono opacity-70'>${formatCompact(value)}</span>
+      <span className='font-mono opacity-70'>
+        {isLoading || value === undefined ? (
+          <Skeleton className='h-3.5 w-10 inline-block' />
+        ) : (
+          `$${formatCompact(value)}`
+        )}
+      </span>
     </Button>
   )
 }
@@ -87,7 +90,6 @@ type TimePresetButtonProps = {
   setBuyPrice: (value: string) => void
   isLoading: boolean
 }
-
 function TimePresetButton({
   period,
   label,
@@ -98,7 +100,15 @@ function TimePresetButton({
   isLoading,
 }: TimePresetButtonProps) {
   if (isLoading) {
-    return <Skeleton className='h-7 w-25 rounded-md' />
+    return (
+      <PricePresetButton
+        label={label}
+        icon={<Clock className='h-3 w-3' />}
+        active={false}
+        onClick={() => {}}
+        isLoading={true}
+      />
+    )
   }
 
   const raw =
@@ -123,6 +133,7 @@ function TimePresetButton({
       icon={<Clock className='h-3 w-3' />}
       active={buyPrice === String(rounded)}
       onClick={() => setBuyPrice(String(rounded))}
+      isLoading={false}
     />
   )
 }
@@ -138,16 +149,20 @@ export function CoinRoiCalculator({
   const ath = coin?.market_data?.ath?.usd
   const atl = coin?.market_data?.atl?.usd
 
-  const [investment, setInvestment] = useState('1000')
-  const [buyPrice, setBuyPrice] = useState('')
-
   const raw24h = coin?.market_data?.price_change_percentage_24h_in_currency
   const percent24h =
     typeof raw24h === 'object' && raw24h !== null
       ? (raw24h as Record<string, number>).usd
       : undefined
 
+  const [investment, setInvestment] = useState('1000')
+  const [buyPrice, setBuyPrice] = useState('')
+
   const default24h = getHistoricalPrice(currentPrice, percent24h)
+
+  if (default24h && !buyPrice) {
+    setBuyPrice(String(Math.round(default24h)))
+  }
 
   const investNum = parseFloat(investment) || 0
   const buyNum = parseFloat(buyPrice) || 0
@@ -186,7 +201,7 @@ export function CoinRoiCalculator({
                   <span className='text-emerald-500'>buy price</span> to see{' '}
                   <span className='text-emerald-500'>profit</span>/
                   <span className='text-destructive'>loss</span> at current
-                  price.
+                  price. Use presets for quick historical prices.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -269,33 +284,29 @@ export function CoinRoiCalculator({
             />
           ))}
 
-          {isLoading ? (
-            <>
-              <Skeleton className='h-7 w-14 rounded-md' />
-              <Skeleton className='h-7 w-14 rounded-md' />
-            </>
-          ) : (
-            <>
-              {ath && (
-                <PricePresetButton
-                  label='ATH'
-                  value={ath}
-                  icon={<TrendingUp className='h-3 w-3' />}
-                  active={isActive(ath)}
-                  onClick={() => setBuyPrice(String(Math.round(ath)))}
-                />
-              )}
-              {atl && (
-                <PricePresetButton
-                  label='ATL'
-                  value={atl}
-                  icon={<TrendingDown className='h-3 w-3' />}
-                  active={isActive(atl)}
-                  onClick={() => setBuyPrice(String(Math.round(atl)))}
-                />
-              )}
-            </>
-          )}
+          {/* ATH */}
+          <PricePresetButton
+            label='ATH'
+            value={isLoading ? undefined : ath}
+            icon={<TrendingUp className='h-3 w-3' />}
+            active={!isLoading && isActive(ath || 0)}
+            onClick={() =>
+              !isLoading && ath && setBuyPrice(String(Math.round(ath)))
+            }
+            isLoading={isLoading}
+          />
+
+          {/* ATL */}
+          <PricePresetButton
+            label='ATL'
+            value={isLoading ? undefined : atl}
+            icon={<TrendingDown className='h-3 w-3' />}
+            active={!isLoading && isActive(atl || 0)}
+            onClick={() =>
+              !isLoading && atl && setBuyPrice(String(Math.round(atl)))
+            }
+            isLoading={isLoading}
+          />
         </div>
 
         {/* Results */}
