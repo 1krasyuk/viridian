@@ -102,7 +102,7 @@ function StatCard({
           {tooltip ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info size='14' className='shrink-0 cursor-help' />
+                <Info size='14' className='shrink-0' />
               </TooltipTrigger>
               <TooltipContent side='bottom'>
                 <span className='whitespace-pre-line'>{tooltip}</span>

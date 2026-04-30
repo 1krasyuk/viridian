@@ -90,6 +90,7 @@ type TimePresetButtonProps = {
   setBuyPrice: (value: string) => void
   isLoading: boolean
 }
+
 function TimePresetButton({
   period,
   label,
@@ -133,7 +134,6 @@ function TimePresetButton({
       icon={<Clock className='h-3 w-3' />}
       active={buyPrice === String(rounded)}
       onClick={() => setBuyPrice(String(rounded))}
-      isLoading={false}
     />
   )
 }
@@ -177,7 +177,11 @@ export function CoinRoiCalculator({
 
   const handleReset = () => {
     setInvestment('1000')
-    setBuyPrice(default24h ? String(Math.round(default24h)) : '')
+    if (default24h) {
+      setBuyPrice(String(Math.round(default24h)))
+    } else {
+      setBuyPrice('')
+    }
   }
 
   return (
@@ -196,9 +200,8 @@ export function CoinRoiCalculator({
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
                 <p className='text-xs leading-relaxed'>
-                  Enter your{' '}
-                  <span className='text-emerald-500'>investment</span> and{' '}
-                  <span className='text-emerald-500'>buy price</span> to see{' '}
+                  Enter your <span className='underline'>investment</span> and{' '}
+                  <span className='underline'>buy price</span> to see{' '}
                   <span className='text-emerald-500'>profit</span>/
                   <span className='text-destructive'>loss</span> at current
                   price. Use presets for quick historical prices.
@@ -270,6 +273,7 @@ export function CoinRoiCalculator({
             { period: '14d', label: '14D' },
             { period: '30d', label: '30D' },
             { period: '60d', label: '60D' },
+            { period: '200d', label: '200D' },
             { period: '1y', label: '1Y' },
           ].map(({ period, label }) => (
             <TimePresetButton
@@ -325,7 +329,7 @@ export function CoinRoiCalculator({
           </div>
 
           <div className='flex items-center justify-between text-sm'>
-            <span className='text-muted-foreground'>Current value</span>
+            <span className='text-muted-foreground'>Investment value</span>
             <span className='font-mono font-semibold'>
               {isLoading ? (
                 <Skeleton className='h-5 w-24 inline-block' />
