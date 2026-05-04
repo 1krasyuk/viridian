@@ -22,6 +22,8 @@ import { CoinPriceChange } from '@/features/market/components/coin-page/coin-pri
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
+import { CoinEvents } from '@/features/market/components/coin-page/coin-events'
+
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
 })
@@ -100,12 +102,13 @@ function RouteComponent() {
                 isLoading={isLoadingCoin}
               />
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
-              <div className='grid grid-cols-1 gap-5'>
+              <div className='grid grid-cols-2 gap-5'>
                 <CoinRiskMetrics
                   coin={data}
                   chart={dataChart}
                   isLoading={isLoadingCoin || isLoadingChart}
                 />
+                <CoinEvents coin={data} isLoading={isLoadingCoin} />
               </div>
               <CoinTickersTable
                 coinName={data?.name || ''}
