@@ -21,7 +21,7 @@ import { LayoutGrid, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
-
+import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
 })
@@ -100,6 +100,13 @@ function RouteComponent() {
                 isLoading={isLoadingCoin}
               />
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
+              <div className='grid grid-cols-1 gap-5'>
+                <CoinRiskMetrics
+                  coin={data}
+                  chart={dataChart}
+                  isLoading={isLoadingCoin || isLoadingChart}
+                />
+              </div>
               <CoinTickersTable
                 coinName={data?.name || ''}
                 tickers={data?.tickers ?? []}
