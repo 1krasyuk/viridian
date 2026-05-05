@@ -2,6 +2,8 @@
 import { Activity, TrendingDown, Zap, Gauge } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import type { Coin } from '../../types/coin'
+import type { CoinChart } from '../../types/coin-chart'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 function calculateVolatility(prices?: { value: number }[]): number | null {
   if (!prices || prices.length < 2) return null
@@ -56,7 +58,7 @@ function RiskMetric({
       <div className={`p-1.5 rounded-md ${color}`}>{icon}</div>
       <div className='flex-1 min-w-0'>
         <div className='flex items-center justify-between'>
-          <span className='text-xs text-muted-foreground'>{label}</span>
+          <span className='text-xs'>{label}</span>
           <span
             className={`text-sm font-bold font-mono ${value != null && value > 50 ? 'text-red-500' : value != null && value < 20 ? 'text-emerald-500' : ''}`}
           >
@@ -74,10 +76,14 @@ function RiskMetric({
 export function CoinRiskMetrics({
   coin,
   chart,
+  days,
+  onDaysChange,
   isLoading,
 }: {
-  coin?: Coin
-  chart?: { prices?: { value: number }[] }
+  coin: Coin | undefined
+  chart?: CoinChart
+  days: string
+  onDaysChange: (v: string) => void
   isLoading?: boolean
 }) {
   if (isLoading) {
@@ -106,10 +112,36 @@ export function CoinRiskMetrics({
 
   return (
     <div className='rounded-lg border  p-4 space-y-3'>
-      <h3 className='text-sm font-bold uppercase tracking-wide flex text-muted-foreground items-center gap-2'>
-        <Gauge className='h-5 w-5' />
-        Risk Metrics
-      </h3>
+      <div className='flex'>
+        <h3 className='text-sm font-bold uppercase tracking-wide flex text-muted-foreground items-center gap-2'>
+          <Gauge className='h-5 w-5' />
+          Risk Metrics
+        </h3>
+
+        <ToggleGroup
+          type='single'
+          value={days}
+          size='sm'
+          variant='outline'
+          onValueChange={(v) => v && onDaysChange(v)}
+        >
+          <ToggleGroupItem value='1' size='sm'>
+            24H
+          </ToggleGroupItem>
+          <ToggleGroupItem value='7' size='sm'>
+            7D
+          </ToggleGroupItem>
+          <ToggleGroupItem value='30' size='sm'>
+            30D
+          </ToggleGroupItem>
+          <ToggleGroupItem value='90' size='sm'>
+            90D
+          </ToggleGroupItem>
+          <ToggleGroupItem value='365' size='sm'>
+            1Y
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
 
       <div className='space-y-2'>
         <RiskMetric

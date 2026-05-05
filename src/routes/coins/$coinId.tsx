@@ -32,6 +32,11 @@ function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading: isLoadingCoin } = useCoin(coinId)
   const [days, setDays] = useState('1')
+  const [metricDays, setMetricDays] = useState('30')
+  const { data: metricsChart, isLoading: isLoadingMetrics } = useCoinChart(
+    coinId,
+    metricDays,
+  )
   const [dataType, setDataType] = useState<'price' | 'marketCap'>('price')
 
   const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(
@@ -105,8 +110,10 @@ function RouteComponent() {
               <div className='grid grid-cols-2 gap-5'>
                 <CoinRiskMetrics
                   coin={data}
-                  chart={dataChart}
-                  isLoading={isLoadingCoin || isLoadingChart}
+                  chart={metricsChart}
+                  days={metricDays}
+                  onDaysChange={setMetricDays}
+                  isLoading={isLoadingMetrics}
                 />
                 <CoinEvents coin={data} isLoading={isLoadingCoin} />
               </div>
