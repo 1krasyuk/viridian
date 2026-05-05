@@ -107,7 +107,7 @@ function RouteComponent() {
                 isLoading={isLoadingCoin}
               />
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
-              <div className='grid grid-cols-2 gap-5'>
+              <div className='grid grid-cols-1 gap-5'>
                 <CoinRiskMetrics
                   coin={data}
                   chart={metricsChart}
