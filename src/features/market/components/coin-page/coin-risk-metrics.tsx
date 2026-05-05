@@ -1,9 +1,15 @@
 // features/market/components/coin-page/coin-risk-metrics.tsx
-import { Activity, TrendingDown, Zap, Gauge } from 'lucide-react'
+import { Activity, TrendingDown, Zap, Gauge, ChevronDown } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import type { Coin } from '../../types/coin'
 import type { CoinChart } from '../../types/coin-chart'
-import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/ui/dropdown-menu'
+import { Button } from '@/shared/ui/button'
 
 function calculateVolatility(prices?: { value: number }[]): number | null {
   if (!prices || prices.length < 2) return null
@@ -38,6 +44,14 @@ type RiskMetricProps = {
   description: string
 }
 
+const PERIOD_LABELS: Record<string, string> = {
+  '1': '24H',
+  '7': '7D',
+  '30': '1M',
+  '90': '3M',
+  '365': '1Y',
+}
+
 function RiskMetric({
   label,
   value,
@@ -58,16 +72,14 @@ function RiskMetric({
       <div className={`p-1.5 rounded-md ${color}`}>{icon}</div>
       <div className='flex-1 min-w-0'>
         <div className='flex items-center justify-between'>
-          <span className='text-xs'>{label}</span>
+          <span className='text-xs font-semibold'>{label}</span>
           <span
             className={`text-sm font-bold font-mono ${value != null && value > 50 ? 'text-red-500' : value != null && value < 20 ? 'text-emerald-500' : ''}`}
           >
             {formatted}
           </span>
         </div>
-        <p className='text-[10px] text-muted-foreground truncate'>
-          {description}
-        </p>
+        <p className='text-xs text-muted-foreground truncate'>{description}</p>
       </div>
     </div>
   )
@@ -112,40 +124,38 @@ export function CoinRiskMetrics({
 
   return (
     <div className='rounded-lg border  p-4 space-y-3'>
-      <div className='flex'>
+      <div className='flex gap-3'>
         <h3 className='text-sm font-bold uppercase tracking-wide flex text-muted-foreground items-center gap-2'>
           <Gauge className='h-5 w-5' />
           Risk Metrics
         </h3>
 
-        <ToggleGroup
-          type='single'
-          value={days}
-          size='sm'
-          variant='outline'
-          onValueChange={(v) => v && onDaysChange(v)}
-        >
-          <ToggleGroupItem value='1' size='sm'>
-            24H
-          </ToggleGroupItem>
-          <ToggleGroupItem value='7' size='sm'>
-            7D
-          </ToggleGroupItem>
-          <ToggleGroupItem value='30' size='sm'>
-            30D
-          </ToggleGroupItem>
-          <ToggleGroupItem value='90' size='sm'>
-            90D
-          </ToggleGroupItem>
-          <ToggleGroupItem value='365' size='sm'>
-            1Y
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant='outline' size='xs' className='text-sm font-bold'>
+              {PERIOD_LABELS[days] || days}
+              <ChevronDown className='h-3 w-3' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='center' className='min-w-5 rounded-sm'>
+            {Object.entries(PERIOD_LABELS).map(([value, label]) => (
+              <DropdownMenuItem
+                key={value}
+                onClick={() => onDaysChange(value)}
+                className={`text-xs px-2 py-1 rounded-sm cursor-pointer ${
+                  days === value ? 'bg-accent' : ''
+                }`}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className='space-y-2'>
         <RiskMetric
-          label='Volatility (30d)'
+          label='Volatility'
           value={volatility}
           format='percent'
           icon={<Activity className='h-3.5 w-3.5' />}
