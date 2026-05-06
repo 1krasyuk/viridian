@@ -314,7 +314,7 @@ export function CoinRoiCalculator({
         </div>
 
         {/* Results */}
-        <div className='rounded-md bg-muted/50 p-3 space-y-2'>
+        <div className='rounded-md bg-card p-3 space-y-2'>
           <div className='flex items-center justify-between text-sm'>
             <span className='text-muted-foreground'>Coins bought</span>
             <span className='font-mono font-semibold'>
