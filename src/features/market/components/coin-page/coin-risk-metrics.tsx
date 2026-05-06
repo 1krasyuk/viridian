@@ -406,14 +406,18 @@ const PERIOD_LABELS: Record<string, string> = {
 /* ─────────────────────────────────────────────
    SUB-COMPONENTS
    ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+   ───────────────────────────────────────────── */
 
 type MetricCardProps = {
   label: string
-  value: React.ReactNode
+  value?: React.ReactNode
   sub?: string
   icon: React.ReactNode
   color?: string
   tooltip?: string
+  isLoading?: boolean
 }
 
 function MetricCard({
@@ -423,6 +427,7 @@ function MetricCard({
   icon,
   color = 'text-muted-foreground',
   tooltip,
+  isLoading = false,
 }: MetricCardProps) {
   return (
     <div className='bg-card p-3 rounded-md space-y-1'>
@@ -435,7 +440,7 @@ function MetricCard({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-3 w-3 text-muted-foreground cursor-help' />
+                <Info className='h-3 w-3 text-muted-foreground' />
               </TooltipTrigger>
               <TooltipContent side='top' className='max-w-70'>
                 <p className='text-xs'>{tooltip}</p>
@@ -444,8 +449,18 @@ function MetricCard({
           </TooltipProvider>
         )}
       </div>
-      <div className='text-lg font-bold leading-tight'>{value}</div>
-      {sub && <div className='text-xs text-muted-foreground'>{sub}</div>}
+
+      {isLoading ? (
+        <>
+          <Skeleton className='h-7 w-24 rounded-sm' />
+          <Skeleton className='h-3 w-32 rounded-sm' />
+        </>
+      ) : (
+        <>
+          <div className='text-lg font-bold leading-tight'>{value}</div>
+          {sub && <div className='text-xs text-muted-foreground'>{sub}</div>}
+        </>
+      )}
     </div>
   )
 }
@@ -478,157 +493,33 @@ function CoinRiskNow({
   coin: Coin | undefined
   isLoading: boolean
 }) {
-  if (isLoading || !coin) {
-    return (
-      <div className='space-y-3'>
-        <div className='flex items-center gap-2 h-6'>
-          <AlertTriangle className='h-4 w-4 text-amber-500' />
-          <h4 className='text-sm font-semibold uppercase tracking-wider '>
-            Risk Now
-          </h4>
-        </div>
-
-        <div className='grid grid-cols-2 gap-2'>
-          {/* Volatility Trend Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <Wind className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Volatility Trend
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      Compares 1h vs 24h vs 7d average daily change. Escalating
-                      = recent swings are bigger than usual = higher risk.
-                      Minimum 1% threshold to avoid stablecoin noise.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-20 rounded-sm' />
-            <Skeleton className='h-3 w-36 rounded-sm' />
-          </div>
-
-          {/* Momentum Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <Zap className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Momentum
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      24h change vs average daily 7d change. Surging/Collapsing
-                      = momentum is extreme. Decelerating = move is losing
-                      steam. Flat = 7d change is near zero (stablecoin-like).
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-24 rounded-sm' />
-            <Skeleton className='h-3 w-40 rounded-sm' />
-          </div>
-
-          {/* Market Stress Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <Flame className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Market Stress
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      Transparent formula: |24h|×3 + |1h|×4 +
-                      directionPenalty(15) + liquidityPenalty(8-20). 0-100
-                      scale. Higher = more uncertainty.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-16 rounded-sm' />
-            <Skeleton className='h-3 w-32 rounded-sm' />
-          </div>
-
-          {/* Liquidity Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <Droplets className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Liquidity
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      Volume vs Market Cap ratio. Higher = easier to buy/sell
-                      without moving the price.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-20 rounded-sm' />
-            <Skeleton className='h-3 w-28 rounded-sm' />
-          </div>
-        </div>
-
-        <div className='rounded-md border p-3 space-y-2 bg-card'>
-          <Skeleton className='h-4 w-28 rounded-sm' />
-          <Skeleton className='h-4 w-full rounded-sm' />
-          <Skeleton className='h-4 w-4/5 rounded-sm' />
-        </div>
-      </div>
-    )
-  }
-
-  const md = coin.market_data
+  const md = coin?.market_data
   const change1h = md?.price_change_percentage_1h_in_currency?.usd
   const change24h = md?.price_change_percentage_24h_in_currency?.usd
   const change7d = md?.price_change_percentage_7d_in_currency?.usd
 
-  const volTrend = getVolatilityTrend(change1h, change24h, change7d)
-  const momentum = getMomentum(change24h, change7d)
+  const volTrend = isLoading
+    ? null
+    : getVolatilityTrend(change1h, change24h, change7d)
+  const momentum = isLoading ? null : getMomentum(change24h, change7d)
 
   const volume24h = md?.total_volume?.usd
   const marketCap = md?.market_cap?.usd
   const turnover = volume24h && marketCap ? (volume24h / marketCap) * 100 : 0
   const liquidity = getLiquidityLabel(turnover)
 
-  const stress = calculateMarketStress(change1h, change24h, turnover)
-  const summary = getRiskSummary(
-    volTrend,
-    momentum,
-    stress,
-    liquidity,
-    change24h,
-  )
+  const stress = isLoading
+    ? null
+    : calculateMarketStress(change1h, change24h, turnover)
+  const summary = isLoading
+    ? null
+    : getRiskSummary(volTrend!, momentum!, stress!, liquidity, change24h)
 
   return (
     <div className='space-y-3'>
       <div className='flex items-center gap-2 h-6'>
         <AlertTriangle className='h-4 w-4 text-amber-500' />
-        <h4 className='text-sm font-semibold uppercase tracking-wider '>
+        <h4 className='text-sm font-semibold uppercase tracking-wider'>
           Risk Now
         </h4>
       </div>
@@ -636,54 +527,84 @@ function CoinRiskNow({
       <div className='grid grid-cols-2 gap-2'>
         <MetricCard
           label='Volatility Trend'
-          value={<span className={volTrend.color}>{volTrend.label}</span>}
-          sub={volTrend.sub}
+          value={
+            volTrend ? (
+              <span className={volTrend.color}>{volTrend.label}</span>
+            ) : undefined
+          }
+          sub={volTrend?.sub}
           icon={<Wind className='h-3.5 w-3.5' />}
-          color={volTrend.color}
+          color={volTrend?.color}
           tooltip='Compares 1h vs 24h vs 7d average daily change. Escalating = recent swings are bigger than usual = higher risk. Minimum 1% threshold to avoid stablecoin noise.'
+          isLoading={isLoading}
         />
 
         <MetricCard
           label='Momentum'
-          value={<span className={momentum.color}>{momentum.label}</span>}
-          sub={momentum.sub}
+          value={
+            momentum ? (
+              <span className={momentum.color}>{momentum.label}</span>
+            ) : undefined
+          }
+          sub={momentum?.sub}
           icon={<Zap className='h-3.5 w-3.5' />}
-          color={momentum.color}
+          color={momentum?.color}
           tooltip='24h change vs average daily 7d change. Surging/Collapsing = momentum is extreme. Decelerating = move is losing steam. Flat = 7d change is near zero (stablecoin-like).'
+          isLoading={isLoading}
         />
 
         <MetricCard
           label='Market Stress'
-          value={<span className={stress.color}>{stress.label}</span>}
-          sub={stress.sub}
+          value={
+            stress ? (
+              <span className={stress.color}>{stress.label}</span>
+            ) : undefined
+          }
+          sub={stress?.sub}
           icon={<Flame className='h-3.5 w-3.5' />}
-          color={stress.color}
+          color={stress?.color}
           tooltip='Transparent formula: |24h|×3 + |1h|×4 + directionPenalty(15) + liquidityPenalty(8-20). 0-100 scale. Higher = more uncertainty.'
+          isLoading={isLoading}
         />
 
         <MetricCard
           label='Liquidity'
-          value={<span className={liquidity.color}>{liquidity.label}</span>}
+          value={
+            liquidity ? (
+              <span className={liquidity.color}>{liquidity.label}</span>
+            ) : undefined
+          }
           sub={`${turnover.toFixed(1)}% turnover`}
           icon={<Droplets className='h-3.5 w-3.5' />}
           color={liquidity.color}
           tooltip='Volume vs Market Cap ratio. Higher = easier to buy/sell without moving the price.'
+          isLoading={isLoading}
         />
       </div>
 
-      <div className={`rounded-md border p-3 space-y-2 ${summary.bg}`}>
-        <div className='flex items-center gap-2'>
-          {summary.icon}
-          <span
-            className={`text-xs font-bold uppercase tracking-wider ${summary.color}`}
-          >
-            {summary.level} Risk
-          </span>
+      {!isLoading && summary && (
+        <div className={`rounded-md border p-3 space-y-2 ${summary.bg}`}>
+          <div className='flex items-center gap-2'>
+            {summary.icon}
+            <span
+              className={`text-xs font-bold uppercase tracking-wider ${summary.color}`}
+            >
+              {summary.level} Risk
+            </span>
+          </div>
+          <p className='text-xs text-muted-foreground leading-relaxed'>
+            {summary.text}
+          </p>
         </div>
-        <p className='text-xs text-muted-foreground leading-relaxed'>
-          {summary.text}
-        </p>
-      </div>
+      )}
+
+      {isLoading && (
+        <div className='rounded-md border p-3 space-y-2 bg-card'>
+          <Skeleton className='h-4 w-28 rounded-sm' />
+          <Skeleton className='h-4 w-full rounded-sm' />
+          <Skeleton className='h-4 w-4/5 rounded-sm' />
+        </div>
+      )}
     </div>
   )
 }
@@ -705,175 +626,35 @@ function CoinPeriodAnalysis({
   onDaysChange: (v: string) => void
   isLoading: boolean
 }) {
-  if (isLoading) {
-    return (
-      <div className='space-y-3'>
-        <div className='flex items-center gap-2'>
-          <div className='flex items-center gap-2'>
-            <Clock className='h-4 w-4 text-blue-500' />
-            <h4 className='text-sm font-semibold uppercase tracking-wider '>
-              Period Analysis
-            </h4>
-          </div>
-          <Button
-            variant='outline'
-            size='sm'
-            className='h-6 text-xs gap-1 px-2'
-            disabled
-          >
-            {PERIOD_LABELS[days] || days}
-            <ChevronDown className='h-3 w-3' />
-          </Button>
-        </div>
-
-        <div className='grid grid-cols-2 gap-2'>
-          {/* Period Return Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <TrendingUp className='h-3.5 w-3.5 text-emerald-500' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Period Return
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      Total price change from start to end of the selected
-                      period.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-24 rounded-sm' />
-            <Skeleton className='h-3 w-20 rounded-sm' />
-          </div>
-
-          {/* Period Swing Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <Activity className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Period Swing
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      How much price bounced around during the period. Lower =
-                      more stable.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-20 rounded-sm' />
-            <Skeleton className='h-3 w-24 rounded-sm' />
-          </div>
-
-          {/* Max Drawdown Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <TrendingDown className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                Max Drawdown
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      Largest drop from a peak to a trough within the period.
-                      Smaller = safer.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-20 rounded-sm' />
-            <Skeleton className='h-3 w-24 rounded-sm' />
-          </div>
-
-          {/* vs Period Avg Skeleton */}
-          <div className='bg-card p-3 rounded-md space-y-1'>
-            <div className='flex items-center gap-1.5'>
-              <BarChart3 className='h-3.5 w-3.5 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground uppercase tracking-wider'>
-                vs Period Avg
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground cursor-help' />
-                  </TooltipTrigger>
-                  <TooltipContent side='top' className='max-w-70'>
-                    <p className='text-xs'>
-                      How current price compares to the average price over the
-                      selected period.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Skeleton className='h-7 w-20 rounded-sm' />
-            <Skeleton className='h-3 w-28 rounded-sm' />
-          </div>
-        </div>
-
-        <div className='bg-card p-3 rounded-md space-y-1.5'>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period open</span>
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          </div>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period close</span>
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          </div>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period average</span>
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!coin) return null
-
   const prices = chart?.prices
-  const periodVolatility = calculateVolatility(prices)
-  const periodDrawdown = calculateMaxDrawdown(prices)
+
+  const periodVolatility = isLoading ? null : calculateVolatility(prices)
+  const periodDrawdown = isLoading ? null : calculateMaxDrawdown(prices)
 
   const periodChange =
-    prices && prices.length >= 2
+    !isLoading && prices && prices.length >= 2
       ? ((prices[prices.length - 1].value - prices[0].value) /
           prices[0].value) *
         100
       : null
 
   const avgPrice =
-    prices && prices.length > 0
+    !isLoading && prices && prices.length > 0
       ? prices.reduce((sum, p) => sum + p.value, 0) / prices.length
       : null
 
-  const current = coin.market_data?.current_price?.usd
+  const current = coin?.market_data?.current_price?.usd
   const vsAvg =
-    current && avgPrice ? ((current - avgPrice) / avgPrice) * 100 : null
+    !isLoading && current && avgPrice
+      ? ((current - avgPrice) / avgPrice) * 100
+      : null
 
   return (
     <div className='space-y-3'>
       <div className='flex items-center gap-2'>
         <div className='flex items-center gap-2'>
           <Clock className='h-4 w-4 text-blue-500' />
-          <h4 className='text-sm font-semibold uppercase tracking-wider '>
+          <h4 className='text-sm font-semibold uppercase tracking-wider'>
             Period Analysis
           </h4>
         </div>
@@ -884,6 +665,7 @@ function CoinPeriodAnalysis({
               variant='outline'
               size='sm'
               className='h-6 text-xs gap-1 px-2'
+              disabled={isLoading}
             >
               {PERIOD_LABELS[days] || days}
               <ChevronDown className='h-3 w-3' />
@@ -914,9 +696,7 @@ function CoinPeriodAnalysis({
                 {periodChange >= 0 ? '+' : ''}
                 {periodChange.toFixed(2)}%
               </span>
-            ) : (
-              '—'
-            )
+            ) : undefined
           }
           sub={`over ${PERIOD_LABELS[days]?.toLowerCase() || days}`}
           icon={
@@ -928,16 +708,19 @@ function CoinPeriodAnalysis({
             />
           }
           tooltip='Total price change from start to end of the selected period.'
+          isLoading={isLoading}
         />
 
         <MetricCard
           label='Period Swing'
           value={
-            <span className={getRiskColor(periodVolatility, 'lower-is-better')}>
-              {periodVolatility !== null
-                ? `${periodVolatility.toFixed(2)}%`
-                : '—'}
-            </span>
+            periodVolatility !== null ? (
+              <span
+                className={getRiskColor(periodVolatility, 'lower-is-better')}
+              >
+                {periodVolatility.toFixed(2)}%
+              </span>
+            ) : undefined
           }
           sub='price fluctuation'
           icon={
@@ -949,14 +732,17 @@ function CoinPeriodAnalysis({
             />
           }
           tooltip='How much price bounced around during the period. Lower = more stable.'
+          isLoading={isLoading}
         />
 
         <MetricCard
           label='Max Drawdown'
           value={
-            <span className={getRiskColor(periodDrawdown, 'lower-is-better')}>
-              {periodDrawdown !== null ? `${periodDrawdown.toFixed(2)}%` : '—'}
-            </span>
+            periodDrawdown !== null ? (
+              <span className={getRiskColor(periodDrawdown, 'lower-is-better')}>
+                {periodDrawdown.toFixed(2)}%
+              </span>
+            ) : undefined
           }
           sub='peak-to-trough'
           icon={
@@ -968,6 +754,7 @@ function CoinPeriodAnalysis({
             />
           }
           tooltip='Largest drop from a peak to a trough within the period. Smaller = safer.'
+          isLoading={isLoading}
         />
 
         <MetricCard
@@ -978,9 +765,7 @@ function CoinPeriodAnalysis({
                 {vsAvg >= 0 ? '+' : ''}
                 {vsAvg.toFixed(2)}%
               </span>
-            ) : (
-              '—'
-            )
+            ) : undefined
           }
           sub='current vs average'
           icon={
@@ -992,40 +777,52 @@ function CoinPeriodAnalysis({
             />
           }
           tooltip='How current price compares to the average price over the selected period.'
+          isLoading={isLoading}
         />
       </div>
 
-      {prices && prices.length >= 2 && (
-        <div className='bg-card p-3 rounded-md space-y-1.5'>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period open</span>
+      {/* Period prices info */}
+      <div className='bg-card p-3 rounded-md space-y-1.5'>
+        <div className='flex justify-between text-xs'>
+          <span className='text-muted-foreground'>Period open</span>
+          {isLoading ? (
+            <Skeleton className='h-3.5 w-20 rounded-sm' />
+          ) : (
             <span className='font-mono'>
               $
-              {prices[0].value.toLocaleString('en-US', {
+              {prices?.[0]?.value.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
-              })}
+              }) || '—'}
             </span>
-          </div>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period close</span>
+          )}
+        </div>
+        <div className='flex justify-between text-xs'>
+          <span className='text-muted-foreground'>Period close</span>
+          {isLoading ? (
+            <Skeleton className='h-3.5 w-20 rounded-sm' />
+          ) : (
             <span className='font-mono'>
               $
-              {prices[prices.length - 1].value.toLocaleString('en-US', {
+              {prices?.[prices.length - 1]?.value.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
-              })}
+              }) || '—'}
             </span>
-          </div>
-          <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period average</span>
+          )}
+        </div>
+        <div className='flex justify-between text-xs'>
+          <span className='text-muted-foreground'>Period average</span>
+          {isLoading ? (
+            <Skeleton className='h-3.5 w-20 rounded-sm' />
+          ) : (
             <span className='font-mono'>
               $
               {avgPrice?.toLocaleString('en-US', {
                 maximumFractionDigits: 2,
-              })}
+              }) || '—'}
             </span>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
