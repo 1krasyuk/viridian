@@ -113,7 +113,8 @@ function RouteComponent() {
                   chart={metricsChart}
                   days={metricDays}
                   onDaysChange={setMetricDays}
-                  isLoading={isLoadingMetrics}
+                  isLoadingCoin={isLoadingCoin}
+                  isLoadingChart={isLoadingMetrics}
                 />
                 <CoinEvents coin={data} isLoading={isLoadingCoin} />
               </div>
