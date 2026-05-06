@@ -516,14 +516,13 @@ function CoinRiskNow({
     : getRiskSummary(volTrend!, momentum!, stress!, liquidity, change24h)
 
   return (
-    <div className='space-y-3'>
+    <div className='space-y-3 h-full flex flex-col'>
       <div className='flex items-center gap-2 h-6'>
         <AlertTriangle className='h-4 w-4 text-amber-500' />
         <h4 className='text-sm font-semibold uppercase tracking-wider'>
           Risk Now
         </h4>
       </div>
-
       <div className='grid grid-cols-2 gap-2'>
         <MetricCard
           label='Volatility Trend'
@@ -581,30 +580,33 @@ function CoinRiskNow({
           isLoading={isLoading}
         />
       </div>
-
-      {!isLoading && summary && (
-        <div className={`rounded-md border p-3 space-y-2 ${summary.bg}`}>
-          <div className='flex items-center gap-2'>
-            {summary.icon}
-            <span
-              className={`text-xs font-bold uppercase tracking-wider ${summary.color}`}
-            >
-              {summary.level} Risk
-            </span>
+      <div className='flex-1 flex flex-col'>
+        {!isLoading && summary && (
+          <div
+            className={`rounded-md border p-3 space-y-2 ${summary.bg} flex-1 flex flex-col`}
+          >
+            <div className='flex items-center gap-2 flex-shrink-0'>
+              {summary.icon}
+              <span
+                className={`text-xs font-bold uppercase tracking-wider ${summary.color}`}
+              >
+                {summary.level} Risk
+              </span>
+            </div>
+            <p className='text-xs text-muted-foreground leading-relaxed flex-1'>
+              {summary.text}
+            </p>
           </div>
-          <p className='text-xs text-muted-foreground leading-relaxed'>
-            {summary.text}
-          </p>
-        </div>
-      )}
+        )}
 
-      {isLoading && (
-        <div className='rounded-md border p-3 space-y-2 bg-card'>
-          <Skeleton className='h-4 w-28 rounded-sm' />
-          <Skeleton className='h-4 w-full rounded-sm' />
-          <Skeleton className='h-4 w-4/5 rounded-sm' />
-        </div>
-      )}
+        {isLoading && (
+          <div className='rounded-md border p-3 space-y-2 bg-card flex-1'>
+            <Skeleton className='h-4 w-28 rounded-sm' />
+            <Skeleton className='h-4 w-full rounded-sm' />
+            <Skeleton className='h-4 w-4/5 rounded-sm' />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -650,8 +652,8 @@ function CoinPeriodAnalysis({
       : null
 
   return (
-    <div className='space-y-3'>
-      <div className='flex items-center gap-2'>
+    <div className='space-y-3 flex flex-col h-full'>
+      <div className='flex items-center gap-2 shrink-0'>
         <div className='flex items-center gap-2'>
           <Clock className='h-4 w-4 text-blue-500' />
           <h4 className='text-sm font-semibold uppercase tracking-wider'>
@@ -782,45 +784,47 @@ function CoinPeriodAnalysis({
       </div>
 
       {/* Period prices info */}
-      <div className='bg-card p-3 rounded-md space-y-1.5'>
-        <div className='flex justify-between text-xs'>
-          <span className='text-muted-foreground'>Period open</span>
-          {isLoading ? (
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          ) : (
-            <span className='font-mono'>
-              $
-              {prices?.[0]?.value.toLocaleString('en-US', {
-                maximumFractionDigits: 2,
-              }) || '—'}
-            </span>
-          )}
-        </div>
-        <div className='flex justify-between text-xs'>
-          <span className='text-muted-foreground'>Period close</span>
-          {isLoading ? (
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          ) : (
-            <span className='font-mono'>
-              $
-              {prices?.[prices.length - 1]?.value.toLocaleString('en-US', {
-                maximumFractionDigits: 2,
-              }) || '—'}
-            </span>
-          )}
-        </div>
-        <div className='flex justify-between text-xs'>
-          <span className='text-muted-foreground'>Period average</span>
-          {isLoading ? (
-            <Skeleton className='h-3.5 w-20 rounded-sm' />
-          ) : (
-            <span className='font-mono'>
-              $
-              {avgPrice?.toLocaleString('en-US', {
-                maximumFractionDigits: 2,
-              }) || '—'}
-            </span>
-          )}
+      <div className='flex-1 bg-card p-3 rounded-md flex flex-col justify-center'>
+        <div className='space-y-1.5'>
+          <div className='flex justify-between text-xs'>
+            <span className='text-muted-foreground'>Period open</span>
+            {isLoading ? (
+              <Skeleton className='h-3.5 w-20 rounded-sm' />
+            ) : (
+              <span className='font-mono'>
+                $
+                {prices?.[0]?.value.toLocaleString('en-US', {
+                  maximumFractionDigits: 2,
+                }) || '—'}
+              </span>
+            )}
+          </div>
+          <div className='flex justify-between text-xs'>
+            <span className='text-muted-foreground'>Period close</span>
+            {isLoading ? (
+              <Skeleton className='h-3.5 w-20 rounded-sm' />
+            ) : (
+              <span className='font-mono'>
+                $
+                {prices?.[prices.length - 1]?.value.toLocaleString('en-US', {
+                  maximumFractionDigits: 2,
+                }) || '—'}
+              </span>
+            )}
+          </div>
+          <div className='flex justify-between text-xs'>
+            <span className='text-muted-foreground'>Period average</span>
+            {isLoading ? (
+              <Skeleton className='h-3.5 w-20 rounded-sm' />
+            ) : (
+              <span className='font-mono'>
+                $
+                {avgPrice?.toLocaleString('en-US', {
+                  maximumFractionDigits: 2,
+                }) || '—'}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -857,7 +861,7 @@ export function CoinRiskMetrics({
           </h3>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch'>
           <CoinRiskNow coin={coin} isLoading={isLoadingCoin} />
           <CoinPeriodAnalysis
             coin={coin}
