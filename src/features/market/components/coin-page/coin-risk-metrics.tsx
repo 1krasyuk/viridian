@@ -430,7 +430,7 @@ function MetricCard({
   isLoading = false,
 }: MetricCardProps) {
   return (
-    <div className='bg-card p-3 rounded-md space-y-1'>
+    <div className='bg-sidebar p-3 rounded-md space-y-1'>
       <div className='flex items-center gap-1.5'>
         <span className={color}>{icon}</span>
         <span className='text-xs text-muted-foreground uppercase font-semibold tracking-wide'>
@@ -585,7 +585,7 @@ function CoinRiskNow({
           <div
             className={`rounded-md border p-3 space-y-2 ${summary.bg} flex-1 flex flex-col`}
           >
-            <div className='flex items-center gap-2 flex-shrink-0'>
+            <div className='flex items-center gap-2 shrink-0'>
               {summary.icon}
               <span
                 className={`text-xs font-bold uppercase tracking-wider ${summary.color}`}
@@ -784,7 +784,7 @@ function CoinPeriodAnalysis({
       </div>
 
       {/* Period prices info */}
-      <div className='flex-1 bg-card p-3 rounded-md flex flex-col justify-center'>
+      <div className='flex-1 bg-sidebar p-3 rounded-md flex flex-col justify-center'>
         <div className='space-y-1.5'>
           <div className='flex justify-between text-xs'>
             <span className='text-muted-foreground'>Period open</span>

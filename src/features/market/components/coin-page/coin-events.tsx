@@ -140,7 +140,7 @@ export function CoinEvents({
 
   return (
     <div className='rounded-lg border  p-4 space-y-3'>
-      <h3 className='text-sm font-bold uppercase tracking-wide flex text-muted-foreground items-center gap-2'>
+      <h3 className='text-md font-semibold uppercase flex items-center gap-2'>
         <Calendar className='h-4 w-4' />
         Upcoming Events
       </h3>
@@ -153,7 +153,7 @@ export function CoinEvents({
           return (
             <div
               key={i}
-              className={`flex  items-start gap-2.5 p-2.5 rounded-md ${isPast ? 'bg-muted/20 opacity-60' : 'bg-muted/40'}`}
+              className={`flex  items-start gap-2.5 p-2.5 rounded-md ${isPast ? 'bg-muted/20 opacity-60' : 'bg-sidebar'}`}
             >
               <div className='mt-0.5'>
                 <EventIcon type={event.type} />

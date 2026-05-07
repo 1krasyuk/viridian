@@ -106,7 +106,7 @@ function RouteComponent() {
                 description={data?.description}
                 isLoading={isLoadingCoin}
               />
-              <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
+
               <div className='grid grid-cols-1 gap-5'>
                 <CoinRiskMetrics
                   coin={data}
@@ -118,6 +118,7 @@ function RouteComponent() {
                 />
                 <CoinEvents coin={data} isLoading={isLoadingCoin} />
               </div>
+              <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinTickersTable
                 coinName={data?.name || ''}
                 tickers={data?.tickers ?? []}
