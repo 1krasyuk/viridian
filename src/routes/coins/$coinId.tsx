@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
 import { CoinEvents } from '@/features/market/components/coin-page/coin-events'
+import { CoinTokenomics } from '@/features/market/components/coin-page/coin-tokenomics'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -116,6 +117,9 @@ function RouteComponent() {
                   isLoadingCoin={isLoadingCoin}
                   isLoadingChart={isLoadingMetrics}
                 />
+              </div>
+              <div className='grid grid-cols-2 gap-5'>
+                <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
                 <CoinEvents coin={data} isLoading={isLoadingCoin} />
               </div>
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
