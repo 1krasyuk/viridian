@@ -22,8 +22,9 @@ import { CoinPriceChange } from '@/features/market/components/coin-page/coin-pri
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
-import { CoinEvents } from '@/features/market/components/coin-page/coin-events'
+// import { CoinEvents } from '@/features/market/components/coin-page/coin-events'
 import { CoinTokenomics } from '@/features/market/components/coin-page/coin-tokenomics'
+import { CoinScenarioPlanner } from '@/features/market/components/coin-page/coin-market-health'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -118,10 +119,12 @@ function RouteComponent() {
                   isLoadingChart={isLoadingMetrics}
                 />
               </div>
-              <div className='grid grid-cols-2 gap-5'>
+
+              <div className='grid xs:grid-cols-1 grid-cols-2 gap-5'>
                 <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
-                <CoinEvents coin={data} isLoading={isLoadingCoin} />
+                <CoinScenarioPlanner coin={data} isLoading={isLoadingCoin} />
               </div>
+
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinTickersTable
                 coinName={data?.name || ''}
