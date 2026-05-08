@@ -6,6 +6,7 @@ import type { UTCTimestamp } from 'lightweight-charts'
 export const coinsKeys = {
   all: ['coins'] as const,
   detail: (id: string) => ['coins', id] as const,
+  global: ['global'] as const, // ← ДОБАВИТЬ ЭТО
 }
 
 export function useCoins(page: number, per_page: number, category?: string) {
@@ -83,5 +84,14 @@ export function useCategoriesList() {
   return useQuery({
     queryKey: ['coin-categories-list'],
     queryFn: () => coinsApi.getCategoriesList(),
+  })
+}
+
+export function useGlobalData() {
+  return useQuery({
+    queryKey: coinsKeys.global,
+    queryFn: () => coinsApi.getGlobalData(),
+    staleTime: 5000,
+    refetchInterval: 50000,
   })
 }
