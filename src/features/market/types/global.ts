@@ -1,12 +1,4 @@
 export interface GlobalData {
-  totalMarketCap: number
-  totalVolume: number
-  marketCapPercentage: Record<string, number>
-  activeCryptocurrencies: number
-  markets: number
-}
-
-export interface GlobalDataRaw {
   active_cryptocurrencies: number
   upcoming_icos: number
   ongoing_icos: number

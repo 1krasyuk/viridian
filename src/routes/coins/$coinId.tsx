@@ -1,7 +1,10 @@
-// routes/coins/$coinId.tsx
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useCoin, useCoinChart } from '@/features/market/hooks/coins-queries'
+import {
+  useCoin,
+  useCoinChart,
+  useGlobalData,
+} from '@/features/market/hooks/coins-queries' // ← добавлен useGlobalData
 import { CoinChart } from '@/features/market/components/coin-page/coin-chart'
 import { CoinConverter } from '@/features/market/components/coin-page/coin-converter'
 import { CoinDescription } from '@/features/market/components/coin-page/coin-description'
@@ -11,7 +14,6 @@ import { CoinPricePerformance } from '@/features/market/components/coin-page/coi
 import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
 import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
 import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
-
 import {
   ResizableHandle,
   ResizablePanel,
@@ -22,9 +24,9 @@ import { CoinPriceChange } from '@/features/market/components/coin-page/coin-pri
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
-// import { CoinEvents } from '@/features/market/components/coin-page/coin-events'
 import { CoinTokenomics } from '@/features/market/components/coin-page/coin-tokenomics'
-import { CoinScenarioPlanner } from '@/features/market/components/coin-page/coin-market-health'
+import { CoinScenarioPlanner } from '@/features/market/components/coin-page/coin-scenario-planner'
+import { CoinMarketDominance } from '@/features/market/components/coin-page/coin-market-dominance' // ← NEW
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -33,6 +35,7 @@ export const Route = createFileRoute('/coins/$coinId')({
 function RouteComponent() {
   const { coinId } = Route.useParams()
   const { data, isLoading: isLoadingCoin } = useCoin(coinId)
+  const { data: globalData } = useGlobalData()
   const [days, setDays] = useState('1')
   const [metricDays, setMetricDays] = useState('30')
   const { data: metricsChart, isLoading: isLoadingMetrics } = useCoinChart(
@@ -60,7 +63,6 @@ function RouteComponent() {
     <div className='flex min-h-screen'>
       {/* LEFT */}
       <div className='w-3/4 flex flex-col'>
-        {/* TABS */}
         <Tabs
           value={viewMode}
           onValueChange={(value) =>
@@ -87,7 +89,6 @@ function RouteComponent() {
         </Tabs>
 
         {viewMode === 'pagination' ? (
-          /* Classic mode */
           <div className='flex flex-col min-w-0'>
             <div className='h-150 min-w-0 relative w-full'>
               <CoinChart
@@ -122,8 +123,13 @@ function RouteComponent() {
 
               <div className='grid xs:grid-cols-1 grid-cols-2 gap-5'>
                 <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
-                <CoinScenarioPlanner coin={data} isLoading={isLoadingCoin} />
+                <CoinMarketDominance
+                  coin={data}
+                  isLoading={isLoadingCoin}
+                  globalData={globalData}
+                />
               </div>
+              <CoinScenarioPlanner coin={data} isLoading={isLoadingCoin} />
 
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinTickersTable
@@ -135,7 +141,6 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          /* Terminal mode */
           <ResizablePanelGroup orientation='vertical'>
             <ResizablePanel
               defaultSize='70%'

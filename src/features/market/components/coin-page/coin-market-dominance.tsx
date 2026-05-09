@@ -1,16 +1,15 @@
 // features/market/components/coin-page/coin-market-dominance.tsx
 import {
   Globe,
-  Crown,
-  Layers,
-  Target,
-  BarChart3,
   Info,
   ArrowUpRight,
   ArrowDownRight,
-  PieChart,
-  Activity,
   Zap,
+  BarChart3,
+  Layers,
+  Activity,
+  Target,
+  Droplets,
 } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import {
@@ -48,21 +47,56 @@ function formatCurrency(n: number): string {
 }
 
 // === DOMINANCE RING ===
+// Кольцо с 3 секторами: фон (серый), BTC (тускло-зелёный), монета (ярко-зелёный)
+// Все секторы отсчитываются от 0 (верх). Монета начинается после BTC через rotate.
 function DominanceRing({
-  dominancePercent,
+  coinDominance,
+  btcDominance,
   size = 110,
+  isLoading = false,
+  isBitcoin = false,
 }: {
-  dominancePercent: number
+  coinDominance: number
+  btcDominance: number
   size?: number
+  isLoading?: boolean
+  isBitcoin?: boolean
 }) {
   const strokeWidth = 10
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset =
-    circumference - (Math.min(dominancePercent, 100) / 100) * circumference
+
+  const btcArc = (Math.min(btcDominance, 100) / 100) * circumference
+  const coinArc = (Math.min(coinDominance, 100) / 100) * circumference
+  const btcAngle = (btcDominance / 100) * 360
 
   const colorBg = '#3f3f46'
-  const colorFill = '#4ade80'
+  const colorBtc = 'oklch(0.65 0.12 162 / 0.35)' // чуть заметнее чем 0.2
+  const colorCoin = 'oklch(0.7 0.15 162)'
+
+  if (isLoading) {
+    return (
+      <div
+        className='relative inline-flex items-center justify-center shrink-0'
+        style={{ width: size, height: size }}
+      >
+        <svg width={size} height={size} className='-rotate-90'>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={(size - 10) / 2}
+            fill='none'
+            stroke={colorBg}
+            strokeWidth={10}
+          />
+        </svg>
+        <div className='absolute inset-0 flex flex-col items-center justify-center gap-1'>
+          <Skeleton className='h-5 w-14' />
+          <Skeleton className='h-3 w-16' />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -70,6 +104,7 @@ function DominanceRing({
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className='-rotate-90'>
+        {/* Фон — весь рынок */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -78,49 +113,47 @@ function DominanceRing({
           stroke={colorBg}
           strokeWidth={strokeWidth}
         />
+
+        {/* BTC — от 0 до btc%, только если не BTC страница */}
+        {!isBitcoin && btcDominance > 0 && (
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill='none'
+            stroke={colorBtc}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${btcArc} ${circumference}`}
+            strokeDashoffset={0}
+            strokeLinecap='butt'
+          />
+        )}
+
+        {/* Монета — начинается после BTC (через rotate) */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill='none'
-          stroke={colorFill}
+          stroke={colorCoin}
           strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap='round'
+          strokeDasharray={`${coinArc} ${circumference}`}
+          strokeDashoffset={0}
+          strokeLinecap='butt'
+          transform={
+            !isBitcoin
+              ? `rotate(${btcAngle} ${size / 2} ${size / 2})`
+              : undefined
+          }
         />
       </svg>
       <div className='absolute inset-0 flex flex-col items-center justify-center'>
         <span className='text-base font-bold font-mono'>
-          {dominancePercent.toFixed(2)}%
+          {coinDominance < 0.01 ? '<0.01' : coinDominance.toFixed(2)}%
         </span>
         <span className='text-[9px] text-muted-foreground uppercase tracking-wider'>
-          Dominance
+          Market Share
         </span>
-      </div>
-    </div>
-  )
-}
-
-function DominanceRingSkeleton({ size = 110 }: { size?: number }) {
-  return (
-    <div
-      className='relative inline-flex items-center justify-center shrink-0'
-      style={{ width: size, height: size }}
-    >
-      <svg width={size} height={size} className='-rotate-90'>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={(size - 10) / 2}
-          fill='none'
-          stroke='#3f3f46'
-          strokeWidth={10}
-        />
-      </svg>
-      <div className='absolute inset-0 flex flex-col items-center justify-center gap-1'>
-        <Skeleton className='h-5 w-14' />
-        <Skeleton className='h-3 w-16' />
       </div>
     </div>
   )
@@ -190,6 +223,7 @@ function ComparisonBar({
   rightValue,
   leftPercent,
   color = 'primary',
+  isLoading = false,
 }: {
   leftLabel: string
   leftValue: string
@@ -197,11 +231,30 @@ function ComparisonBar({
   rightValue: string
   leftPercent: number
   color?: 'primary' | 'emerald' | 'orange'
+  isLoading?: boolean
 }) {
   const colors = {
     primary: 'bg-primary',
     emerald: 'bg-emerald-500',
     orange: 'bg-orange-500',
+  }
+
+  if (isLoading) {
+    return (
+      <div className='space-y-1.5'>
+        <div className='flex justify-between text-xs'>
+          <div>
+            <p className='font-medium text-[11px]'>{leftLabel}</p>
+            <Skeleton className='h-3 w-24 mt-0.5' />
+          </div>
+          <div className='text-right'>
+            <p className='font-medium text-[11px]'>{rightLabel}</p>
+            <Skeleton className='h-3 w-24 mt-0.5 ml-auto' />
+          </div>
+        </div>
+        <Skeleton className='h-2 w-full rounded-full' />
+      </div>
+    )
   }
 
   return (
@@ -230,177 +283,41 @@ function ComparisonBar({
   )
 }
 
-// === TIER BADGE ===
-function getMarketTier(mcapRank: number | undefined): {
-  label: string
-  color: string
-  desc: string
-} {
-  if (!mcapRank || mcapRank <= 0)
-    return { label: 'Unknown', color: 'bg-muted', desc: 'No ranking data' }
-  if (mcapRank === 1)
-    return {
-      label: 'King',
-      color: 'bg-amber-500/20 text-amber-500',
-      desc: '#1 by market cap',
-    }
-  if (mcapRank <= 3)
-    return {
-      label: 'Elite',
-      color: 'bg-emerald-500/20 text-emerald-500',
-      desc: 'Top 3 cryptocurrency',
-    }
-  if (mcapRank <= 10)
-    return {
-      label: 'Major',
-      color: 'bg-primary/20 text-primary',
-      desc: 'Top 10 cryptocurrency',
-    }
-  if (mcapRank <= 50)
-    return {
-      label: 'Mid-Cap',
-      color: 'bg-blue-500/20 text-blue-500',
-      desc: 'Top 50 cryptocurrency',
-    }
-  if (mcapRank <= 100)
-    return {
-      label: 'Established',
-      color: 'bg-purple-500/20 text-purple-500',
-      desc: 'Top 100 cryptocurrency',
-    }
-  if (mcapRank <= 500)
-    return {
-      label: 'Emerging',
-      color: 'bg-yellow-500/20 text-yellow-500',
-      desc: 'Top 500 cryptocurrency',
-    }
-  return {
-    label: 'Micro',
-    color: 'bg-muted text-muted-foreground',
-    desc: 'Outside top 500',
-  }
-}
-
 export function CoinMarketDominance({
   coin,
   isLoading,
   globalData,
 }: CoinMarketDominanceProps) {
   const marketData = coin?.market_data
-  const mcapRank = coin?.market_cap_rank
   const symbol = coin?.symbol?.toUpperCase() || ''
-  const isBitcoin =
-    coin?.id === 'bitcoin' || coin?.symbol?.toLowerCase() === 'btc'
+  const isBitcoin = coin?.id === 'bitcoin'
 
   const mcap = marketData?.market_cap?.usd || 0
-  const totalVolume = marketData?.total_volume?.usd || 0
-  const currentPrice = marketData?.current_price?.usd || 0
+  const volume = marketData?.total_volume?.usd || 0
 
-  // Global data (fallback to estimate if not provided)
-  const globalMcap = globalData?.totalMarketCap || 2_800_000_000_000
-  const btcDominance = globalData?.marketCapPercentage?.btc || 62
+  // Global data
+  const globalMcap = globalData?.total_market_cap?.usd || 0
+  const globalVolume = globalData?.total_volume?.usd || 0
+  const btcDominance = globalData?.market_cap_percentage?.btc || 0
 
-  const dominance = mcap > 0 && globalMcap > 0 ? (mcap / globalMcap) * 100 : 0
-  const relativeToBtc =
-    dominance > 0 && btcDominance > 0 ? (dominance / btcDominance) * 100 : 0
-  const volumeToMcap = mcap > 0 ? (totalVolume / mcap) * 100 : 0
+  // Core metrics
+  const coinDominance =
+    mcap > 0 && globalMcap > 0 ? (mcap / globalMcap) * 100 : 0
+  const btcMcap = globalMcap * (btcDominance / 100)
+  const relativeToBtc = mcap > 0 && btcMcap > 0 ? (mcap / btcMcap) * 100 : 0
+  const volumeShare =
+    volume > 0 && globalVolume > 0 ? (volume / globalVolume) * 100 : 0
 
-  const tier = getMarketTier(mcapRank)
+  // Relative Volume: насколько монета торгуется активнее среднего рынка
+  const coinVolRatio = mcap > 0 ? volume / mcap : 0
+  const marketVolRatio = globalMcap > 0 ? globalVolume / globalMcap : 0
+  const relativeVolume = marketVolRatio > 0 ? coinVolRatio / marketVolRatio : 0
 
-  // SKELETON STATE
-  if (isLoading || !coin?.market_data) {
-    return (
-      <div className='rounded-lg border bg-background p-3 space-y-3'>
-        {/* Header */}
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
-              <Globe className='h-4 w-4' />
-              Market Dominance
-            </h2>
-            <Info className='h-4 w-4 text-muted-foreground' />
-          </div>
-        </div>
-
-        <Skeleton className='h-6 w-32' />
-
-        {/* Ring + Legend */}
-        <div className='flex items-center gap-3'>
-          <DominanceRingSkeleton size={110} />
-          <div className='flex-1 space-y-2'>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-primary' />
-                <span>This Asset</span>
-              </div>
-              <Skeleton className='h-4 w-24' />
-            </div>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-primary/30' />
-                <span className='text-muted-foreground'>Rest of Market</span>
-              </div>
-              <Skeleton className='h-4 w-20' />
-            </div>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-muted border border-dashed border-muted-foreground/30' />
-                <span className='text-muted-foreground'>BTC Dominance</span>
-              </div>
-              <Skeleton className='h-4 w-20' />
-            </div>
-          </div>
-        </div>
-
-        {/* Metrics */}
-        <div className='grid grid-cols-2 gap-2'>
-          <MetricCard
-            icon={<Crown className='h-3 w-3' />}
-            label='Market Rank'
-            value=''
-            isLoading
-          />
-          <MetricCard
-            icon={<PieChart className='h-3 w-3' />}
-            label='Market Share'
-            value=''
-            isLoading
-          />
-          <MetricCard
-            icon={<Activity className='h-3 w-3' />}
-            label='Volume/MCap'
-            value=''
-            isLoading
-          />
-          <MetricCard
-            icon={<Target className='h-3 w-3' />}
-            label={isBitcoin ? 'Market Position' : 'vs BTC'}
-            value=''
-            isLoading
-          />
-        </div>
-
-        {/* Comparison bar */}
-        <div className='space-y-1.5'>
-          <div className='flex justify-between text-xs'>
-            <div>
-              <p className='font-medium text-[11px]'>This Asset</p>
-              <Skeleton className='h-3 w-24 mt-0.5' />
-            </div>
-            <div className='text-right'>
-              <p className='font-medium text-[11px]'>Bitcoin</p>
-              <Skeleton className='h-3 w-24 mt-0.5 ml-auto' />
-            </div>
-          </div>
-          <Skeleton className='h-2 w-full rounded-full' />
-        </div>
-      </div>
-    )
-  }
+  const isLoadingAny = isLoading || !globalData
 
   return (
     <div className='rounded-lg border bg-background p-3 space-y-3'>
-      {/* Header — только Tier Badge, без Rank # */}
+      {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
@@ -416,51 +333,78 @@ export function CoinMarketDominance({
                 <div className='text-xs leading-relaxed space-y-1.5'>
                   <p className='font-semibold text-primary'>Market Context</p>
                   <p>
-                    Shows how this asset ranks in the global crypto market.
-                    Compare market share and position vs Bitcoin.
+                    Shows this asset's share of the total crypto market. Compare
+                    market cap, trading volume and liquidity versus Bitcoin.
                   </p>
                 </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
-        {/* Tier Badge вместо Rank # */}
-        <div
-          className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-medium ${tier.color}`}
-        >
-          <Crown className='h-3 w-3' />
-          <span>{tier.label}</span>
-        </div>
       </div>
 
       {/* Ring + Legend */}
       <div className='flex items-center gap-3'>
-        <DominanceRing dominancePercent={dominance} size={110} />
+        <DominanceRing
+          coinDominance={coinDominance}
+          btcDominance={btcDominance}
+          size={110}
+          isLoading={isLoadingAny}
+          isBitcoin={isBitcoin}
+        />
         <div className='flex-1 space-y-1.5'>
+          {/* Coin */}
           <div className='flex items-center justify-between text-sm'>
             <div className='flex items-center gap-2'>
-              <div className='w-2.5 h-2.5 rounded-full bg-[#4ade80]' />
+              <div
+                className='w-2.5 h-2.5 rounded-full'
+                style={{ background: 'oklch(0.7 0.15 162)' }}
+              />
               <span>{symbol || 'This Asset'}</span>
             </div>
-            <span className='font-mono text-sm'>{formatCurrency(mcap)}</span>
+            {isLoadingAny ? (
+              <Skeleton className='h-4 w-24' />
+            ) : (
+              <span className='font-mono text-sm'>{formatCurrency(mcap)}</span>
+            )}
           </div>
+
+          {/* BTC — hide on Bitcoin page */}
+          {!isBitcoin && (
+            <div className='flex items-center justify-between text-sm'>
+              <div className='flex items-center gap-2'>
+                <div
+                  className='w-2.5 h-2.5 rounded-full'
+                  style={{ background: 'oklch(0.65 0.12 162 / 0.35)' }}
+                />
+                <span className='text-muted-foreground'>Bitcoin</span>
+              </div>
+              {isLoadingAny ? (
+                <Skeleton className='h-4 w-20' />
+              ) : (
+                <span className='font-mono text-sm text-muted-foreground'>
+                  {formatCurrency(btcMcap)}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Rest of Market */}
           <div className='flex items-center justify-between text-sm'>
             <div className='flex items-center gap-2'>
-              <div className='w-2.5 h-2.5 rounded-full bg-[#4ade80]/30' />
+              <div
+                className='w-2.5 h-2.5 rounded-full'
+                style={{ background: '#3f3f46' }}
+              />
               <span className='text-muted-foreground'>Rest of Market</span>
             </div>
-            <span className='font-mono text-sm text-muted-foreground'>
-              {formatCurrency(globalMcap - mcap)}
-            </span>
-          </div>
-          <div className='flex items-center justify-between text-sm'>
-            <div className='flex items-center gap-2'>
-              <div className='w-2.5 h-2.5 rounded-full bg-[#a1a1aa]/40 border border-dashed border-[#a1a1aa]/40' />
-              <span className='text-muted-foreground'>BTC Dominance</span>
-            </div>
-            <span className='font-mono text-sm text-muted-foreground'>
-              {btcDominance.toFixed(1)}%
-            </span>
+            {isLoadingAny ? (
+              <Skeleton className='h-4 w-20' />
+            ) : (
+              <span className='font-mono text-sm text-muted-foreground'>
+                {formatCurrency(Math.max(0, globalMcap - mcap - btcMcap))}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -468,72 +412,79 @@ export function CoinMarketDominance({
       {/* Metrics Grid */}
       <div className='grid grid-cols-2 gap-2'>
         <MetricCard
-          icon={<Crown className='h-3 w-3' />}
-          label='Market Rank'
-          value={mcapRank ? `#${mcapRank}` : '—'}
-          subvalue={tier.desc}
-          accent={mcapRank ? mcapRank <= 10 : false}
-        />
-        <MetricCard
-          icon={<PieChart className='h-3 w-3' />}
+          icon={<Target className='h-3 w-3' />}
           label='Market Share'
-          value={`${dominance.toFixed(3)}%`}
-          subvalue={`of ${formatCompact(globalMcap)} total`}
-          accent={dominance > 1}
+          value={`${coinDominance < 0.01 ? '<0.01' : coinDominance.toFixed(2)}%`}
+          subvalue={`of ${formatCompact(globalMcap)} total cap`}
+          accent={coinDominance > 1}
+          isLoading={isLoadingAny}
         />
         <MetricCard
           icon={<Activity className='h-3 w-3' />}
-          label='Volume / MCap'
-          value={`${volumeToMcap.toFixed(1)}%`}
-          subvalue={
-            volumeToMcap > 10
-              ? 'High turnover'
-              : volumeToMcap > 5
-                ? 'Moderate turnover'
-                : 'Low turnover'
-          }
-          warning={volumeToMcap < 1}
+          label='Volume Share'
+          value={`${volumeShare < 0.01 ? '<0.01' : volumeShare.toFixed(2)}%`}
+          subvalue={`of ${formatCompact(globalVolume)} global vol`}
+          accent={volumeShare > 1}
+          isLoading={isLoadingAny}
         />
-        {/* FIX: для BTC показываем другую карточку */}
-        {isBitcoin ? (
-          <MetricCard
-            icon={<Zap className='h-3 w-3' />}
-            label='Market Position'
-            value='King'
-            subvalue='Original cryptocurrency'
-            accent
-          />
-        ) : (
-          <MetricCard
-            icon={<Target className='h-3 w-3' />}
-            label='vs BTC Dominance'
-            value={`${relativeToBtc.toFixed(1)}%`}
-            subvalue={`BTC is ${(btcDominance / Math.max(dominance, 0.001)).toFixed(0)}x larger`}
-            accent={relativeToBtc > 50}
-          />
-        )}
+        <MetricCard
+          icon={<Zap className='h-3 w-3' />}
+          label='vs BTC'
+          value={
+            isBitcoin
+              ? '100%'
+              : `${relativeToBtc < 0.01 ? '<0.01' : relativeToBtc.toFixed(2)}%`
+          }
+          subvalue={
+            isBitcoin
+              ? 'Market leader'
+              : `${(btcMcap / Math.max(mcap, 0.001)).toFixed(0)}x smaller`
+          }
+          accent={isBitcoin || relativeToBtc > 10}
+          isLoading={isLoadingAny}
+        />
+        <MetricCard
+          icon={<Droplets className='h-3 w-3' />}
+          label='Relative Volume'
+          value={relativeVolume > 0 ? `${relativeVolume.toFixed(2)}x` : '—'}
+          subvalue={
+            relativeVolume > 3
+              ? 'Very active trading'
+              : relativeVolume > 1
+                ? 'Active trading'
+                : relativeVolume > 0.5
+                  ? 'Moderate activity'
+                  : relativeVolume > 0
+                    ? 'Low activity'
+                    : 'No data'
+          }
+          accent={relativeVolume > 1}
+          warning={relativeVolume > 0 && relativeVolume < 0.3}
+          isLoading={isLoadingAny}
+        />
       </div>
 
-      {/* Comparison Bar — скрываем для BTC */}
-      {!isBitcoin && dominance > 0 && btcDominance > 0 && (
+      {/* Comparison Bar — монета vs BTC */}
+      {!isBitcoin && (
         <ComparisonBar
           leftLabel={symbol || 'This Asset'}
-          leftValue={`${dominance.toFixed(2)}%`}
+          leftValue={formatCurrency(mcap)}
           rightLabel='Bitcoin'
-          rightValue={`${btcDominance.toFixed(1)}%`}
-          leftPercent={(dominance / btcDominance) * 100}
+          rightValue={formatCurrency(btcMcap)}
+          leftPercent={relativeToBtc}
           color={
-            dominance > btcDominance * 0.1
+            relativeToBtc > 10
               ? 'emerald'
-              : dominance > btcDominance * 0.01
+              : relativeToBtc > 1
                 ? 'primary'
                 : 'orange'
           }
+          isLoading={isLoadingAny}
         />
       )}
 
-      {/* Для BTC — просто текст что он лидер */}
-      {isBitcoin && (
+      {/* Для BTC — лидер */}
+      {isBitcoin && !isLoadingAny && (
         <div className='bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5'>
           <div className='flex items-center gap-2'>
             <ArrowUpRight className='w-4 h-4 text-emerald-500 shrink-0' />
@@ -542,14 +493,14 @@ export function CoinMarketDominance({
             </p>
           </div>
           <p className='text-xs text-muted-foreground leading-relaxed pl-6 mt-1'>
-            Bitcoin dominates the crypto market with {dominance.toFixed(1)}% of
-            total market cap.
+            Bitcoin commands {coinDominance.toFixed(1)}% of the total crypto
+            market cap.
           </p>
         </div>
       )}
 
       {/* Warning для мелких монет */}
-      {!isBitcoin && dominance < 0.01 && mcapRank && mcapRank > 100 && (
+      {!isBitcoin && !isLoadingAny && coinDominance < 0.01 && (
         <div className='bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5'>
           <div className='flex items-center gap-2'>
             <ArrowDownRight className='w-4 h-4 text-orange-500 shrink-0' />
@@ -559,32 +510,32 @@ export function CoinMarketDominance({
           </div>
           <p className='text-xs text-muted-foreground leading-relaxed pl-6 mt-1'>
             Less than 0.01% of total crypto market. Higher risk due to low
-            liquidity.
+            liquidity and market depth.
           </p>
         </div>
       )}
 
-      {/* Footer — компактный как в Tokenomics */}
+      {/* Footer — глобальная инфа */}
       <div className='flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
         <span className='flex items-center gap-1'>
           <BarChart3 className='h-3 w-3' />
-          Price:{' '}
+          Total MCAP:{' '}
           <span className='font-mono text-foreground'>
-            ${currentPrice.toLocaleString()}
+            {formatCompact(globalMcap)}
           </span>
         </span>
         <span className='flex items-center gap-1'>
           <Layers className='h-3 w-3' />
-          MCAP:{' '}
+          24h Vol:{' '}
           <span className='font-mono text-foreground'>
-            {formatCompact(mcap)}
+            {formatCompact(globalVolume)}
           </span>
         </span>
         <span className='flex items-center gap-1'>
-          <Activity className='h-3 w-3' />
-          24h Vol:{' '}
+          <Zap className='h-3 w-3' />
+          BTC Dom:{' '}
           <span className='font-mono text-foreground'>
-            {formatCompact(totalVolume)}
+            {btcDominance.toFixed(1)}%
           </span>
         </span>
       </div>
