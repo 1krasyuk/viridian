@@ -1,8 +1,6 @@
-// features/market/components/coin-page/coin-tokenomics.tsx
 import {
   Layers,
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
   Info,
   Lock,
@@ -52,26 +50,60 @@ function formatPercent(n: number): string {
   return n.toFixed(1) + '%'
 }
 
-// === SVG RING CHART ===
-function SupplyRing({
+// === SUPPLY RING ===
+function SupplyCircleDiagram({
   circulatingPercent,
   totalPercent,
   size = 110,
+  isLoading = false,
 }: {
   circulatingPercent: number
   totalPercent: number
   size?: number
+  isLoading?: boolean
 }) {
   const strokeWidth = 10
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
 
-  const circOffset = circumference - (circulatingPercent / 100) * circumference
-  const totalOffset = circumference - (totalPercent / 100) * circumference
+  const circArc = Math.max(
+    (Math.min(circulatingPercent, 100) / 100) * circumference,
+    3,
+  )
+  const lockedPercent = Math.max(0, totalPercent - circulatingPercent)
+  const lockedArc = Math.max(
+    (Math.min(lockedPercent, 100) / 100) * circumference,
+    3,
+  )
+  const circAngle = (circulatingPercent / 100) * 360
 
-  const colorBg = '#3f3f46' // ≈ oklch(0.274 0.006 286.033)
-  const colorTotal = 'oklch(0.7 0.15 162 / 0.2)' // primary 20% opacity
-  const colorCirc = 'oklch(0.7 0.15 162)' // primary solid
+  const colorBg = '#3f3f46'
+  const colorLocked = 'oklch(0.65 0.12 162 / 0.35)'
+  const colorCirc = 'oklch(0.7 0.15 162)'
+
+  if (isLoading) {
+    return (
+      <div
+        className='relative inline-flex items-center justify-center shrink-0'
+        style={{ width: size, height: size }}
+      >
+        <svg width={size} height={size} className='-rotate-90'>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={(size - 10) / 2}
+            fill='none'
+            stroke={colorBg}
+            strokeWidth={10}
+          />
+        </svg>
+        <div className='absolute inset-0 flex flex-col items-center justify-center gap-1'>
+          <Skeleton className='h-5 w-14' />
+          <Skeleton className='h-3 w-16' />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -87,17 +119,18 @@ function SupplyRing({
           stroke={colorBg}
           strokeWidth={strokeWidth}
         />
-        {totalPercent > circulatingPercent && (
+        {lockedPercent > 0 && (
           <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
             fill='none'
-            stroke={colorTotal}
+            stroke={colorLocked}
             strokeWidth={strokeWidth}
-            strokeDasharray={circumference}
-            strokeDashoffset={totalOffset}
-            strokeLinecap='round'
+            strokeDasharray={`${lockedArc} ${circumference}`}
+            strokeDashoffset={0}
+            strokeLinecap='butt'
+            transform={`rotate(${circAngle} ${size / 2} ${size / 2})`}
           />
         )}
         <circle
@@ -107,9 +140,9 @@ function SupplyRing({
           fill='none'
           stroke={colorCirc}
           strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={circOffset}
-          strokeLinecap='round'
+          strokeDasharray={`${circArc} ${circumference}`}
+          strokeDashoffset={0}
+          strokeLinecap='butt'
         />
       </svg>
       <div className='absolute inset-0 flex flex-col items-center justify-center'>
@@ -119,31 +152,6 @@ function SupplyRing({
         <span className='text-[9px] text-muted-foreground uppercase tracking-wider'>
           Circulating
         </span>
-      </div>
-    </div>
-  )
-}
-
-// === SKELETON RING (matches the real ring size) ===
-function SupplyRingSkeleton({ size = 110 }: { size?: number }) {
-  return (
-    <div
-      className='relative inline-flex items-center justify-center shrink-0'
-      style={{ width: size, height: size }}
-    >
-      <svg width={size} height={size} className='-rotate-90'>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={(size - 10) / 2}
-          fill='none'
-          stroke='hsl(var(--muted))'
-          strokeWidth={10}
-        />
-      </svg>
-      <div className='absolute inset-0 flex flex-col items-center justify-center gap-1'>
-        <Skeleton className='h-5 w-14' />
-        <Skeleton className='h-3 w-16' />
       </div>
     </div>
   )
@@ -190,15 +198,13 @@ function MetricCard({
           {value}
         </p>
       )}
-      {subvalue && (
-        <p className='text-xs text-muted-foreground font-mono'>
-          {isLoading ? (
-            <Skeleton className='h-3 w-20 inline-block' />
-          ) : (
-            subvalue
-          )}
-        </p>
-      )}
+      <p className='text-xs text-muted-foreground font-mono'>
+        {isLoading ? (
+          <Skeleton className='h-3 w-20 inline-block' />
+        ) : (
+          subvalue || '—'
+        )}
+      </p>
     </div>
   )
 }
@@ -211,6 +217,7 @@ function ComparisonBar({
   rightValue,
   leftPercent,
   color = 'primary',
+  isLoading = false,
 }: {
   leftLabel: string
   leftValue: string
@@ -218,12 +225,30 @@ function ComparisonBar({
   rightValue: string
   leftPercent: number
   color?: 'primary' | 'emerald' | 'orange'
+  isLoading?: boolean
 }) {
   const colors = {
     primary: 'bg-primary',
     emerald: 'bg-emerald-500',
     orange: 'bg-orange-500',
   }
+
+  if (isLoading)
+    return (
+      <div className='space-y-1.5'>
+        <div className='flex justify-between text-xs'>
+          <div>
+            <p className='font-medium text-xs'>{leftLabel}</p>
+            <Skeleton className='h-3 w-24 mt-0.5' />
+          </div>
+          <div className='text-right'>
+            <p className='font-medium text-xs'>{rightLabel}</p>
+            <Skeleton className='h-3 w-24 mt-0.5 ml-auto' />
+          </div>
+        </div>
+        <Skeleton className='h-2 w-full rounded-full' />
+      </div>
+    )
 
   return (
     <div className='space-y-1.5'>
@@ -249,158 +274,84 @@ function ComparisonBar({
   )
 }
 
-export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
-  // === SKELETON STATE ===
-  if (isLoading || !coin?.market_data) {
-    return (
-      <div className='rounded-lg border bg-background p-3 space-y-3'>
-        {/* Header - hardcoded */}
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
-              <Layers className='h-4 w-4' />
-              Tokenomics
-            </h2>
-            <Info className='h-4 w-4 text-muted-foreground' />
-          </div>
-          <Badge variant='secondary' className='text-xs h-5 px-2 font-mono'>
-            <Skeleton className='h-3 w-8 inline-block' />
-          </Badge>
-        </div>
-
-        {/* Ring + Legend - hardcoded labels, skeleton values */}
-        <div className='flex items-center gap-3'>
-          <SupplyRingSkeleton size={110} />
-          <div className='flex-1 space-y-2'>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-primary' />
-                <span>Circulating</span>
-              </div>
-              <Skeleton className='h-4 w-24' />
-            </div>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-primary/30' />
-                <span className='text-muted-foreground'>Locked / Vesting</span>
-              </div>
-              <Skeleton className='h-4 w-20' />
-            </div>
-            <div className='flex items-center justify-between text-sm'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-muted border border-dashed border-muted-foreground/30' />
-                <span className='text-muted-foreground'>Never issued</span>
-              </div>
-              <Skeleton className='h-4 w-20' />
-            </div>
-          </div>
-        </div>
-
-        {/* Metrics - hardcoded labels, skeleton values */}
-        <div className='grid grid-cols-2 gap-2'>
-          <MetricCard
-            icon={<DollarSign className='h-3 w-3' />}
-            label='Market Cap'
-            value=''
-            subvalue='Vol/MCap: —'
-            isLoading={true}
-          />
-          <MetricCard
-            icon={<Scale className='h-3 w-3' />}
-            label='Fully Diluted Val'
-            value=''
-            subvalue='—x of MCap'
-            isLoading={true}
-          />
-          <MetricCard
-            icon={<Coins className='h-3 w-3' />}
-            label='Total Supply'
-            value=''
-            subvalue='Max: —'
-            isLoading={true}
-          />
-          <MetricCard
-            icon={<Percent className='h-3 w-3' />}
-            label='Circulating'
-            value=''
-            subvalue='— locked'
-            isLoading={true}
-          />
-        </div>
-
-        {/* Comparison Bar - hardcoded labels, skeleton bar */}
-        <div className='space-y-1.5'>
-          <div className='flex justify-between text-xs'>
-            <div>
-              <p className='font-medium text-xs'>Market Cap</p>
-              <Skeleton className='h-3 w-24 mt-0.5' />
-            </div>
-            <div className='text-right'>
-              <p className='font-medium text-xs'>Fully Diluted</p>
-              <Skeleton className='h-3 w-24 mt-0.5 ml-auto' />
-            </div>
-          </div>
-          <Skeleton className='h-2 w-full rounded-full' />
-        </div>
-
-        {/* Footer - hardcoded labels, skeleton values */}
-        <div className='flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
-          <span className='flex items-center gap-1'>
-            <TrendingUp className='h-3 w-3' />
-            Price: <Skeleton className='h-3 w-16 inline-block' />
-          </span>
-          <span className='flex items-center gap-1'>
-            <TrendingDown className='h-3 w-3' />
-            Max MCAP: <Skeleton className='h-3 w-16 inline-block' />
-          </span>
-          <span className='flex items-center gap-1'>
-            <DollarSign className='h-3 w-3' />
-            24h Vol: <Skeleton className='h-3 w-16 inline-block' />
-          </span>
-        </div>
+// === DILUTION WARNING ===
+function DilutionWarning({
+  level,
+  ratio,
+  lockedPercent,
+}: {
+  level: 'high' | 'medium'
+  ratio: number
+  lockedPercent: number
+}) {
+  const isHigh = level === 'high'
+  return (
+    <div
+      className={`${isHigh ? 'bg-orange-500/10 border-orange-500/20' : 'bg-yellow-500/10 border-yellow-500/20'} border rounded-lg p-2.5 space-y-1.5`}
+    >
+      <div className='flex items-center gap-2'>
+        <AlertTriangle
+          className={`w-4 h-4 shrink-0 ${isHigh ? 'text-orange-500' : 'text-yellow-600 dark:text-yellow-500'}`}
+        />
+        <p
+          className={`font-semibold text-sm ${isHigh ? 'text-orange-500' : 'text-yellow-600 dark:text-yellow-500'}`}
+        >
+          {isHigh ? 'High' : 'Moderate'} dilution — {ratio.toFixed(1)}x
+        </p>
       </div>
-    )
-  }
+      <p className='text-xs text-muted-foreground leading-relaxed pl-6'>
+        {isHigh
+          ? 'Most tokens not yet circulating. Future unlocks may create selling pressure.'
+          : 'Meaningful supply remains locked. Monitor unlock schedules.'}
+      </p>
+      {isHigh && lockedPercent > 0 && (
+        <div className='pl-6 flex items-center gap-1.5 text-xs'>
+          <Lock className='h-3 w-3 text-orange-500' />
+          <span className='text-orange-500 font-mono'>
+            {formatPercent(lockedPercent)} still locked
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
 
-  // === REAL DATA ===
-  const {
-    circulating_supply,
-    total_supply,
-    max_supply,
-    market_cap,
-    fully_diluted_valuation,
-    current_price,
-    total_volume,
-  } = coin.market_data
+export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
+  const marketData = coin?.market_data
+  const symbol = coin?.symbol?.toUpperCase() || ''
+  const mcapRank = coin?.market_cap_rank
 
-  const symbol = coin.symbol.toUpperCase()
+  const circulating_supply = marketData?.circulating_supply
+  const total_supply = marketData?.total_supply
+  const max_supply = marketData?.max_supply
+  const mcap = marketData?.market_cap?.usd || 0
+  const fdv = marketData?.fully_diluted_valuation?.usd || 0
+  const current_price = marketData?.current_price?.usd || 0
+  const volume = marketData?.total_volume?.usd || 0
 
-  // Calculations
   const maxSupply = max_supply ?? total_supply ?? circulating_supply ?? 0
-
   const circulatingPercent =
     maxSupply && circulating_supply
       ? Math.min((circulating_supply / maxSupply) * 100, 100)
       : 0
-
   const totalPercent =
     maxSupply && total_supply
       ? Math.min((total_supply / maxSupply) * 100, 100)
       : 0
-
   const lockedPercent = totalPercent - circulatingPercent
   const infiniteSupply = !max_supply && total_supply
 
-  const fdv = fully_diluted_valuation?.usd || 0
-  const mcap = market_cap?.usd || 0
   const fdvRatio = mcap && fdv ? fdv / mcap : 1
-
   const isHighDilution = fdvRatio > 2.5
   const isMediumDilution = fdvRatio > 1.5 && fdvRatio <= 2.5
-
-  const mcapRank = coin.market_cap_rank
-  const volume = total_volume?.usd
   const volumeToMcap = mcap && volume ? (volume / mcap) * 100 : 0
+
+  // Legend flags — show skeletons when loading, hide on real data if empty
+  const showLocked = !isLoading
+    ? total_supply && total_supply !== circulating_supply && lockedPercent > 0
+    : true
+  const showNeverIssued = !isLoading ? !!max_supply : true
+  const showInfinite = !isLoading && infiniteSupply
 
   return (
     <div className='rounded-lg border bg-background p-3 space-y-3'>
@@ -414,72 +365,102 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-help' />
+                <Info className='h-4 w-4 text-muted-foreground cursor-default' />
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
-                <p className='text-xs leading-relaxed'>
-                  Supply distribution and valuation metrics.{' '}
-                  <span className='text-orange-500'>High FDV/MCAP</span> means
-                  most tokens are not yet circulating — watch for unlocks.
-                </p>
+                <div className='text-xs leading-relaxed space-y-1.5'>
+                  <p>
+                    Token supply structure expressed as percentages, showing
+                    circulating, locked, and unissued tokens as proportions of
+                    maximum supply.
+                  </p>
+                  <p className='text-muted-foreground'>
+                    Lower circulating percentages indicate higher dilution risk
+                    from future token unlocks and emission events.
+                  </p>
+                </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
-        {mcapRank && (
+        {isLoading ? (
+          <Badge variant='secondary' className='text-xs h-5 px-2 font-mono'>
+            <Skeleton className='h-3 w-8 inline-block' />
+          </Badge>
+        ) : mcapRank ? (
           <Badge variant='secondary' className='text-xs h-5 px-2 font-mono'>
             Rank #{mcapRank}
           </Badge>
-        )}
+        ) : null}
       </div>
 
       {/* Ring + Legend */}
       <div className='flex items-center gap-3'>
-        <SupplyRing
+        <SupplyCircleDiagram
           circulatingPercent={circulatingPercent}
           totalPercent={totalPercent}
           size={110}
+          isLoading={isLoading}
         />
         <div className='flex-1 space-y-1.5'>
+          {/* Circulating */}
           <div className='flex items-center justify-between text-sm'>
             <div className='flex items-center gap-2'>
               <div className='w-2.5 h-2.5 rounded-full bg-primary' />
               <span>Circulating</span>
             </div>
-            <span className='font-mono text-sm'>
-              {formatCompact(circulating_supply || 0)} {symbol}
-            </span>
+            {isLoading ? (
+              <Skeleton className='h-4 w-24' />
+            ) : (
+              <span className='font-mono text-sm'>
+                {formatCompact(circulating_supply || 0)} {symbol}
+              </span>
+            )}
           </div>
 
-          {total_supply && total_supply !== circulating_supply && (
+          {/* Locked / Vesting — show skeleton on load, hide if no data */}
+          {showLocked && (
             <div className='flex items-center justify-between text-sm'>
               <div className='flex items-center gap-2'>
                 <div className='w-2.5 h-2.5 rounded-full bg-primary/30' />
                 <span className='text-muted-foreground'>Locked / Vesting</span>
               </div>
-              <span className='font-mono text-sm text-muted-foreground'>
-                {formatCompact(total_supply - (circulating_supply || 0))}{' '}
-                {symbol}
-              </span>
+              {isLoading ? (
+                <Skeleton className='h-4 w-20' />
+              ) : (
+                <span className='font-mono text-sm text-muted-foreground'>
+                  {formatCompact(
+                    (total_supply || 0) - (circulating_supply || 0),
+                  )}{' '}
+                  {symbol}
+                </span>
+              )}
             </div>
           )}
 
-          {max_supply && (
+          {/* Never issued — show skeleton on load, hide if no data */}
+          {showNeverIssued && (
             <div className='flex items-center justify-between text-sm'>
               <div className='flex items-center gap-2'>
                 <div className='w-2.5 h-2.5 rounded-full bg-muted border border-dashed border-muted-foreground/30' />
                 <span className='text-muted-foreground'>Never issued</span>
               </div>
-              <span className='font-mono text-sm text-muted-foreground'>
-                {formatCompact(
-                  max_supply - (total_supply || circulating_supply || 0),
-                )}{' '}
-                {symbol}
-              </span>
+              {isLoading ? (
+                <Skeleton className='h-4 w-20' />
+              ) : (
+                <span className='font-mono text-sm text-muted-foreground'>
+                  {formatCompact(
+                    (max_supply || 0) -
+                      (total_supply || circulating_supply || 0),
+                  )}{' '}
+                  {symbol}
+                </span>
+              )}
             </div>
           )}
 
-          {infiniteSupply && (
+          {/* Infinite supply note */}
+          {showInfinite && (
             <div className='flex items-center gap-2 text-sm text-muted-foreground'>
               <Unlock className='h-3.5 w-3.5' />
               <span className='text-xs'>No max supply — inflationary</span>
@@ -497,25 +478,30 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           subvalue={
             volumeToMcap > 0
               ? `Vol/MCap: ${volumeToMcap.toFixed(1)}%`
-              : undefined
+              : 'No trading data'
           }
+          isLoading={isLoading}
         />
         <MetricCard
           icon={<Scale className='h-3 w-3' />}
           label='Fully Diluted Val'
           value={formatCurrency(fdv)}
-          subvalue={
-            fdvRatio > 1 ? `${fdvRatio.toFixed(2)}x of MCap` : undefined
-          }
+          subvalue={`${fdvRatio.toFixed(2)}x of MCap`}
           warning={isHighDilution}
+          isLoading={isLoading}
         />
         <MetricCard
           icon={<Coins className='h-3 w-3' />}
           label='Total Supply'
           value={formatCompact(total_supply || circulating_supply || 0)}
           subvalue={
-            max_supply ? `Max: ${formatCompact(max_supply)}` : 'Unlimited'
+            max_supply
+              ? `Max: ${formatCompact(max_supply)}`
+              : infiniteSupply
+                ? 'Unlimited'
+                : 'Fixed supply'
           }
+          isLoading={isLoading}
         />
         <MetricCard
           icon={<Percent className='h-3 w-3' />}
@@ -527,87 +513,84 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
               : 'Fully unlocked'
           }
           accent={circulatingPercent >= 80}
+          isLoading={isLoading}
         />
       </div>
 
       {/* Comparison Bar */}
-      {fdv > 0 && mcap > 0 && (
-        <ComparisonBar
-          leftLabel='Market Cap'
-          leftValue={formatCurrency(mcap)}
-          rightLabel='Fully Diluted'
-          rightValue={formatCurrency(fdv)}
-          leftPercent={(mcap / fdv) * 100}
-          color={
-            isHighDilution ? 'orange' : isMediumDilution ? 'emerald' : 'primary'
-          }
+      <ComparisonBar
+        leftLabel='Market Cap'
+        leftValue={formatCurrency(mcap)}
+        rightLabel='Fully Diluted'
+        rightValue={formatCurrency(fdv)}
+        leftPercent={fdv > 0 ? (mcap / fdv) * 100 : 0}
+        color={
+          isHighDilution ? 'orange' : isMediumDilution ? 'emerald' : 'primary'
+        }
+        isLoading={isLoading}
+      />
+
+      {/* Dilution Warnings */}
+      {!isLoading && isHighDilution && (
+        <DilutionWarning
+          level='high'
+          ratio={fdvRatio}
+          lockedPercent={lockedPercent}
         />
       )}
-
-      {/* Warnings */}
-      {isHighDilution && (
-        <div className='bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5 space-y-1.5'>
-          <div className='flex items-center gap-2'>
-            <AlertTriangle className='w-4 h-4 text-orange-500 shrink-0' />
-            <p className='font-semibold text-orange-500 text-sm'>
-              High dilution — {fdvRatio.toFixed(1)}x
-            </p>
-          </div>
-          <p className='text-xs text-muted-foreground leading-relaxed pl-6'>
-            Most tokens not yet circulating. Future unlocks may create selling
-            pressure.
-          </p>
-          {lockedPercent > 0 && (
-            <div className='pl-6 flex items-center gap-1.5 text-xs'>
-              <Lock className='h-3 w-3 text-orange-500' />
-              <span className='text-orange-500 font-mono'>
-                {formatPercent(lockedPercent)} still locked
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {isMediumDilution && (
-        <div className='bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2.5 space-y-1.5'>
-          <div className='flex items-center gap-2'>
-            <AlertTriangle className='w-4 h-4 text-yellow-600 dark:text-yellow-500 shrink-0' />
-            <p className='font-semibold text-yellow-600 dark:text-yellow-500 text-sm'>
-              Moderate dilution — {fdvRatio.toFixed(1)}x
-            </p>
-          </div>
-          <p className='text-xs text-muted-foreground leading-relaxed pl-6'>
-            Meaningful supply remains locked. Monitor unlock schedules.
-          </p>
-        </div>
+      {!isLoading && isMediumDilution && (
+        <DilutionWarning
+          level='medium'
+          ratio={fdvRatio}
+          lockedPercent={lockedPercent}
+        />
       )}
 
       {/* Footer */}
       <div className='flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
-        <span className='flex items-center gap-1'>
-          <TrendingUp className='h-3 w-3' />
-          Price:{' '}
-          <span className='font-mono text-foreground'>
-            ${current_price?.usd?.toLocaleString()}
-          </span>
-        </span>
-        {max_supply && current_price?.usd && (
-          <span className='flex items-center gap-1'>
-            <BarChart3 className='h-3 w-3' />
-            Max MCAP:{' '}
-            <span className='font-mono text-foreground'>
-              ${formatCompact(max_supply * current_price.usd)}
+        {[
+          {
+            icon: <TrendingUp className='h-3 w-3' />,
+            label: 'Price',
+            value: `$${current_price.toLocaleString()}`,
+            show: !isLoading && current_price > 0,
+          },
+          {
+            icon: <BarChart3 className='h-3 w-3' />,
+            label: 'Max MCAP',
+            value: `$${formatCompact((max_supply || 0) * current_price)}`,
+            show: !isLoading && max_supply && current_price > 0,
+          },
+          {
+            icon: <DollarSign className='h-3 w-3' />,
+            label: '24h Vol',
+            value: `$${formatCompact(volume)}`,
+            show: !isLoading && volume > 0,
+          },
+        ]
+          .filter((item) => item.show)
+          .map((item, i) => (
+            <span key={i} className='flex items-center gap-1'>
+              {item.icon}
+              {item.label}:{' '}
+              <span className='font-mono text-foreground'>{item.value}</span>
             </span>
-          </span>
-        )}
-        {volume && (
-          <span className='flex items-center gap-1'>
-            <DollarSign className='h-3 w-3' />
-            24h Vol:{' '}
-            <span className='font-mono text-foreground'>
-              ${formatCompact(volume)}
+          ))}
+        {isLoading && (
+          <>
+            <span className='flex items-center gap-1'>
+              <TrendingUp className='h-3 w-3' />
+              Price: <Skeleton className='h-3 w-16 inline-block' />
             </span>
-          </span>
+            <span className='flex items-center gap-1'>
+              <BarChart3 className='h-3 w-3' />
+              Max MCAP: <Skeleton className='h-3 w-16 inline-block' />
+            </span>
+            <span className='flex items-center gap-1'>
+              <DollarSign className='h-3 w-3' />
+              24h Vol: <Skeleton className='h-3 w-16 inline-block' />
+            </span>
+          </>
         )}
       </div>
     </div>
