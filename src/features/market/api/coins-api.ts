@@ -3,7 +3,7 @@ import type { CoinsList } from '../types/coins-list'
 import type { Coin } from '../types/coin'
 import type { Category } from '../types/categories'
 import type { CoinChartRaw } from '../types/coin-chart'
-import type { GlobalData, GlobalDataRaw } from '../types/global'
+import type { GlobalData } from '../types/global'
 
 export const coinsApi = {
   async getCoins({
@@ -83,13 +83,7 @@ export const coinsApi = {
   },
 
   async getGlobalData(): Promise<GlobalData> {
-    const { data } = await http.get<{ data: GlobalDataRaw }>('/global')
-    return {
-      totalMarketCap: data.data.total_market_cap.usd,
-      totalVolume: data.data.total_volume.usd,
-      marketCapPercentage: data.data.market_cap_percentage,
-      activeCryptocurrencies: data.data.active_cryptocurrencies,
-      markets: data.data.markets,
-    }
+    const { data } = await http.get<{ data: GlobalData }>('/global')
+    return data.data
   },
 }

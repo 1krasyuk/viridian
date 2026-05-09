@@ -6,7 +6,7 @@ import type { UTCTimestamp } from 'lightweight-charts'
 export const coinsKeys = {
   all: ['coins'] as const,
   detail: (id: string) => ['coins', id] as const,
-  global: ['global'] as const, // ← ДОБАВИТЬ ЭТО
+  global: ['global'] as const,
 }
 
 export function useCoins(page: number, per_page: number, category?: string) {
