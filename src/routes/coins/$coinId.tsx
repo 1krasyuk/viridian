@@ -110,6 +110,15 @@ function RouteComponent() {
                 isLoading={isLoadingCoin}
               />
 
+              <div className='grid xs:grid-cols-1 grid-cols-2 gap-5'>
+                <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
+                <CoinMarketDominance
+                  coin={data}
+                  isLoading={isLoadingCoin}
+                  globalData={globalData}
+                />
+              </div>
+
               <div className='grid grid-cols-1 gap-5'>
                 <CoinRiskMetrics
                   coin={data}
@@ -121,17 +130,9 @@ function RouteComponent() {
                 />
               </div>
 
-              <div className='grid xs:grid-cols-1 grid-cols-2 gap-5'>
-                <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
-                <CoinMarketDominance
-                  coin={data}
-                  isLoading={isLoadingCoin}
-                  globalData={globalData}
-                />
-              </div>
+              <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinScenarioPlanner coin={data} isLoading={isLoadingCoin} />
 
-              <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
               <CoinTickersTable
                 coinName={data?.name || ''}
                 tickers={data?.tickers ?? []}
