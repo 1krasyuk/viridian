@@ -22,11 +22,11 @@ import {
 import { LayoutGrid, TerminalSquare } from 'lucide-react'
 import { CoinPriceChange } from '@/features/market/components/coin-page/coin-price-change'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
 import { CoinRiskMetrics } from '@/features/market/components/coin-page/coin-risk-metrics'
 import { CoinTokenomics } from '@/features/market/components/coin-page/coin-tokenomics'
-import { CoinScenarioPlanner } from '@/features/market/components/coin-page/coin-scenario-planner'
-import { CoinMarketDominance } from '@/features/market/components/coin-page/coin-market-dominance' // ← NEW
+import { CoinMarketDominance } from '@/features/market/components/coin-page/coin-market-dominance'
+import { CoinRoiCalculator } from '@/features/market/components/coin-page/coin-roi-calculator'
+import { CoinMarketScenarios } from '@/features/market/components/coin-page/coin-market-scenarios'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -131,7 +131,7 @@ function RouteComponent() {
               </div>
 
               <CoinRoiCalculator coin={data} isLoading={isLoadingCoin} />
-              <CoinScenarioPlanner coin={data} isLoading={isLoadingCoin} />
+              <CoinMarketScenarios coin={data} isLoading={isLoadingCoin} />
 
               <CoinTickersTable
                 coinName={data?.name || ''}
