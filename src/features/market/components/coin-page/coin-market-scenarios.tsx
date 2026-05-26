@@ -104,7 +104,6 @@ function buildScenarios(params: {
   const tier = getMarketCapTier(marketCap)
   const horizonFactor = clamp(months / 12, 0.5, 3)
 
-  // Confidence based on data quality
   const liquidityRatio = marketCap > 0 ? volume / marketCap : 0
   let confidence = 50
   if (tier === 'mega') confidence += 30
@@ -117,11 +116,9 @@ function buildScenarios(params: {
   else if (volatility < 12) confidence += 10
   confidence = clamp(confidence, 5, 95)
 
-  // Horizon reliability penalty
   const horizonPenalty = months > 24 ? 15 : months > 12 ? 5 : 0
   confidence = clamp(confidence - horizonPenalty, 5, 95)
 
-  // Base returns by tier
   let baseBull = 0,
     baseBase = 0,
     baseBear = 0
@@ -165,7 +162,6 @@ function buildScenarios(params: {
     (1 + trendBoost * 0.3) *
     clamp(volMultiplier, 1, 1.8)
 
-  // Drivers based on scenario + horizon
   const getDrivers = (type: 'bear' | 'base' | 'bull') => {
     const baseDrivers: Record<string, string[]> = {
       bear: [
@@ -184,24 +180,13 @@ function buildScenarios(params: {
         'Risk-on rotation',
       ],
     }
-
     const drivers = [...baseDrivers[type]]
-
-    if (months > 12) {
-      drivers.push('Long-term uncertainty increases')
-    }
-    if (months > 24) {
+    if (months > 12) drivers.push('Long-term uncertainty increases')
+    if (months > 24)
       drivers.push('Macro factors dominate, model reliability decreases')
-    }
-    if (volatility > 30) {
-      drivers.push('High volatility widens projection range')
-    }
-    if (trendScore < -10) {
-      drivers.push('Negative momentum pressure')
-    } else if (trendScore > 20) {
-      drivers.push('Strong positive momentum')
-    }
-
+    if (volatility > 30) drivers.push('High volatility widens projection range')
+    if (trendScore < -10) drivers.push('Negative momentum pressure')
+    else if (trendScore > 20) drivers.push('Strong positive momentum')
     return drivers
   }
 
@@ -342,90 +327,12 @@ export function CoinMarketScenarios({
   )
 
   const volProfile = getVolatilityProfile(volatility)
-
-  // ─── SKELETON ───────────────────────────────────────────────────
-
-  if (isLoading || !coin?.market_data) {
-    return (
-      <div className='rounded-lg border bg-background p-4 space-y-4'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <Rocket className='h-4 w-4' />
-            <h2 className='text-sm font-semibold uppercase'>
-              Market Scenarios
-            </h2>
-          </div>
-        </div>
-
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-2'>
-            <Skeleton className='h-4 w-20' />
-            <Skeleton className='h-9 w-full' />
-            <div className='flex gap-1'>
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className='h-6 w-10' />
-              ))}
-            </div>
-          </div>
-          <div className='space-y-2'>
-            <Skeleton className='h-4 w-24' />
-            <Skeleton className='h-9 w-full' />
-            <div className='flex gap-1'>
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className='h-6 w-8' />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className='grid grid-cols-2 gap-2'>
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className='flex justify-between items-center px-4 py-2.5 rounded-md bg-sidebar'
-            >
-              <Skeleton className='h-4 w-20' />
-              <Skeleton className='h-4 w-14' />
-            </div>
-          ))}
-        </div>
-
-        <div className='rounded-md border overflow-hidden'>
-          <div className='grid grid-cols-[140px_1fr_1fr_1fr_100px] gap-3 px-4 py-2.5 bg-muted/50 border-b'>
-            {[
-              'Scenario',
-              'Price Range',
-              'Value Range',
-              'ROI Range',
-              'Probability',
-            ].map((h) => (
-              <Skeleton key={h} className='h-3 w-16' />
-            ))}
-          </div>
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className='grid grid-cols-[140px_1fr_1fr_1fr_100px] gap-2 px-4 py-3 border-b border-border/50 items-center'
-            >
-              <Skeleton className='h-8 w-28' />
-              <Skeleton className='h-4 w-20' />
-              <Skeleton className='h-4 w-20' />
-              <Skeleton className='h-4 w-20' />
-              <Skeleton className='h-5 w-16' />
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // ─── LOADED ─────────────────────────────────────────────────────
+  const isLoadingAny = isLoading || !coin?.market_data
 
   const getPriceColor = (price: number) =>
     price >= currentPrice ? 'text-emerald-500' : 'text-red-500'
   const getValueColor = (value: number) =>
     value >= investNum ? 'text-emerald-500' : 'text-red-500'
-
   const getProbabilityColor = (conf: number) => {
     if (conf >= 70)
       return 'text-emerald-500 border-emerald-500/30 bg-emerald-500/10'
@@ -466,12 +373,16 @@ export function CoinMarketScenarios({
           <label className='text-sm text-muted-foreground font-medium'>
             Investment ($)
           </label>
-          <Input
-            type='number'
-            value={investment}
-            onChange={(e) => setInvestment(e.target.value)}
-            className='h-9 font-mono text-sm rounded-2xl'
-          />
+          {isLoadingAny ? (
+            <Skeleton className='h-9 w-full rounded-2xl' />
+          ) : (
+            <Input
+              type='number'
+              value={investment}
+              onChange={(e) => setInvestment(e.target.value)}
+              className='h-9 font-mono text-sm rounded-2xl'
+            />
+          )}
           <div className='flex flex-wrap gap-1'>
             {INVESTMENT_PRESETS.map((preset) => (
               <Button
@@ -480,6 +391,7 @@ export function CoinMarketScenarios({
                 size='sm'
                 className='h-6 text-xs px-2 font-mono'
                 onClick={() => setInvestment(String(preset))}
+                disabled={isLoadingAny}
               >
                 ${preset >= 1000 ? `${preset / 1000}k` : preset}
               </Button>
@@ -494,17 +406,25 @@ export function CoinMarketScenarios({
               Investment Period
             </label>
             <span className='font-mono text-sm font-semibold text-primary'>
-              {months} months
+              {isLoadingAny ? (
+                <Skeleton className='h-4 w-12 inline-block' />
+              ) : (
+                `${months} months`
+              )}
             </span>
           </div>
-          <Slider
-            className='h-8'
-            value={[months]}
-            onValueChange={(v) => setMonths(v[0])}
-            min={1}
-            max={36}
-            step={1}
-          />
+          {isLoadingAny ? (
+            <Skeleton className='h-8 w-full' />
+          ) : (
+            <Slider
+              className='h-8'
+              value={[months]}
+              onValueChange={(v) => setMonths(v[0])}
+              min={1}
+              max={36}
+              step={1}
+            />
+          )}
           <div className='flex flex-wrap gap-1'>
             {HORIZON_PRESETS.map((preset) => (
               <Button
@@ -513,6 +433,7 @@ export function CoinMarketScenarios({
                 size='sm'
                 className='h-6 text-xs px-2'
                 onClick={() => setMonths(preset.months)}
+                disabled={isLoadingAny}
               >
                 {preset.label}
               </Button>
@@ -523,6 +444,7 @@ export function CoinMarketScenarios({
 
       {/* Metrics */}
       <div className='grid grid-cols-2 gap-2'>
+        {/* Volatility */}
         <div className='flex items-center justify-between rounded-md bg-sidebar px-4 py-2.5'>
           <div className='flex items-center gap-1.5'>
             <Gauge className='h-3.5 w-3.5 text-muted-foreground' />
@@ -541,20 +463,25 @@ export function CoinMarketScenarios({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Badge
-            variant='outline'
-            className={`text-xs h-5 px-2 font-mono ${
-              volProfile.level === 'low'
-                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
-                : volProfile.level === 'high'
-                  ? 'text-red-500 border-red-500/20 bg-red-500/5'
-                  : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
-            }`}
-          >
-            {volatility.toFixed(1)}
-          </Badge>
+          {isLoadingAny ? (
+            <Skeleton className='h-5 w-14' />
+          ) : (
+            <Badge
+              variant='outline'
+              className={`text-xs h-5 px-2 font-mono ${
+                volProfile.level === 'low'
+                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                  : volProfile.level === 'high'
+                    ? 'text-red-500 border-red-500/20 bg-red-500/5'
+                    : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
+              }`}
+            >
+              {volatility.toFixed(1)}
+            </Badge>
+          )}
         </div>
 
+        {/* Trend */}
         <div className='flex items-center justify-between rounded-md bg-sidebar px-4 py-2.5'>
           <div className='flex items-center gap-1.5'>
             <Activity className='h-3.5 w-3.5 text-muted-foreground' />
@@ -573,18 +500,22 @@ export function CoinMarketScenarios({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Badge
-            variant='outline'
-            className={`text-xs h-5 px-2 font-mono ${
-              trendScore > 0
-                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
-                : trendScore < 0
-                  ? 'text-red-500 border-red-500/20 bg-red-500/5'
-                  : 'text-muted-foreground border-muted-foreground/20'
-            }`}
-          >
-            {formatPercent(trendScore)}
-          </Badge>
+          {isLoadingAny ? (
+            <Skeleton className='h-5 w-14' />
+          ) : (
+            <Badge
+              variant='outline'
+              className={`text-xs h-5 px-2 font-mono ${
+                trendScore > 0
+                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                  : trendScore < 0
+                    ? 'text-red-500 border-red-500/20 bg-red-500/5'
+                    : 'text-muted-foreground border-muted-foreground/20'
+              }`}
+            >
+              {formatPercent(trendScore)}
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -599,26 +530,28 @@ export function CoinMarketScenarios({
             </p>
           </div>
         </div>
-        <Badge
-          variant='outline'
-          className={`text-xs h-5 px-2 ${
-            volProfile.level === 'low'
-              ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
-              : volProfile.level === 'high'
-                ? 'text-red-500 border-red-500/20 bg-red-500/5'
-                : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
-          }`}
-        >
-          {volProfile.label}
-        </Badge>
+        {isLoadingAny ? (
+          <Skeleton className='h-5 w-16' />
+        ) : (
+          <Badge
+            variant='outline'
+            className={`text-xs h-5 px-2 ${
+              volProfile.level === 'low'
+                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                : volProfile.level === 'high'
+                  ? 'text-red-500 border-red-500/20 bg-red-500/5'
+                  : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
+            }`}
+          >
+            {volProfile.label}
+          </Badge>
+        )}
       </div>
 
       {/* Scenarios Table */}
       <div className='rounded-md border overflow-hidden'>
         {/* Header */}
-
         <div className='grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-2.5 bg-muted/50 border-b text-xs font-medium text-muted-foreground uppercase tracking-wider'>
-          {/* Scenario */}
           <div className='flex items-center gap-1'>
             <span>Scenario</span>
             <TooltipProvider delayDuration={100}>
@@ -697,130 +630,207 @@ export function CoinMarketScenarios({
         </div>
 
         {/* Rows */}
-        {scenarios.map((s) => {
-          const Icon = s.icon
-          const meta = SCENARIO_META[s.type]
-          const borderColor =
-            s.color === 'red'
-              ? 'border-l-2 border-l-red-500/50'
-              : s.color === 'emerald'
-                ? 'border-l-2 border-l-emerald-500/50'
-                : 'border-l-2 border-l-blue-500/50'
-          const iconColor =
-            s.color === 'red'
-              ? 'text-red-500'
-              : s.color === 'emerald'
-                ? 'text-emerald-500'
-                : 'text-blue-500'
-          const isExpanded = expandedScenario === s.type
+        {isLoadingAny
+          ? [
+              {
+                label: 'Bear Market',
+                desc: 'Risk-off environment',
+                color: 'red',
+                icon: TrendingDown,
+                meta: SCENARIO_META.bear,
+              },
+              {
+                label: 'Base Case',
+                desc: 'Normal continuation',
+                color: 'blue',
+                icon: Target,
+                meta: SCENARIO_META.base,
+              },
+              {
+                label: 'Bull Cycle',
+                desc: 'Euphoric expansion',
+                color: 'emerald',
+                icon: TrendingUp,
+                meta: SCENARIO_META.bull,
+              },
+            ].map((s, i) => {
+              const Icon = s.icon
+              const iconColor =
+                s.color === 'red'
+                  ? 'text-red-500'
+                  : s.color === 'emerald'
+                    ? 'text-emerald-500'
+                    : 'text-blue-500'
+              const borderColor =
+                s.color === 'red'
+                  ? 'border-l-2 border-l-red-500/50'
+                  : s.color === 'emerald'
+                    ? 'border-l-2 border-l-emerald-500/50'
+                    : 'border-l-2 border-l-blue-500/50'
 
-          return (
-            <div key={s.type}>
-              <div
-                className={`grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-3 border-b border-border/50 items-center hover:bg-muted/20 transition-colors cursor-pointer ${borderColor}`}
-                onClick={() => setExpandedScenario(isExpanded ? null : s.type)}
-              >
-                {/* Scenario */}
-                <div className='flex items-center gap-2'>
-                  <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
-                  <div className='flex flex-col min-w-0'>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-sm font-semibold truncate'>
-                        {s.label}
+              return (
+                <div
+                  key={i}
+                  className={`grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-3 border-b border-border/50 items-center ${borderColor}`}
+                >
+                  <div className='flex items-center gap-2'>
+                    <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
+                    <div className='flex flex-col min-w-0'>
+                      <div className='flex items-center gap-2'>
+                        <span className='text-sm font-semibold truncate'>
+                          {s.label}
+                        </span>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className='h-3 w-3 text-muted-foreground cursor-help hover:text-foreground transition-colors shrink-0' />
+                            </TooltipTrigger>
+                            <TooltipContent side='top' className='max-w-xs'>
+                              <p className='text-xs leading-relaxed'>
+                                {s.meta.tooltip}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <span className='text-xs text-muted-foreground'>
+                        {s.desc}
                       </span>
-                      <TooltipProvider delayDuration={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className='h-3 w-3 text-muted-foreground cursor-help hover:text-foreground transition-colors shrink-0' />
-                          </TooltipTrigger>
-                          <TooltipContent side='top' className='max-w-xs'>
-                            <p className='text-xs leading-relaxed'>
-                              {meta.tooltip}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    </div>
+                    <ChevronDown className='h-3 w-3 text-muted-foreground shrink-0 ml-auto' />
+                  </div>
+                  <Skeleton className='h-4 w-20 ml-auto' />
+                  <Skeleton className='h-4 w-20 ml-auto' />
+                  <Skeleton className='h-4 w-20 ml-auto' />
+                  <Skeleton className='h-5 w-16 ml-auto' />
+                </div>
+              )
+            })
+          : scenarios.map((s) => {
+              const Icon = s.icon
+              const meta = SCENARIO_META[s.type]
+              const borderColor =
+                s.color === 'red'
+                  ? 'border-l-2 border-l-red-500/50'
+                  : s.color === 'emerald'
+                    ? 'border-l-2 border-l-emerald-500/50'
+                    : 'border-l-2 border-l-blue-500/50'
+              const iconColor =
+                s.color === 'red'
+                  ? 'text-red-500'
+                  : s.color === 'emerald'
+                    ? 'text-emerald-500'
+                    : 'text-blue-500'
+              const isExpanded = expandedScenario === s.type
+
+              return (
+                <div key={s.type}>
+                  <div
+                    className={`grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-3 border-b border-border/50 items-center hover:bg-muted/20 transition-colors cursor-pointer ${borderColor}`}
+                    onClick={() =>
+                      setExpandedScenario(isExpanded ? null : s.type)
+                    }
+                  >
+                    {/* Scenario */}
+                    <div className='flex items-center gap-2'>
+                      <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
+                      <div className='flex flex-col min-w-0'>
+                        <div className='flex items-center gap-2'>
+                          <span className='text-sm font-semibold truncate'>
+                            {s.label}
+                          </span>
+                          <TooltipProvider delayDuration={100}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className='h-3 w-3 text-muted-foreground cursor-help hover:text-foreground transition-colors shrink-0' />
+                              </TooltipTrigger>
+                              <TooltipContent side='top' className='max-w-xs'>
+                                <p className='text-xs leading-relaxed'>
+                                  {meta.tooltip}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <span className='text-xs text-muted-foreground'>
+                          {s.desc}
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className={`h-3 w-3 text-muted-foreground shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      />
                     </div>
 
-                    <span className='text-xs text-muted-foreground '>
-                      {s.desc}
-                    </span>
-                  </div>
-                  <ChevronDown
-                    className={`h-3 w-3 text-muted-foreground shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                  />
-                </div>
+                    {/* Price Range */}
+                    <div className='text-right space-y-0.5'>
+                      <p className='text-sm font-mono font-semibold'>
+                        <span className={getPriceColor(s.lowPrice)}>
+                          {formatCurrency(s.lowPrice)}
+                        </span>
+                        <span className='text-muted-foreground mx-1'>→</span>
+                        <span className={getPriceColor(s.highPrice)}>
+                          {formatCurrency(s.highPrice)}
+                        </span>
+                      </p>
+                    </div>
 
-                {/* Price Range */}
-                <div className='text-right space-y-0.5'>
-                  <p className='text-sm font-mono font-semibold'>
-                    <span className={getPriceColor(s.lowPrice)}>
-                      {formatCurrency(s.lowPrice)}
-                    </span>
-                    <span className='text-muted-foreground mx-1'>→</span>
-                    <span className={getPriceColor(s.highPrice)}>
-                      {formatCurrency(s.highPrice)}
-                    </span>
-                  </p>
-                </div>
+                    {/* Value Range */}
+                    <div className='text-right space-y-0.5'>
+                      <p className='text-sm font-mono font-semibold'>
+                        <span className={getValueColor(s.lowValue)}>
+                          {formatCurrency(s.lowValue)}
+                        </span>
+                        <span className='text-muted-foreground mx-1'>→</span>
+                        <span className={getValueColor(s.highValue)}>
+                          {formatCurrency(s.highValue)}
+                        </span>
+                      </p>
+                    </div>
 
-                {/* Value Range */}
-                <div className='text-right space-y-0.5'>
-                  <p className='text-sm font-mono font-semibold'>
-                    <span className={getValueColor(s.lowValue)}>
-                      {formatCurrency(s.lowValue)}
-                    </span>
-                    <span className='text-muted-foreground mx-1'>→</span>
-                    <span className={getValueColor(s.highValue)}>
-                      {formatCurrency(s.highValue)}
-                    </span>
-                  </p>
-                </div>
-
-                {/* ROI Range */}
-                <div className='text-right space-y-0.5'>
-                  <p
-                    className={`text-sm font-mono font-semibold ${s.lowReturn >= 0 ? 'text-emerald-500' : 'text-red-500'}`}
-                  >
-                    {formatPercent(s.lowReturn)}
-                    <span className='text-muted-foreground mx-1'>→</span>
-                    {formatPercent(s.highReturn)}
-                  </p>
-                </div>
-
-                {/* Probability */}
-                <div className='text-right'>
-                  <Badge
-                    variant='outline'
-                    className={`text-xs font-mono h-6 px-2 ${getProbabilityColor(s.confidence)}`}
-                  >
-                    {s.confidence}%
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Expanded Drivers */}
-              {isExpanded && (
-                <div className='px-4 py-3 bg-muted/30 border-b border-border/50 space-y-2'>
-                  <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
-                    Main Drivers
-                  </p>
-                  <div className='space-y-1'>
-                    {s.drivers.map((driver, i) => (
-                      <div
-                        key={i}
-                        className='flex items-center gap-2 text-xs text-muted-foreground'
+                    {/* ROI Range */}
+                    <div className='text-right space-y-0.5'>
+                      <p
+                        className={`text-sm font-mono font-semibold ${s.lowReturn >= 0 ? 'text-emerald-500' : 'text-red-500'}`}
                       >
-                        <ChevronRight className='h-3 w-3 shrink-0 text-muted-foreground/50' />
-                        <span>{driver}</span>
-                      </div>
-                    ))}
+                        {formatPercent(s.lowReturn)}
+                        <span className='text-muted-foreground mx-1'>→</span>
+                        {formatPercent(s.highReturn)}
+                      </p>
+                    </div>
+
+                    {/* Probability */}
+                    <div className='text-right'>
+                      <Badge
+                        variant='outline'
+                        className={`text-xs font-mono h-6 px-2 ${getProbabilityColor(s.confidence)}`}
+                      >
+                        {s.confidence}%
+                      </Badge>
+                    </div>
                   </div>
+
+                  {/* Expanded Drivers */}
+                  {isExpanded && (
+                    <div className='px-4 py-3 bg-muted/30 border-b border-border/50 space-y-2'>
+                      <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
+                        Main Drivers
+                      </p>
+                      <div className='space-y-1'>
+                        {s.drivers.map((driver, i) => (
+                          <div
+                            key={i}
+                            className='flex items-center gap-2 text-xs text-muted-foreground'
+                          >
+                            <ChevronRight className='h-3 w-3 shrink-0 text-muted-foreground/50' />
+                            <span>{driver}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )
-        })}
+              )
+            })}
       </div>
 
       {/* Disclaimer */}
