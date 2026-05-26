@@ -470,7 +470,7 @@ export function CoinMarketScenarios({
             type='number'
             value={investment}
             onChange={(e) => setInvestment(e.target.value)}
-            className='h-9 font-mono text-sm'
+            className='h-9 font-mono text-sm rounded-2xl'
           />
           <div className='flex flex-wrap gap-1'>
             {INVESTMENT_PRESETS.map((preset) => (
@@ -616,7 +616,9 @@ export function CoinMarketScenarios({
       {/* Scenarios Table */}
       <div className='rounded-md border overflow-hidden'>
         {/* Header */}
-        <div className='grid grid-cols-[140px_1fr_1fr_1fr_100px] gap-3 px-4 py-2.5 bg-muted/50 border-b text-xs font-medium text-muted-foreground uppercase tracking-wider items-center'>
+
+        <div className='grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-2.5 bg-muted/50 border-b text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+          {/* Scenario */}
           <div className='flex items-center gap-1'>
             <span>Scenario</span>
             <TooltipProvider delayDuration={100}>
