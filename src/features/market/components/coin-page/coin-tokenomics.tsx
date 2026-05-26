@@ -354,7 +354,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
   const showInfinite = !isLoading && infiniteSupply
 
   return (
-    <div className='rounded-lg border bg-background p-3 space-y-3'>
+    <div className='rounded-lg border bg-background p-3 flex flex-col gap-3 h-full'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
@@ -547,7 +547,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
       )}
 
       {/* Footer */}
-      <div className='flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
+      <div className='mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
         {[
           {
             icon: <TrendingUp className='h-3 w-3' />,

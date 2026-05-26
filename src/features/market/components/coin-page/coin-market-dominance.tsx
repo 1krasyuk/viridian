@@ -106,7 +106,6 @@ function DominanceCircleDiagram({
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className='-rotate-90'>
-        {/* Фон — весь рынок */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -116,7 +115,6 @@ function DominanceCircleDiagram({
           strokeWidth={strokeWidth}
         />
 
-        {/* Монета — от 0 (ярко-зелёная) */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -129,7 +127,6 @@ function DominanceCircleDiagram({
           strokeLinecap='butt'
         />
 
-        {/* BTC — начинается после монеты (тускло-зелёная), только если не BTC страница */}
         {!isBitcoin && btcDominance > 0 && (
           <circle
             cx={size / 2}
@@ -335,7 +332,7 @@ export function CoinMarketDominance({
   const isLoadingAny = isLoading || !globalData
 
   return (
-    <div className='rounded-lg border bg-background p-3 space-y-3'>
+    <div className='rounded-lg border bg-background p-3 flex flex-col gap-3 h-full'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
@@ -398,7 +395,6 @@ export function CoinMarketDominance({
           </TooltipProvider>
         )}
       </div>
-
       {/* Ring + Legend */}
       <div className='flex items-center gap-3'>
         <DominanceCircleDiagram
@@ -464,7 +460,6 @@ export function CoinMarketDominance({
           </div>
         </div>
       </div>
-
       {/* Metrics Grid */}
       <div className='grid grid-cols-2 gap-2'>
         <MetricCard
@@ -519,8 +514,7 @@ export function CoinMarketDominance({
           isLoading={isLoadingAny}
         />
       </div>
-
-      {/* Comparison Bar — монета vs BTC */}
+      {/* Comparison Bar */}
       {!isBitcoin && (
         <ComparisonBar
           leftLabel={symbol || 'This Asset'}
@@ -538,7 +532,6 @@ export function CoinMarketDominance({
           isLoading={isLoadingAny}
         />
       )}
-
       {isBitcoin && !isLoadingAny && (
         <div className='bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5'>
           <div className='flex items-center gap-1'>
@@ -553,7 +546,6 @@ export function CoinMarketDominance({
           </p>
         </div>
       )}
-
       {/* Warning for smaller coins */}
       {!isBitcoin && !isLoadingAny && coinDominance < 0.01 && (
         <div className='bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5'>
@@ -569,8 +561,7 @@ export function CoinMarketDominance({
           </p>
         </div>
       )}
-
-      <div className='flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
+      <div className='mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
         {isLoadingAny ? (
           <>
             <span className='flex items-center gap-1'>

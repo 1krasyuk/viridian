@@ -110,7 +110,7 @@ function RouteComponent() {
                 isLoading={isLoadingCoin}
               />
 
-              <div className='grid xs:grid-cols-1 grid-cols-2 gap-5'>
+              <div className='grid xs:grid-cols-1 grid-cols-2 gap-5 items-stretch'>
                 <CoinTokenomics coin={data} isLoading={isLoadingCoin} />
                 <CoinMarketDominance
                   coin={data}
