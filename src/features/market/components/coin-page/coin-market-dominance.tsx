@@ -337,13 +337,13 @@ export function CoinMarketDominance({
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
-            <Globe className='h-4 w-4' />
+            <Globe className='h-4 w-4 shrink-0' />
             Market Dominance
           </h2>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-default' />
+                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0' />
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
                 <div className='text-xs leading-relaxed space-y-1.5'>
@@ -406,10 +406,10 @@ export function CoinMarketDominance({
         />
         <div className='flex-1 space-y-1.5'>
           {/* Coin */}
-          <div className='flex items-center justify-between text-sm'>
-            <div className='flex items-center gap-2'>
+          <div className='flex items-center justify-between text-sm gap-2'>
+            <div className='flex items-center gap-2 break-all'>
               <div
-                className='w-2.5 h-2.5 rounded-full'
+                className='w-2.5 h-2.5 rounded-full '
                 style={{ background: 'oklch(0.7 0.15 162)' }}
               />
               <span>{symbol || 'This Asset'}</span>
@@ -417,13 +417,15 @@ export function CoinMarketDominance({
             {isLoadingAny ? (
               <Skeleton className='h-4 w-24' />
             ) : (
-              <span className='font-mono text-sm'>{formatCurrency(mcap)}</span>
+              <span className='font-mono text-sm break-all'>
+                {formatCurrency(mcap)}
+              </span>
             )}
           </div>
 
           {/* BTC — hide on Bitcoin page */}
           {!isBitcoin && (
-            <div className='flex items-center justify-between text-sm'>
+            <div className='flex items-center justify-between text-sm break-all'>
               <div className='flex items-center gap-2'>
                 <div
                   className='w-2.5 h-2.5 rounded-full'
@@ -442,7 +444,7 @@ export function CoinMarketDominance({
           )}
 
           {/* Rest of Market */}
-          <div className='flex items-center justify-between text-sm'>
+          <div className='flex items-center justify-between text-sm break-all'>
             <div className='flex items-center gap-2'>
               <div
                 className='w-2.5 h-2.5 rounded-full'
@@ -534,7 +536,7 @@ export function CoinMarketDominance({
       )}
       {isBitcoin && !isLoadingAny && (
         <div className='bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5'>
-          <div className='flex items-center gap-1'>
+          <div className='flex items-center gap-1 '>
             <ArrowUpRight className='w-4 h-4 text-emerald-500 shrink-0' />
             <p className='font-semibold text-emerald-500 text-sm'>
               Market Leader

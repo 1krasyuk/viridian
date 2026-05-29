@@ -190,7 +190,7 @@ export function CoinRoiCalculator({
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <h2 className='text-lg font-semibold uppercase flex items-center gap-2'>
-            <Calculator className='h-4 w-4' />
+            <Calculator className='h-4 w-4 shrink-0' />
             ROI Calculator
           </h2>
           <TooltipProvider>

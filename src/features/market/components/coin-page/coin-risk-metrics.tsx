@@ -440,7 +440,7 @@ function MetricCard({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-3 w-3 text-muted-foreground' />
+                <Info className='h-3 w-3 text-muted-foreground shrink-0' />
               </TooltipTrigger>
               <TooltipContent side='top' className='max-w-70'>
                 <p className='text-xs'>{tooltip}</p>

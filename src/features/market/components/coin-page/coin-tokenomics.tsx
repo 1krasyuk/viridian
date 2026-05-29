@@ -149,7 +149,7 @@ function SupplyCircleDiagram({
         <span className='text-base font-bold font-mono'>
           {circulatingPercent.toFixed(1)}%
         </span>
-        <span className='text-[9px] text-muted-foreground uppercase tracking-wider'>
+        <span className='text-[9px] text-muted-foreground uppercase tracking-wider truncate'>
           Circulating
         </span>
       </div>
@@ -193,12 +193,12 @@ function MetricCard({
         <Skeleton className='h-6 w-28' />
       ) : (
         <p
-          className={`text-base font-semibold font-mono tracking-tight ${warning ? 'text-orange-500' : ''}`}
+          className={`text-base font-semibold font-mono tracking-tight break-all ${warning ? 'text-orange-500' : ''}`}
         >
           {value}
         </p>
       )}
-      <p className='text-xs text-muted-foreground font-mono'>
+      <p className='text-xs text-muted-foreground font-mono break-all'>
         {isLoading ? (
           <Skeleton className='h-3 w-20 inline-block' />
         ) : (
@@ -252,14 +252,16 @@ function ComparisonBar({
 
   return (
     <div className='space-y-1.5'>
-      <div className='flex justify-between text-xs'>
+      <div className='flex justify-between text-xs gap-2'>
         <div>
           <p className='font-medium text-xs'>{leftLabel}</p>
-          <p className='font-mono text-xs text-muted-foreground'>{leftValue}</p>
+          <p className='font-mono text-xs text-muted-foreground break-all'>
+            {leftValue}
+          </p>
         </div>
         <div className='text-right'>
-          <p className='font-medium text-xs'>{rightLabel}</p>
-          <p className='font-mono text-xs text-muted-foreground'>
+          <p className='font-medium text-xs '>{rightLabel}</p>
+          <p className='font-mono text-xs text-muted-foreground break-all'>
             {rightValue}
           </p>
         </div>
@@ -359,13 +361,13 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
           <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
-            <Layers className='h-4 w-4' />
+            <Layers className='h-4 w-4 shrink-0' />
             Tokenomics & Supply
           </h2>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-default' />
+                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0' />
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
                 <div className='text-xs leading-relaxed space-y-1.5'>
@@ -402,9 +404,9 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           size={110}
           isLoading={isLoading}
         />
-        <div className='flex-1 space-y-1.5'>
+        <div className='flex-1 space-y-1.5 '>
           {/* Circulating */}
-          <div className='flex items-center justify-between text-sm'>
+          <div className='flex items-center justify-between text-sm gap-2 break-all'>
             <div className='flex items-center gap-2'>
               <div className='w-2.5 h-2.5 rounded-full bg-primary' />
               <span>Circulating</span>
@@ -420,7 +422,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
           {/* Locked / Vesting — show skeleton on load, hide if no data */}
           {showLocked && (
-            <div className='flex items-center justify-between text-sm'>
+            <div className='flex items-center justify-between text-sm break-all'>
               <div className='flex items-center gap-2'>
                 <div className='w-2.5 h-2.5 rounded-full bg-primary/30' />
                 <span className='text-muted-foreground'>Locked / Vesting</span>
@@ -440,7 +442,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
           {/* Never issued — show skeleton on load, hide if no data */}
           {showNeverIssued && (
-            <div className='flex items-center justify-between text-sm'>
+            <div className='flex items-center justify-between text-sm gap-2 break-all'>
               <div className='flex items-center gap-2'>
                 <div className='w-2.5 h-2.5 rounded-full bg-muted border border-dashed border-muted-foreground/30' />
                 <span className='text-muted-foreground'>Never issued</span>
@@ -461,7 +463,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
           {/* Infinite supply note */}
           {showInfinite && (
-            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground '>
               <Unlock className='h-3.5 w-3.5' />
               <span className='text-xs'>No max supply — inflationary</span>
             </div>
