@@ -6,6 +6,8 @@ import {
   TrendingDown,
   RotateCcw,
   Info,
+  ArrowRightLeft,
+  Wallet,
 } from 'lucide-react'
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
@@ -64,7 +66,11 @@ function PricePresetButton({
     <Button
       variant={active ? 'default' : 'outline'}
       size='sm'
-      className='h-7 text-xs gap-1.5 px-2.5'
+      className={`h-8 text-xs gap-1.5 px-3 rounded-lg transition-all duration-200 ${
+        active
+          ? 'shadow-sm'
+          : 'hover:bg-muted/80 hover:border-muted-foreground/20'
+      }`}
       onClick={onClick}
       disabled={isLoading}
     >
@@ -185,62 +191,82 @@ export function CoinRoiCalculator({
   }
 
   return (
-    <div className='rounded-lg border bg-background p-4 space-y-4'>
-      {/* Header */}
+    <div className='space-y-5'>
+      {/* Header with personality */}
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-lg font-semibold uppercase flex items-center gap-2'>
-            <Calculator className='h-4 w-4 shrink-0' />
-            ROI Calculator
-          </h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-help' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <p className='text-xs leading-relaxed'>
-                  Enter your <span className='underline'>investment</span> and{' '}
-                  <span className='underline'>buy price</span> to see{' '}
-                  <span className='text-emerald-500'>profit</span>/
-                  <span className='text-destructive'>loss</span> at current
-                  price. Use presets for quick historical prices.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className='flex items-center gap-3'>
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+            <Calculator className='h-4 w-4 text-emerald-500' />
+          </div>
+          <div>
+            <div className='flex items-center gap-3'>
+              <h2 className='text-base font-bold tracking-tight'>
+                ROI Calculator
+              </h2>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='h-4 w-4 text-muted-foreground transition-colors' />
+                  </TooltipTrigger>
+                  <TooltipContent side='right' className='max-w-xs'>
+                    <p className='text-xs leading-relaxed'>
+                      Enter your investment and buy price to see profit/loss at
+                      current price. Use presets for quick historical prices.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              What if you bought at...
+            </p>
+          </div>
         </div>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='h-6 w-6 rounded-full'
-          onClick={handleReset}
-          disabled={isLoading}
-        >
-          <RotateCcw className='h-3 w-3' />
-        </Button>
+        <div className='flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-7 w-7 rounded-lg hover:bg-muted'
+            onClick={handleReset}
+            disabled={isLoading}
+          >
+            <RotateCcw className='h-3 w-3' />
+          </Button>
+        </div>
       </div>
 
-      <div className='space-y-3'>
-        {/* Investment */}
-        <div className='space-y-3'>
-          <label className='text-xs text-muted-foreground font-medium'>
-            Investment ($)
-          </label>
-          <Input
-            type='number'
-            value={investment}
-            onChange={(e) => setInvestment(e.target.value)}
-            className='h-9 font-mono rounded-md'
-            placeholder='1000'
-          />
-          <div className='flex flex-wrap gap-1'>
+      <div className='space-y-4'>
+        {/* Investment Section */}
+        <div className='space-y-2.5'>
+          <div className='flex items-center gap-2'>
+            <Wallet className='h-3.5 w-3.5 text-muted-foreground' />
+            <label className='text-sm font-medium text-muted-foreground'>
+              Investment
+            </label>
+          </div>
+          <div className='relative'>
+            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
+              $
+            </span>
+            <Input
+              type='number'
+              value={investment}
+              onChange={(e) => setInvestment(e.target.value)}
+              className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              placeholder='1000'
+            />
+          </div>
+          <div className='flex flex-wrap gap-1.5'>
             {INVESTMENT_PRESETS.map((preset) => (
               <Button
                 key={preset}
                 variant={investment === String(preset) ? 'default' : 'outline'}
                 size='sm'
-                className='h-6 text-xs px-2 font-mono'
+                className={`h-7 text-xs px-2.5 font-mono rounded-lg transition-all ${
+                  investment === String(preset)
+                    ? 'shadow-sm'
+                    : 'bg-muted/20 border-muted-foreground/10 hover:bg-muted/40'
+                }`}
                 onClick={() => setInvestment(String(preset))}
               >
                 ${formatCompact(preset)}
@@ -249,124 +275,145 @@ export function CoinRoiCalculator({
           </div>
         </div>
 
-        {/* Buy Price */}
-        <div className='space-y-1'>
-          <label className='text-xs text-muted-foreground font-medium'>
-            Buy Price ($)
-          </label>
-          <Input
-            type='number'
-            value={buyPrice}
-            onChange={(e) => setBuyPrice(e.target.value)}
-            className='h-9 font-mono rounded-md'
-            placeholder={default24h ? String(Math.round(default24h)) : '0'}
-            disabled={isLoading}
-          />
+        {/* Buy Price Section */}
+        <div className='space-y-2.5'>
+          <div className='flex items-center gap-2'>
+            <ArrowRightLeft className='h-3.5 w-3.5 text-muted-foreground' />
+            <label className='text-sm font-medium text-muted-foreground'>
+              Buy Price
+            </label>
+          </div>
+          <div className='relative'>
+            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
+              $
+            </span>
+            <Input
+              type='number'
+              value={buyPrice}
+              onChange={(e) => setBuyPrice(e.target.value)}
+              className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              placeholder={default24h ? String(Math.round(default24h)) : '0'}
+              disabled={isLoading}
+            />
+          </div>
         </div>
 
-        {/* Price Presets */}
-        <div className='flex flex-wrap gap-1.5'>
-          {[
-            { period: '1h', label: '1H' },
-            { period: '24h', label: '24H' },
-            { period: '7d', label: '7D' },
-            { period: '14d', label: '14D' },
-            { period: '30d', label: '30D' },
-            { period: '60d', label: '60D' },
-            { period: '200d', label: '200D' },
-            { period: '1y', label: '1Y' },
-          ].map(({ period, label }) => (
-            <TimePresetButton
-              key={period}
-              period={period}
-              label={label}
-              coin={coin}
-              currentPrice={currentPrice}
-              buyPrice={buyPrice}
-              setBuyPrice={setBuyPrice}
+        {/* Price Presets — grouped visually */}
+        <div className='space-y-2'>
+          <p className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+            Historical Prices
+          </p>
+          <div className='flex flex-wrap gap-1.5'>
+            {[
+              { period: '1h', label: '1H' },
+              { period: '24h', label: '24H' },
+              { period: '7d', label: '7D' },
+              { period: '14d', label: '14D' },
+              { period: '30d', label: '30D' },
+              { period: '60d', label: '60D' },
+              { period: '200d', label: '200D' },
+              { period: '1y', label: '1Y' },
+            ].map(({ period, label }) => (
+              <TimePresetButton
+                key={period}
+                period={period}
+                label={label}
+                coin={coin}
+                currentPrice={currentPrice}
+                buyPrice={buyPrice}
+                setBuyPrice={setBuyPrice}
+                isLoading={isLoading}
+              />
+            ))}
+
+            <PricePresetButton
+              label='ATH'
+              value={isLoading ? undefined : ath}
+              icon={<TrendingUp className='h-3 w-3' />}
+              active={!isLoading && isActive(ath || 0)}
+              onClick={() =>
+                !isLoading && ath && setBuyPrice(String(Math.round(ath)))
+              }
               isLoading={isLoading}
             />
-          ))}
 
-          {/* ATH */}
-          <PricePresetButton
-            label='ATH'
-            value={isLoading ? undefined : ath}
-            icon={<TrendingUp className='h-3 w-3' />}
-            active={!isLoading && isActive(ath || 0)}
-            onClick={() =>
-              !isLoading && ath && setBuyPrice(String(Math.round(ath)))
-            }
-            isLoading={isLoading}
-          />
-
-          {/* ATL */}
-          <PricePresetButton
-            label='ATL'
-            value={isLoading ? undefined : atl}
-            icon={<TrendingDown className='h-3 w-3' />}
-            active={!isLoading && isActive(atl || 0)}
-            onClick={() =>
-              !isLoading && atl && setBuyPrice(String(Math.round(atl)))
-            }
-            isLoading={isLoading}
-          />
+            <PricePresetButton
+              label='ATL'
+              value={isLoading ? undefined : atl}
+              icon={<TrendingDown className='h-3 w-3' />}
+              active={!isLoading && isActive(atl || 0)}
+              onClick={() =>
+                !isLoading && atl && setBuyPrice(String(Math.round(atl)))
+              }
+              isLoading={isLoading}
+            />
+          </div>
         </div>
 
-        {/* Results */}
-        <div className='rounded-md bg-sidebar p-3 space-y-2'>
-          <div className='flex items-center justify-between text-sm'>
-            <span className='text-muted-foreground'>Coins bought</span>
-            <span className='font-mono font-semibold'>
-              {isLoading ? (
-                <Skeleton className='h-5 w-20 inline-block' />
-              ) : coins > 0 ? (
-                coins.toFixed(coins < 0.01 ? 6 : 4)
-              ) : (
-                '—'
-              )}
-            </span>
+        {/* Results — styled as a prominent card */}
+        <div className='rounded-2xl bg-linear-to-br from-muted/50 via-muted/30 to-background border border-border/50 p-4 space-y-3'>
+          <div className='flex items-center gap-2 mb-1'>
+            <span className='text-sm font-semibold'>Results</span>
           </div>
 
-          <div className='flex items-center justify-between text-sm'>
-            <span className='text-muted-foreground'>Investment value</span>
-            <span className='font-mono font-semibold'>
-              {isLoading ? (
-                <Skeleton className='h-5 w-24 inline-block' />
-              ) : valueNow > 0 ? (
-                formatCurrency(valueNow)
-              ) : (
-                '—'
-              )}
-            </span>
-          </div>
+          <div className='space-y-2.5'>
+            <div className='flex items-center justify-between text-sm'>
+              <span className='text-muted-foreground text-xs'>
+                Coins bought
+              </span>
+              <span className='font-mono font-semibold text-sm'>
+                {isLoading ? (
+                  <Skeleton className='h-5 w-20 inline-block' />
+                ) : coins > 0 ? (
+                  coins.toFixed(coins < 0.01 ? 6 : 4)
+                ) : (
+                  '—'
+                )}
+              </span>
+            </div>
 
-          <div className='h-px bg-border' />
+            <div className='flex items-center justify-between text-sm'>
+              <span className='text-muted-foreground text-xs'>
+                Current value
+              </span>
+              <span className='font-mono font-semibold text-sm'>
+                {isLoading ? (
+                  <Skeleton className='h-5 w-24 inline-block' />
+                ) : valueNow > 0 ? (
+                  formatCurrency(valueNow)
+                ) : (
+                  '—'
+                )}
+              </span>
+            </div>
 
-          <div className='flex items-center justify-between'>
-            <span className='text-sm font-medium'>Profit / Loss</span>
-            <span className='font-mono font-bold'>
-              {isLoading ? (
-                <Skeleton className='h-6 w-28 inline-block' />
-              ) : profit !== 0 ? (
-                <>
-                  <span
-                    className={
-                      profit >= 0 ? 'text-emerald-500' : 'text-red-500'
-                    }
-                  >
-                    {profit >= 0 ? '+' : '−'}
-                    {formatCurrency(Math.abs(profit))}
-                  </span>
-                  <span className='text-xs ml-1.5 opacity-70'>
-                    ({roi >= 0 ? '+' : '−'}
-                    {Math.abs(roi).toFixed(1)}%)
-                  </span>
-                </>
-              ) : (
-                '—'
-              )}
-            </span>
+            <div className='h-px bg-linear-to-r from-transparent via-border to-transparent' />
+
+            <div className='flex items-center justify-between'>
+              <span className='text-sm font-bold'>Profit / Loss</span>
+              <span className='font-mono font-bold text-base'>
+                {isLoading ? (
+                  <Skeleton className='h-6 w-28 inline-block' />
+                ) : profit !== 0 ? (
+                  <>
+                    <span
+                      className={
+                        profit >= 0 ? 'text-emerald-500' : 'text-red-500'
+                      }
+                    >
+                      {profit >= 0 ? '+' : '−'}
+                      {formatCurrency(Math.abs(profit))}
+                    </span>
+                    <span className='text-xs ml-2 opacity-60 font-mono bg-muted/50 px-1.5 py-0.5 rounded-md'>
+                      {roi >= 0 ? '+' : '−'}
+                      {Math.abs(roi).toFixed(1)}%
+                    </span>
+                  </>
+                ) : (
+                  '—'
+                )}
+              </span>
+            </div>
           </div>
         </div>
       </div>
