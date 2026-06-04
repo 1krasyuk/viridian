@@ -6,7 +6,6 @@ import {
   Gauge,
   ChevronDown,
   Clock,
-  AlertTriangle,
   Droplets,
   BarChart3,
   Info,
@@ -16,6 +15,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Shield,
+  HeartPulse,
 } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import type { Coin } from '../../types/coin'
@@ -62,10 +62,6 @@ function calculateMaxDrawdown(prices?: { value: number }[]): number | null {
   return maxDrawdown * 100
 }
 
-/* ─── Volatility Trend ───
-   Compares 1h vs 24h vs 7d average daily.
-   Score 0-100. Higher = more volatile.
-   Minimum thresholds to avoid noise on stables. */
 function getVolatilityTrend(
   change1h: number | null | undefined,
   change24h: number | null | undefined,
@@ -79,16 +75,11 @@ function getVolatilityTrend(
   const abs24h = Math.abs(h24)
   const avgDaily7d = Math.abs(d7) / 7
 
-  // Minimum significance threshold: ignore micro-movements on stables
   const isSignificant = abs24h > 1 || abs1h > 0.5
-
-  // Score: scaled so BTC ±5% = ~50, ±15% = ~100
-  // Base: 24h magnitude (×5) + 1h magnitude (×8) + deviation from 7d avg (×10)
   const deviation = Math.max(0, abs24h - avgDaily7d)
   const rawScore = abs24h * 5 + abs1h * 8 + deviation * 10
   const score = Math.min(100, Math.round(rawScore))
 
-  // Trend detection only for significant moves
   const isEscalating =
     isSignificant && (abs1h > abs24h || abs24h > avgDaily7d * 2)
   const isExtreme =
@@ -135,10 +126,6 @@ function getVolatilityTrend(
   }
 }
 
-/* ─── Momentum ───
-   24h vs average daily 7d change.
-   Score 0-100. Higher = more extreme momentum.
-   Guard against near-zero 7d changes (stables). */
 function getMomentum(
   change24h: number | null | undefined,
   change7d: number | null | undefined,
@@ -157,7 +144,6 @@ function getMomentum(
 
   const avgDaily = d7 / 7
 
-  // Guard: if 7d is flat (<0.1% total), momentum is meaningless
   if (Math.abs(d7) < 0.1) {
     return {
       label: 'Flat',
@@ -168,9 +154,6 @@ function getMomentum(
   }
 
   const ratio = avgDaily !== 0 ? h24 / avgDaily : 0
-
-  // Score: |ratio| × 20, capped at 100
-  // ratio 1 = 20, ratio 2 = 40, ratio 3 = 60, ratio 5 = 100
   const score = Math.min(100, Math.round(Math.abs(ratio) * 20))
 
   if (Math.abs(ratio) > 4) {
@@ -205,13 +188,6 @@ function getMomentum(
   }
 }
 
-/* ─── Market Stress ───
-   Simplified transparent formula:
-   - Base: |24h change| × 3  (0-45 for typical ±15%)
-   - 1h chaos: |1h change| × 4  (0-40 for ±10%)
-   - Direction penalty: 15 if 1h and 24h disagree (whipsaw)
-   - Liquidity penalty: 20 if turnover <5%, 8 if <20%, 0 otherwise
-   Sum capped at 100. */
 function calculateMarketStress(
   change1h: number | null | undefined,
   change24h: number | null | undefined,
@@ -265,7 +241,6 @@ function calculateMarketStress(
   }
 }
 
-/* ─── Liquidity ─── */
 function getLiquidityLabel(turnover: number): {
   label: string
   color: string
@@ -283,7 +258,6 @@ function getLiquidityLabel(turnover: number): {
   return { label: 'Very Low', color: 'text-red-500', score: 10 }
 }
 
-/* ─── Overall Risk Summary ─── */
 function getRiskSummary(
   volTrend: ReturnType<typeof getVolatilityTrend>,
   momentum: ReturnType<typeof getMomentum>,
@@ -312,30 +286,31 @@ function getRiskSummary(
   if (avgScore > 60) {
     level = 'Extreme'
     color = 'text-red-500'
-    bg = 'bg-red-500/10 border-red-500/20'
+    bg = 'bg-gradient-to-br from-red-500/10 to-orange-500/5 border-red-500/20'
     icon = <ShieldAlert className='h-4 w-4 text-red-500' />
   } else if (avgScore > 40) {
     level = 'High'
     color = 'text-orange-500'
-    bg = 'bg-orange-500/10 border-orange-500/20'
+    bg =
+      'bg-gradient-to-br from-orange-500/10 to-amber-500/5 border-orange-500/20'
     icon = <ShieldAlert className='h-4 w-4 text-orange-500' />
   } else if (avgScore > 20) {
     level = 'Moderate'
     color = 'text-amber-500'
-    bg = 'bg-amber-500/10 border-amber-500/20'
+    bg =
+      'bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border-amber-500/20'
     icon = <Shield className='h-4 w-4 text-amber-500' />
   } else {
     level = 'Low'
     color = 'text-emerald-500'
-    bg = 'bg-emerald-500/10 border-emerald-500/20'
+    bg =
+      'bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-500/20'
     icon = <ShieldCheck className='h-4 w-4 text-emerald-500' />
   }
 
-  // Build detailed sentence
   const parts: string[] = []
   const h24 = change24h ?? 0
 
-  // Volatility context
   if (volTrend.label === 'Escalating') {
     parts.push('price swings are intensifying rapidly')
   } else if (volTrend.label === 'Rising') {
@@ -346,7 +321,6 @@ function getRiskSummary(
     parts.push('price action is calm')
   }
 
-  // Momentum context
   if (momentum.label === 'Surging') {
     parts.push('upward momentum is surging well above average pace')
   } else if (momentum.label === 'Accelerating') {
@@ -406,9 +380,6 @@ const PERIOD_LABELS: Record<string, string> = {
 /* ─────────────────────────────────────────────
    SUB-COMPONENTS
    ───────────────────────────────────────────── */
-/* ─────────────────────────────────────────────
-   SUB-COMPONENTS
-   ───────────────────────────────────────────── */
 
 type MetricCardProps = {
   label: string
@@ -418,6 +389,7 @@ type MetricCardProps = {
   color?: string
   tooltip?: string
   isLoading?: boolean
+  variant?: 'default' | 'glass' | 'accent'
 }
 
 function MetricCard({
@@ -428,19 +400,31 @@ function MetricCard({
   color = 'text-muted-foreground',
   tooltip,
   isLoading = false,
+  variant = 'default',
 }: MetricCardProps) {
+  const variants = {
+    default:
+      'bg-gradient-to-br from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30',
+    glass:
+      'bg-background/60 backdrop-blur-sm border border-border/40 shadow-sm',
+    accent:
+      'bg-gradient-to-br from-primary/5 to-primary/2 border border-primary/10',
+  }
+
   return (
-    <div className='bg-sidebar p-3 rounded-md space-y-1'>
+    <div
+      className={`p-3 rounded-xl space-y-1.5 transition-all duration-200 ${variants[variant]}`}
+    >
       <div className='flex items-center gap-1.5'>
         <span className={color}>{icon}</span>
-        <span className='text-xs text-muted-foreground uppercase font-semibold tracking-wide'>
+        <span className='text-xs text-muted-foreground font-medium uppercase tracking-wider'>
           {label}
         </span>
         {tooltip && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-3 w-3 text-muted-foreground shrink-0' />
+                <Info className='h-3 w-3 text-muted-foreground/60 shrink-0 hover:text-muted-foreground transition-colors' />
               </TooltipTrigger>
               <TooltipContent side='top' className='max-w-70'>
                 <p className='text-xs'>{tooltip}</p>
@@ -452,13 +436,15 @@ function MetricCard({
 
       {isLoading ? (
         <>
-          <Skeleton className='h-7 w-24 rounded-sm' />
-          <Skeleton className='h-3 w-32 rounded-sm' />
+          <Skeleton className='h-7 w-24 rounded-lg' />
+          <Skeleton className='h-3 w-32 rounded-lg' />
         </>
       ) : (
         <>
           <div className='text-lg font-bold leading-tight'>{value}</div>
-          {sub && <div className='text-xs text-muted-foreground'>{sub}</div>}
+          {sub && (
+            <div className='text-xs text-muted-foreground font-mono'>{sub}</div>
+          )}
         </>
       )}
     </div>
@@ -516,16 +502,16 @@ function CoinRiskNow({
     : getRiskSummary(volTrend!, momentum!, stress!, liquidity, change24h)
 
   return (
-    <div className='space-y-3 h-full flex flex-col'>
-      <div className='flex items-center gap-2 h-6'>
-        <AlertTriangle className='h-4 w-4 text-amber-500' />
-        <h4 className='text-sm font-semibold uppercase tracking-wider'>
-          Risk Now
-        </h4>
+    <div className='space-y-4 h-full flex flex-col'>
+      <div className='flex items-center gap-2.5'>
+        <div className='w-8 h-8 rounded-lg bg-linear-to-br from-red-500/15 to-orange-500/10 flex items-center justify-center border border-red-500/10'>
+          <HeartPulse className='h-4 w-4 text-red-500' />
+        </div>
+        <h4 className='text-base font-bold tracking-tight'>Risk Now</h4>
       </div>
-      <div className='grid grid-cols-2 gap-2'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <MetricCard
-          label='Volatility Trend'
+          label='Volatility'
           value={
             volTrend ? (
               <span className={volTrend.color}>{volTrend.label}</span>
@@ -534,7 +520,7 @@ function CoinRiskNow({
           sub={volTrend?.sub}
           icon={<Wind className='h-3.5 w-3.5' />}
           color={volTrend?.color}
-          tooltip='Compares 1h vs 24h vs 7d average daily change. Escalating = recent swings are bigger than usual = higher risk. Minimum 1% threshold to avoid stablecoin noise.'
+          tooltip='Compares 1h vs 24h vs 7d average daily change. Escalating = recent swings are bigger than usual.'
           isLoading={isLoading}
         />
 
@@ -548,12 +534,12 @@ function CoinRiskNow({
           sub={momentum?.sub}
           icon={<Zap className='h-3.5 w-3.5' />}
           color={momentum?.color}
-          tooltip='24h change vs average daily 7d change. Surging/Collapsing = momentum is extreme. Decelerating = move is losing steam. Flat = 7d change is near zero (stablecoin-like).'
+          tooltip='24h change vs average daily 7d change. Surging/Collapsing = momentum is extreme.'
           isLoading={isLoading}
         />
 
         <MetricCard
-          label='Market Stress'
+          label='Stress'
           value={
             stress ? (
               <span className={stress.color}>{stress.label}</span>
@@ -562,7 +548,7 @@ function CoinRiskNow({
           sub={stress?.sub}
           icon={<Flame className='h-3.5 w-3.5' />}
           color={stress?.color}
-          tooltip='Transparent formula: |24h|×3 + |1h|×4 + directionPenalty(15) + liquidityPenalty(8-20). 0-100 scale. Higher = more uncertainty.'
+          tooltip='Transparent formula: |24h|×3 + |1h|×4 + directionPenalty(15) + liquidityPenalty(8-20).'
           isLoading={isLoading}
         />
 
@@ -583,7 +569,7 @@ function CoinRiskNow({
       <div className='flex-1 flex flex-col'>
         {!isLoading && summary && (
           <div
-            className={`rounded-md border p-3 space-y-2 ${summary.bg} flex-1 flex flex-col`}
+            className={`rounded-xl border p-4 space-y-2.5 ${summary.bg} flex-1 flex flex-col`}
           >
             <div className='flex items-center gap-2 shrink-0'>
               {summary.icon}
@@ -600,10 +586,10 @@ function CoinRiskNow({
         )}
 
         {isLoading && (
-          <div className='rounded-md border p-3 space-y-2 bg-card flex-1'>
-            <Skeleton className='h-4 w-28 rounded-sm' />
-            <Skeleton className='h-4 w-full rounded-sm' />
-            <Skeleton className='h-4 w-4/5 rounded-sm' />
+          <div className='rounded-xl border p-4 space-y-2.5 bg-linear-to-br from-muted/30 to-muted/10 flex-1'>
+            <Skeleton className='h-4 w-28 rounded-lg' />
+            <Skeleton className='h-4 w-full rounded-lg' />
+            <Skeleton className='h-4 w-4/5 rounded-lg' />
           </div>
         )}
       </div>
@@ -652,33 +638,31 @@ function CoinPeriodAnalysis({
       : null
 
   return (
-    <div className='space-y-3 flex flex-col h-full'>
-      <div className='flex items-center gap-2 shrink-0'>
-        <div className='flex items-center gap-2'>
+    <div className='space-y-4 flex flex-col h-full'>
+      <div className='flex items-center gap-2.5 shrink-0'>
+        <div className='w-8 h-8 rounded-lg bg-linear-to-br from-blue-500/15 to-indigo-500/10 flex items-center justify-center border border-blue-500/10'>
           <Clock className='h-4 w-4 text-blue-500' />
-          <h4 className='text-sm font-semibold uppercase tracking-wider'>
-            Period Analysis
-          </h4>
         </div>
+        <h4 className='text-base font-bold tracking-tight'>Period Analysis</h4>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant='outline'
               size='sm'
-              className='h-6 text-xs gap-1 px-2'
+              className='h-7 text-xs gap-1 px-2.5 rounded-lg ml-auto bg-muted/30 border-muted-foreground/10 hover:bg-muted/50'
               disabled={isLoading}
             >
               {PERIOD_LABELS[days] || days}
               <ChevronDown className='h-3 w-3' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='min-w-20'>
+          <DropdownMenuContent align='end' className='min-w-20 rounded-xl'>
             {Object.entries(PERIOD_LABELS).map(([value, label]) => (
               <DropdownMenuItem
                 key={value}
                 onClick={() => onDaysChange(value)}
-                className={`text-xs px-2 py-1 rounded-sm cursor-pointer ${
+                className={`text-xs px-2 py-1.5 rounded-lg cursor-pointer ${
                   days === value ? 'bg-accent' : ''
                 }`}
               >
@@ -689,9 +673,9 @@ function CoinPeriodAnalysis({
         </DropdownMenu>
       </div>
 
-      <div className='grid grid-cols-2 gap-2'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <MetricCard
-          label='Period Return'
+          label='Return'
           value={
             periodChange !== null ? (
               <span className={getRiskColor(periodChange, 'higher-is-better')}>
@@ -714,7 +698,7 @@ function CoinPeriodAnalysis({
         />
 
         <MetricCard
-          label='Period Swing'
+          label='Swing'
           value={
             periodVolatility !== null ? (
               <span
@@ -733,12 +717,12 @@ function CoinPeriodAnalysis({
               )}`}
             />
           }
-          tooltip='How much price bounced around during the period. Lower = more stable.'
+          tooltip='How much price bounced around during the period.'
           isLoading={isLoading}
         />
 
         <MetricCard
-          label='Max Drawdown'
+          label='Drawdown'
           value={
             periodDrawdown !== null ? (
               <span className={getRiskColor(periodDrawdown, 'lower-is-better')}>
@@ -755,12 +739,12 @@ function CoinPeriodAnalysis({
               )}`}
             />
           }
-          tooltip='Largest drop from a peak to a trough within the period. Smaller = safer.'
+          tooltip='Largest drop from a peak to a trough within the period.'
           isLoading={isLoading}
         />
 
         <MetricCard
-          label='vs Period Avg'
+          label='vs Average'
           value={
             vsAvg !== null ? (
               <span className={getRiskColor(vsAvg, 'higher-is-better')}>
@@ -769,7 +753,7 @@ function CoinPeriodAnalysis({
               </span>
             ) : undefined
           }
-          sub='current vs average'
+          sub='current vs avg'
           icon={
             <BarChart3
               className={`h-3.5 w-3.5 ${getRiskColor(
@@ -783,15 +767,15 @@ function CoinPeriodAnalysis({
         />
       </div>
 
-      {/* Period prices info */}
-      <div className='flex-1 bg-sidebar p-3 rounded-md flex flex-col justify-center'>
-        <div className='space-y-1.5'>
+      {/* Period prices info — glass card */}
+      <div className='flex-1 bg-linear-to-br from-muted/40 to-muted/20 p-4 rounded-xl border border-border/30 flex flex-col justify-center'>
+        <div className='space-y-2'>
           <div className='flex justify-between text-xs'>
             <span className='text-muted-foreground'>Period open</span>
             {isLoading ? (
-              <Skeleton className='h-3.5 w-20 rounded-sm' />
+              <Skeleton className='h-3.5 w-20 rounded-lg' />
             ) : (
-              <span className='font-mono'>
+              <span className='font-mono font-medium'>
                 $
                 {prices?.[0]?.value.toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -802,9 +786,9 @@ function CoinPeriodAnalysis({
           <div className='flex justify-between text-xs'>
             <span className='text-muted-foreground'>Period close</span>
             {isLoading ? (
-              <Skeleton className='h-3.5 w-20 rounded-sm' />
+              <Skeleton className='h-3.5 w-20 rounded-lg' />
             ) : (
-              <span className='font-mono'>
+              <span className='font-mono font-medium'>
                 $
                 {prices?.[prices.length - 1]?.value.toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -813,11 +797,11 @@ function CoinPeriodAnalysis({
             )}
           </div>
           <div className='flex justify-between text-xs'>
-            <span className='text-muted-foreground'>Period average</span>
+            <span className='text-muted-foreground'>Average</span>
             {isLoading ? (
-              <Skeleton className='h-3.5 w-20 rounded-sm' />
+              <Skeleton className='h-3.5 w-20 rounded-lg' />
             ) : (
-              <span className='font-mono'>
+              <span className='font-mono font-medium'>
                 $
                 {avgPrice?.toLocaleString('en-US', {
                   maximumFractionDigits: 2,
@@ -852,24 +836,33 @@ export function CoinRiskMetrics({
 }) {
   return (
     <TooltipProvider>
-      <div className='rounded-lg border p-4 space-y-4'>
-        {/* Header */}
-        <div className='flex items-center justify-between'>
-          <h3 className='text-md font-bold uppercase tracking-wide flex items-center gap-2'>
-            <Gauge className='h-5 w-5' />
-            Risk Metrics & Analytics
-          </h3>
+      <div className='space-y-4'>
+        {/* Header — personality */}
+        <div className='flex items-center gap-3'>
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+            <Gauge className='h-4 w-4 text-emerald-500' />
+          </div>
+          <div>
+            <h3 className='text-base font-bold tracking-tight'>Risk Metrics</h3>
+            <p className='text-xs text-muted-foreground'>
+              Real-time risk analysis
+            </p>
+          </div>
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch'>
-          <CoinRiskNow coin={coin} isLoading={isLoadingCoin} />
-          <CoinPeriodAnalysis
-            coin={coin}
-            chart={chart}
-            days={days}
-            onDaysChange={onDaysChange}
-            isLoading={isLoadingChart}
-          />
+          <div className='bg-linear-to-br from-card/60 to-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-4'>
+            <CoinRiskNow coin={coin} isLoading={isLoadingCoin} />
+          </div>
+          <div className='bg-linear-to-br from-card/60 to-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-4'>
+            <CoinPeriodAnalysis
+              coin={coin}
+              chart={chart}
+              days={days}
+              onDaysChange={onDaysChange}
+              isLoading={isLoadingChart}
+            />
+          </div>
         </div>
       </div>
     </TooltipProvider>
