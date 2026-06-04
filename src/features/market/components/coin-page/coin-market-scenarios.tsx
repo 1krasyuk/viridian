@@ -451,7 +451,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 text-muted-foreground cursor hover:text-foreground transition-colors' />
+                  <Info className='h-3 w-3 text-muted-foreground cursor' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -488,7 +488,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 text-muted-foreground cursor hover:text-foreground transition-colors' />
+                  <Info className='h-3 w-3 text-muted-foreground cursor ' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -556,7 +556,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor hover:text-foreground transition-colors' />
+                  <Info className='h-3 w-3 cursor transition-colors' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -571,7 +571,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -586,7 +586,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -601,7 +601,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -616,7 +616,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -682,7 +682,7 @@ export function CoinMarketScenarios({
                         <TooltipProvider delayDuration={100}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Info className='h-3 w-3 text-muted-foreground cursor hover:text-foreground transition-colors shrink-0' />
+                              <Info className='h-3 w-3 text-muted-foreground cursor  transition-colors shrink-0' />
                             </TooltipTrigger>
                             <TooltipContent side='top' className='max-w-xs'>
                               <p className='text-xs leading-relaxed'>
@@ -741,7 +741,7 @@ export function CoinMarketScenarios({
                           <TooltipProvider delayDuration={100}>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Info className='h-3 w-3 text-muted-foreground cursor hover:text-foreground transition-colors shrink-0' />
+                                <Info className='h-3 w-3 text-muted-foreground cursor  transition-colors shrink-0' />
                               </TooltipTrigger>
                               <TooltipContent side='top' className='max-w-xs'>
                                 <p className='text-xs leading-relaxed'>

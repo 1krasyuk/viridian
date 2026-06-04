@@ -185,7 +185,7 @@ export function CoinRoiCalculator({
   }
 
   return (
-    <div className='rounded-lg border bg-background p-2 space-y-4'>
+    <div className='rounded-lg border bg-background p-4 space-y-4'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
