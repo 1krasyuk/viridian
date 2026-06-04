@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import {
-  Rocket,
   Target,
   TrendingUp,
   TrendingDown,
@@ -11,6 +10,8 @@ import {
   ChevronRight,
   ChevronDown,
   Info,
+  Sparkles,
+  Wallet,
 } from 'lucide-react'
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/button'
@@ -334,61 +335,80 @@ export function CoinMarketScenarios({
     value >= investNum ? 'text-emerald-500' : 'text-red-500'
   const getProbabilityColor = (conf: number) => {
     if (conf >= 70)
-      return 'text-emerald-500 border-emerald-500/30 bg-emerald-500/10'
+      return 'text-emerald-500 border-emerald-500/20 bg-emerald-500/8'
     if (conf >= 40)
-      return 'text-yellow-500 border-yellow-500/30 bg-yellow-500/10'
-    return 'text-red-500 border-red-500/30 bg-red-500/10'
+      return 'text-yellow-500 border-yellow-500/20 bg-yellow-500/8'
+    return 'text-red-500 border-red-500/20 bg-red-500/8'
   }
 
   return (
-    <div className='rounded-lg border bg-background p-4 space-y-4'>
-      {/* Header */}
+    <div className='space-y-5'>
+      {/* Header — personality, no uppercase */}
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <Rocket className='h-4 w-4 shrink-0' />
-          <h2 className='text-lg font-semibold uppercase tracking-wide'>
-            Market Scenarios
-          </h2>
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <p className='text-xs leading-relaxed'>
-                  Probabilistic modeling based on market cap tier, volatility,
-                  liquidity, trend strength, and historical recovery behavior.
-                  Not price prediction.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className='flex items-center gap-3'>
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+            <Sparkles className='h-4 w-4 text-emerald-500' />
+          </div>
+          <div>
+            <h2 className='text-base font-bold tracking-tight'>
+              Market Scenarios
+            </h2>
+            <p className='text-xs text-muted-foreground'>
+              Probabilistic projections
+            </p>
+          </div>
         </div>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className='h-4 w-4 text-muted-foreground/60 cursor-help hover:text-muted-foreground transition-colors' />
+            </TooltipTrigger>
+            <TooltipContent side='left' className='max-w-xs'>
+              <p className='text-xs leading-relaxed'>
+                Probabilistic modeling based on market cap tier, volatility,
+                liquidity, trend strength, and historical recovery behavior. Not
+                price prediction.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      {/* Inputs */}
-      <div className='grid grid-cols-2 gap-4'>
-        <div className='space-y-2'>
-          <label className='text-sm text-muted-foreground font-medium'>
-            Investment ($)
-          </label>
+      {/* Inputs — asymmetric layout */}
+      <div className='grid grid-cols-2 gap-5'>
+        <div className='space-y-2.5'>
+          <div className='flex items-center gap-2'>
+            <Wallet className='h-3.5 w-3.5 text-muted-foreground' />
+            <label className='text-sm font-medium text-muted-foreground'>
+              Investment
+            </label>
+          </div>
           {isLoadingAny ? (
-            <Skeleton className='h-9 w-full rounded-2xl' />
+            <Skeleton className='h-10 w-full rounded-xl' />
           ) : (
-            <Input
-              type='number'
-              value={investment}
-              onChange={(e) => setInvestment(e.target.value)}
-              className='h-9 font-mono text-sm rounded-2xl'
-            />
+            <div className='relative'>
+              <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
+                $
+              </span>
+              <Input
+                type='number'
+                value={investment}
+                onChange={(e) => setInvestment(e.target.value)}
+                className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              />
+            </div>
           )}
-          <div className='flex flex-wrap gap-1'>
+          <div className='flex flex-wrap gap-1.5'>
             {INVESTMENT_PRESETS.map((preset) => (
               <Button
                 key={preset}
                 variant={investment === String(preset) ? 'default' : 'outline'}
                 size='sm'
-                className='h-6 text-xs px-2 font-mono'
+                className={`h-7 text-xs px-2.5 font-mono rounded-lg transition-all ${
+                  investment === String(preset)
+                    ? 'shadow-sm'
+                    : 'bg-muted/20 border-muted-foreground/10 hover:bg-muted/40'
+                }`}
                 onClick={() => setInvestment(String(preset))}
                 disabled={isLoadingAny}
               >
@@ -398,25 +418,27 @@ export function CoinMarketScenarios({
           </div>
         </div>
 
-        <div className=''>
+        <div className='space-y-2.5'>
           <div className='flex items-center justify-between'>
-            <label className='text-sm text-muted-foreground font-medium flex items-center gap-1'>
-              <Clock3 className='h-3 w-3' />
-              Investment Period
-            </label>
-            <span className='font-mono text-sm font-semibold text-primary'>
+            <div className='flex items-center gap-2'>
+              <Clock3 className='h-3.5 w-3.5 text-muted-foreground' />
+              <label className='text-sm font-medium text-muted-foreground'>
+                Horizon
+              </label>
+            </div>
+            <span className='font-mono text-sm font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-lg'>
               {isLoadingAny ? (
                 <Skeleton className='h-4 w-12 inline-block' />
               ) : (
-                `${months} months`
+                `${months}mo`
               )}
             </span>
           </div>
           {isLoadingAny ? (
-            <Skeleton className='h-8 w-full' />
+            <Skeleton className='h-10 w-full rounded-xl' />
           ) : (
             <Slider
-              className='h-12'
+              className='h-10 py-2'
               value={[months]}
               onValueChange={(v) => setMonths(v[0])}
               min={1}
@@ -424,13 +446,17 @@ export function CoinMarketScenarios({
               step={1}
             />
           )}
-          <div className='flex flex-wrap gap-1'>
+          <div className='flex flex-wrap gap-1.5'>
             {HORIZON_PRESETS.map((preset) => (
               <Button
                 key={preset.label}
                 variant={months === preset.months ? 'default' : 'outline'}
                 size='sm'
-                className='h-6 text-xs px-2'
+                className={`h-7 text-xs px-2.5 rounded-lg transition-all ${
+                  months === preset.months
+                    ? 'shadow-sm'
+                    : 'bg-muted/20 border-muted-foreground/10 hover:bg-muted/40'
+                }`}
                 onClick={() => setMonths(preset.months)}
                 disabled={isLoadingAny}
               >
@@ -441,38 +467,40 @@ export function CoinMarketScenarios({
         </div>
       </div>
 
-      {/* Metrics */}
-      <div className='grid grid-cols-2 gap-2'>
-        {/* Volatility */}
-        <div className='flex items-center justify-between rounded-md bg-sidebar px-4 py-2.5'>
-          <div className='flex items-center gap-1.5'>
-            <Gauge className='h-3.5 w-3.5 text-muted-foreground' />
-            <span className='text-sm text-muted-foreground'>Volatility</span>
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 text-muted-foreground cursor' />
-                </TooltipTrigger>
-                <TooltipContent side='top' className='max-w-xs'>
-                  <p className='text-xs leading-relaxed'>
-                    Standard deviation of 24h, 7d, and 30d price changes. Higher
-                    = more unpredictable swings.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+      {/* Metrics — varied card styles */}
+      <div className='grid grid-cols-2 gap-3'>
+        <div className='flex items-center justify-between rounded-xl bg-linear-to-br from-muted/40 to-muted/20 px-4 py-3 border border-border/30'>
+          <div className='flex items-center gap-2'>
+            <div className='w-7 h-7 rounded-lg bg-muted-foreground/10 flex items-center justify-center'>
+              <Gauge className='h-3.5 w-3.5 text-foreground' />
+            </div>
+            <div>
+              <span className='text-sm text-muted-foreground'>Volatility</span>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='h-3 w-3 text-muted-foreground/40 inline ml-1 cursor-help hover:text-muted-foreground transition-colors' />
+                  </TooltipTrigger>
+                  <TooltipContent side='top' className='max-w-xs'>
+                    <p className='text-xs leading-relaxed'>
+                      Standard deviation of 24h, 7d, and 30d price changes.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
           {isLoadingAny ? (
-            <Skeleton className='h-5 w-14' />
+            <Skeleton className='h-6 w-16 rounded-lg' />
           ) : (
             <Badge
               variant='outline'
-              className={`text-xs h-5 px-2 font-mono ${
+              className={`text-xs h-6 px-2.5 font-mono rounded-lg ${
                 volProfile.level === 'low'
-                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/8'
                   : volProfile.level === 'high'
-                    ? 'text-red-500 border-red-500/20 bg-red-500/5'
-                    : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
+                    ? 'text-red-500 border-red-500/20 bg-red-500/8'
+                    : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/8'
               }`}
             >
               {volatility.toFixed(1)}
@@ -480,35 +508,37 @@ export function CoinMarketScenarios({
           )}
         </div>
 
-        {/* Trend */}
-        <div className='flex items-center justify-between rounded-md bg-sidebar px-4 py-2.5'>
-          <div className='flex items-center gap-1.5'>
-            <Activity className='h-3.5 w-3.5 text-muted-foreground' />
-            <span className='text-sm text-muted-foreground'>Trend</span>
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 text-muted-foreground cursor ' />
-                </TooltipTrigger>
-                <TooltipContent side='top' className='max-w-xs'>
-                  <p className='text-xs leading-relaxed'>
-                    Weighted momentum: 20% × 7d + 50% × 30d + 30% × 1y change.
-                    Positive = upward momentum across timeframes.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        <div className='flex items-center justify-between rounded-xl bg-linear-to-br from-muted/40 to-muted/20 px-4 py-3 border border-border/30'>
+          <div className='flex items-center gap-2'>
+            <div className='w-7 h-7 rounded-lg bg-muted-foreground/10 flex items-center justify-center'>
+              <Activity className='h-3.5 w-3.5 text-foreground' />
+            </div>
+            <div>
+              <span className='text-sm text-muted-foreground'>Trend</span>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='h-3 w-3 text-muted-foreground/40 inline ml-1 cursor-help hover:text-muted-foreground transition-colors' />
+                  </TooltipTrigger>
+                  <TooltipContent side='top' className='max-w-xs'>
+                    <p className='text-xs leading-relaxed'>
+                      Weighted momentum: 20% × 7d + 50% × 30d + 30% × 1y change.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
           {isLoadingAny ? (
-            <Skeleton className='h-5 w-14' />
+            <Skeleton className='h-6 w-16 rounded-lg' />
           ) : (
             <Badge
               variant='outline'
-              className={`text-xs h-5 px-2 font-mono ${
+              className={`text-xs h-6 px-2.5 font-mono rounded-lg ${
                 trendScore > 0
-                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                  ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/8'
                   : trendScore < 0
-                    ? 'text-red-500 border-red-500/20 bg-red-500/5'
+                    ? 'text-red-500 border-red-500/20 bg-red-500/8'
                     : 'text-muted-foreground border-muted-foreground/20'
               }`}
             >
@@ -518,28 +548,30 @@ export function CoinMarketScenarios({
         </div>
       </div>
 
-      {/* Risk Profile */}
-      <div className='flex items-center justify-between rounded-md bg-sidebar px-4 py-2.5'>
-        <div className='flex items-center gap-2'>
-          <AlertTriangle className='h-4 w-4 text-muted-foreground' />
+      {/* Risk Profile — prominent card */}
+      <div className='flex items-center justify-between rounded-xl bg-linear-to-r from-muted/50 via-muted/30 to-muted/50 px-4 py-3 border border-border/30'>
+        <div className='flex items-center gap-3'>
+          <div className='w-8 h-8 rounded-lg bg-muted-foreground/10 flex items-center justify-center'>
+            <AlertTriangle className='h-4 w-4 text-foreground' />
+          </div>
           <div>
-            <p className='text-sm font-medium'>Risk Profile</p>
+            <p className='text-sm font-bold'>Risk Profile</p>
             <p className='text-xs text-muted-foreground'>
               Based on historical volatility
             </p>
           </div>
         </div>
         {isLoadingAny ? (
-          <Skeleton className='h-5 w-16' />
+          <Skeleton className='h-6 w-16 rounded-lg' />
         ) : (
           <Badge
             variant='outline'
-            className={`text-xs h-5 px-2 ${
+            className={`text-xs h-6 px-3 rounded-lg font-medium ${
               volProfile.level === 'low'
-                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5'
+                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/8'
                 : volProfile.level === 'high'
-                  ? 'text-red-500 border-red-500/20 bg-red-500/5'
-                  : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/5'
+                  ? 'text-red-500 border-red-500/20 bg-red-500/8'
+                  : 'text-yellow-500 border-yellow-500/20 bg-yellow-500/8'
             }`}
           >
             {volProfile.label}
@@ -547,16 +579,16 @@ export function CoinMarketScenarios({
         )}
       </div>
 
-      {/* Scenarios Table */}
-      <div className='rounded-md border overflow-hidden'>
+      {/* Scenarios Table — redesigned with personality */}
+      <div className='rounded-xl border border-border/40 overflow-hidden bg-linear-to-b from-card/50 to-background/50'>
         {/* Header */}
-        <div className='grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-2.5 bg-muted/50 border-b text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+        <div className='grid grid-cols-[160px_1fr_1fr_1fr_90px] gap-3 px-4 py-3 bg-muted/30 border-b border-border/30 text-xs font-medium text-muted-foreground'>
           <div className='flex items-center gap-1'>
             <span>Scenario</span>
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor transition-colors' />
+                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -567,11 +599,11 @@ export function CoinMarketScenarios({
             </TooltipProvider>
           </div>
           <div className='flex items-center justify-end gap-1'>
-            <span>Price Range</span>
+            <span>Price</span>
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -582,11 +614,11 @@ export function CoinMarketScenarios({
             </TooltipProvider>
           </div>
           <div className='flex items-center justify-end gap-1'>
-            <span>Value Range</span>
+            <span>Value</span>
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor  transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -597,11 +629,11 @@ export function CoinMarketScenarios({
             </TooltipProvider>
           </div>
           <div className='flex items-center justify-end gap-1'>
-            <span>ROI Range</span>
+            <span>ROI</span>
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor  transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -616,7 +648,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor transition-colors shrink-0' />
+                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -662,46 +694,31 @@ export function CoinMarketScenarios({
                     : 'text-blue-500'
               const borderColor =
                 s.color === 'red'
-                  ? 'border-l-2 border-l-red-500/50'
+                  ? 'border-l-2 border-l-red-500/40'
                   : s.color === 'emerald'
-                    ? 'border-l-2 border-l-emerald-500/50'
-                    : 'border-l-2 border-l-blue-500/50'
+                    ? 'border-l-2 border-l-emerald-500/40'
+                    : 'border-l-2 border-l-blue-500/40'
 
               return (
                 <div
                   key={i}
-                  className={`grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-3 border-b border-border/50 items-center ${borderColor}`}
+                  className={`grid grid-cols-[160px_1fr_1fr_1fr_90px] gap-3 px-4 py-3 border-b border-border/20 items-center ${borderColor}`}
                 >
                   <div className='flex items-center gap-2'>
                     <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
                     <div className='flex flex-col min-w-0'>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-sm font-semibold truncate'>
-                          {s.label}
-                        </span>
-                        <TooltipProvider delayDuration={100}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className='h-3 w-3 text-muted-foreground cursor  transition-colors shrink-0' />
-                            </TooltipTrigger>
-                            <TooltipContent side='top' className='max-w-xs'>
-                              <p className='text-xs leading-relaxed'>
-                                {s.meta.tooltip}
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <span className='text-xs text-muted-foreground'>
+                      <span className='text-sm font-bold truncate'>
+                        {s.label}
+                      </span>
+                      <span className='text-[11px] text-muted-foreground'>
                         {s.desc}
                       </span>
                     </div>
-                    <ChevronDown className='h-3 w-3 text-muted-foreground shrink-0 ml-auto' />
                   </div>
                   <Skeleton className='h-4 w-20 ml-auto' />
                   <Skeleton className='h-4 w-20 ml-auto' />
                   <Skeleton className='h-4 w-20 ml-auto' />
-                  <Skeleton className='h-5 w-16 ml-auto' />
+                  <Skeleton className='h-5 w-14 ml-auto' />
                 </div>
               )
             })
@@ -710,10 +727,10 @@ export function CoinMarketScenarios({
               const meta = SCENARIO_META[s.type]
               const borderColor =
                 s.color === 'red'
-                  ? 'border-l-2 border-l-red-500/50'
+                  ? 'border-l-2 border-l-red-500/40'
                   : s.color === 'emerald'
-                    ? 'border-l-2 border-l-emerald-500/50'
-                    : 'border-l-2 border-l-blue-500/50'
+                    ? 'border-l-2 border-l-emerald-500/40'
+                    : 'border-l-2 border-l-blue-500/40'
               const iconColor =
                 s.color === 'red'
                   ? 'text-red-500'
@@ -725,7 +742,7 @@ export function CoinMarketScenarios({
               return (
                 <div key={s.type}>
                   <div
-                    className={`grid grid-cols-[180px_1fr_1fr_1fr_100px] gap-3 px-4 py-3 border-b border-border/50 items-center hover:bg-muted/20 transition-colors cursor-pointer ${borderColor}`}
+                    className={`grid grid-cols-[160px_1fr_1fr_1fr_90px] gap-3 px-4 py-3 border-b border-border/20 items-center hover:bg-muted/20 transition-colors cursor-pointer ${borderColor}`}
                     onClick={() =>
                       setExpandedScenario(isExpanded ? null : s.type)
                     }
@@ -734,14 +751,14 @@ export function CoinMarketScenarios({
                     <div className='flex items-center gap-2'>
                       <Icon className={`h-4 w-4 shrink-0 ${iconColor}`} />
                       <div className='flex flex-col min-w-0'>
-                        <div className='flex items-center gap-2'>
-                          <span className='text-sm font-semibold truncate'>
+                        <div className='flex items-center gap-1.5'>
+                          <span className='text-sm font-bold truncate'>
                             {s.label}
                           </span>
                           <TooltipProvider delayDuration={100}>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Info className='h-3 w-3 text-muted-foreground cursor  transition-colors shrink-0' />
+                                <Info className='h-3 w-3 text-muted-foreground/40 cursor-help hover:text-muted-foreground transition-colors shrink-0' />
                               </TooltipTrigger>
                               <TooltipContent side='top' className='max-w-xs'>
                                 <p className='text-xs leading-relaxed'>
@@ -751,22 +768,22 @@ export function CoinMarketScenarios({
                             </Tooltip>
                           </TooltipProvider>
                         </div>
-                        <span className='text-xs text-muted-foreground'>
+                        <span className='text-[11px] text-muted-foreground'>
                           {s.desc}
                         </span>
                       </div>
                       <ChevronDown
-                        className={`h-3 w-3 text-muted-foreground shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`h-3 w-3 text-muted-foreground shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     </div>
 
                     {/* Price Range */}
-                    <div className='text-right space-y-0.5'>
+                    <div className='text-right'>
                       <p className='text-sm font-mono font-semibold'>
                         <span className={getPriceColor(s.lowPrice)}>
                           {formatCurrency(s.lowPrice)}
                         </span>
-                        <span className='text-muted-foreground mx-1'>→</span>
+                        <span className='text-muted-foreground/50 mx-1'>→</span>
                         <span className={getPriceColor(s.highPrice)}>
                           {formatCurrency(s.highPrice)}
                         </span>
@@ -774,12 +791,12 @@ export function CoinMarketScenarios({
                     </div>
 
                     {/* Value Range */}
-                    <div className='text-right space-y-0.5'>
+                    <div className='text-right'>
                       <p className='text-sm font-mono font-semibold'>
                         <span className={getValueColor(s.lowValue)}>
                           {formatCurrency(s.lowValue)}
                         </span>
-                        <span className='text-muted-foreground mx-1'>→</span>
+                        <span className='text-muted-foreground/50 mx-1'>→</span>
                         <span className={getValueColor(s.highValue)}>
                           {formatCurrency(s.highValue)}
                         </span>
@@ -787,12 +804,12 @@ export function CoinMarketScenarios({
                     </div>
 
                     {/* ROI Range */}
-                    <div className='text-right space-y-0.5'>
+                    <div className='text-right'>
                       <p
                         className={`text-sm font-mono font-semibold ${s.lowReturn >= 0 ? 'text-emerald-500' : 'text-red-500'}`}
                       >
                         {formatPercent(s.lowReturn)}
-                        <span className='text-muted-foreground mx-1'>→</span>
+                        <span className='text-muted-foreground/50 mx-1'>→</span>
                         {formatPercent(s.highReturn)}
                       </p>
                     </div>
@@ -801,7 +818,7 @@ export function CoinMarketScenarios({
                     <div className='text-right'>
                       <Badge
                         variant='outline'
-                        className={`text-xs font-mono h-6 px-2 ${getProbabilityColor(s.confidence)}`}
+                        className={`text-xs font-mono h-6 px-2 rounded-lg ${getProbabilityColor(s.confidence)}`}
                       >
                         {s.confidence}%
                       </Badge>
@@ -810,17 +827,17 @@ export function CoinMarketScenarios({
 
                   {/* Expanded Drivers */}
                   {isExpanded && (
-                    <div className='px-4 py-3 bg-muted/30 border-b border-border/50 space-y-2'>
-                      <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
-                        Main Drivers
+                    <div className='px-4 py-3 bg-linear-to-r from-muted/20 to-transparent border-b border-border/20 space-y-2'>
+                      <p className='text-xs font-bold text-muted-foreground uppercase tracking-wider'>
+                        Key Drivers
                       </p>
-                      <div className='space-y-1'>
+                      <div className='space-y-1.5'>
                         {s.drivers.map((driver, i) => (
                           <div
                             key={i}
                             className='flex items-center gap-2 text-xs text-muted-foreground'
                           >
-                            <ChevronRight className='h-3 w-3 shrink-0 text-muted-foreground/50' />
+                            <ChevronRight className='h-3 w-3 shrink-0 text-muted-foreground/30' />
                             <span>{driver}</span>
                           </div>
                         ))}
@@ -832,12 +849,13 @@ export function CoinMarketScenarios({
             })}
       </div>
 
-      {/* Disclaimer */}
-      <div className='rounded-md bg-muted/40 p-2.5'>
+      {/* Disclaimer — subtle */}
+      <div className='rounded-xl bg-muted/20 border border-border/20 p-3'>
         <p className='text-xs text-muted-foreground leading-relaxed'>
-          <span className='font-semibold'>Disclaimer:</span> Probabilistic
-          simulations based on market structure and historical behavior. Not
-          financial advice. Reliability decreases beyond 24 months.
+          <span className='font-semibold text-foreground'>Note:</span>{' '}
+          Probabilistic simulations based on market structure and historical
+          behavior. Not financial advice. Reliability decreases beyond 24
+          months.
         </p>
       </div>
     </div>
