@@ -682,7 +682,7 @@ export function CoinChart({
               ) : (
                 // Terminal Mode
                 <Chart
-                  key={`terminal-${resizeKey}-${dataType}`}
+                  key={`terminal-${resizeKey}-${dataType}-${days}`}
                   options={chartOptions}
                   containerProps={{ className: 'absolute inset-0' }}
                   onInit={handleInit}
