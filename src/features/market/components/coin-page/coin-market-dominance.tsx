@@ -172,17 +172,27 @@ function MetricCard({
   warning?: boolean
   isLoading?: boolean
 }) {
+  const variants = {
+    default:
+      'bg-gradient-to-br from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30',
+    accent:
+      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20',
+    warning:
+      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20',
+  }
+
+  const variant = warning ? 'warning' : accent ? 'accent' : 'default'
+  const textColor = warning
+    ? 'text-orange-500'
+    : accent
+      ? 'text-emerald-500'
+      : ''
+
   return (
     <div
-      className={`rounded-lg p-2.5 space-y-1 ${
-        warning
-          ? 'bg-orange-500/10 border border-orange-500/20'
-          : accent
-            ? 'bg-emerald-500/15 border border-emerald-500/30'
-            : 'bg-sidebar'
-      }`}
+      className={`rounded-xl p-3 space-y-1.5 transition-all duration-200 ${variants[variant]}`}
     >
-      <div className='flex items-center gap-1.5 text-[11px] text-muted-foreground'>
+      <div className='flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider'>
         {icon}
         <span>{label}</span>
       </div>
@@ -190,9 +200,7 @@ function MetricCard({
         <Skeleton className='h-6 w-28' />
       ) : (
         <p
-          className={`text-base font-semibold font-mono tracking-tight ${
-            warning ? 'text-orange-500' : accent ? 'text-emerald-500' : ''
-          }`}
+          className={`text-lg font-bold font-mono tracking-tight ${textColor}`}
         >
           {value}
         </p>
@@ -332,18 +340,25 @@ export function CoinMarketDominance({
   const isLoadingAny = isLoading || !globalData
 
   return (
-    <div className='rounded-lg border bg-background p-3 flex flex-col gap-3 h-full'>
-      {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2'>
-          <h2 className='text-base font-semibold uppercase flex items-center gap-2'>
-            <Globe className='h-4 w-4 shrink-0' />
-            Market Dominance
-          </h2>
+    <TooltipProvider>
+      <div className='bg-linear-to-br from-card/60 to-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-4 space-y-4 h-full flex flex-col'>
+        {/* Header */}
+        <div className='flex items-center gap-3'>
+          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+            <Globe className='h-4 w-4 text-emerald-500' />
+          </div>
+          <div>
+            <h3 className='text-base font-bold tracking-tight'>
+              Market Dominance
+            </h3>
+            <p className='text-xs text-muted-foreground'>
+              Market share and relative metrics
+            </p>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0' />
+                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
                 <div className='text-xs leading-relaxed space-y-1.5'>
@@ -359,252 +374,267 @@ export function CoinMarketDominance({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          {isLoadingAny ? (
+            <Badge
+              variant='secondary'
+              className='text-xs h-5 px-2 font-mono ml-auto'
+            >
+              <Skeleton className='h-3 w-12 inline-block' />
+            </Badge>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium cursor-default ml-auto ${getDominanceLevel(coinDominance).color}`}
+                  >
+                    <Target className='h-3 w-3' />
+                    <span>{getDominanceLevel(coinDominance).label}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side='bottom' className='max-w-55'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p className='font-semibold text-center'>
+                      Dominance Levels
+                    </p>
+                    {dominanceLegend.map((item) => (
+                      <div key={item.label} className='flex items-center gap-2'>
+                        <span
+                          className={`inline-block w-1.5 h-1.5 rounded-full ${item.color}`}
+                        />
+                        <span className='text-muted-foreground'>
+                          {item.threshold}
+                        </span>
+                        <span>{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
-        {isLoadingAny ? (
-          <Badge variant='secondary' className='text-xs h-5 px-2 font-mono'>
-            <Skeleton className='h-3 w-12 inline-block' />
-          </Badge>
-        ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div
-                  className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium cursor-default ${getDominanceLevel(coinDominance).color}`}
-                >
-                  <Target className='h-3 w-3' />
-                  <span>{getDominanceLevel(coinDominance).label}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side='bottom' className='max-w-55'>
-                <div className='text-xs leading-relaxed space-y-1.5'>
-                  <p className='font-semibold text-center'>Dominance Levels</p>
-                  {dominanceLegend.map((item) => (
-                    <div key={item.label} className='flex items-center gap-2'>
-                      <span
-                        className={`inline-block w-1.5 h-1.5 rounded-full ${item.color}`}
-                      />
-                      <span className='text-muted-foreground'>
-                        {item.threshold}
-                      </span>
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
-      </div>
-      {/* Ring + Legend */}
-      <div className='flex items-center gap-3'>
-        <DominanceCircleDiagram
-          coinDominance={coinDominance}
-          btcDominance={btcDominance}
-          size={110}
-          isLoading={isLoadingAny}
-          isBitcoin={isBitcoin}
-        />
-        <div className='flex-1 space-y-1.5'>
-          {/* Coin */}
-          <div className='flex items-center justify-between text-sm gap-2'>
-            <div className='flex items-center gap-2 break-all'>
-              <div
-                className='w-2.5 h-2.5 rounded-full '
-                style={{ background: 'oklch(0.7 0.15 162)' }}
-              />
-              <span>{symbol || 'This Asset'}</span>
-            </div>
-            {isLoadingAny ? (
-              <Skeleton className='h-4 w-24' />
-            ) : (
-              <span className='font-mono text-sm break-all'>
-                {formatCurrency(mcap)}
-              </span>
-            )}
-          </div>
 
-          {/* BTC — hide on Bitcoin page */}
-          {!isBitcoin && (
+        {/* Ring + Legend */}
+        <div className='flex items-center gap-3'>
+          <DominanceCircleDiagram
+            coinDominance={coinDominance}
+            btcDominance={btcDominance}
+            size={110}
+            isLoading={isLoadingAny}
+            isBitcoin={isBitcoin}
+          />
+          <div className='flex-1 space-y-1.5'>
+            {/* Coin */}
+            <div className='flex items-center justify-between text-sm gap-2'>
+              <div className='flex items-center gap-2 break-all'>
+                <div
+                  className='w-2.5 h-2.5 rounded-full'
+                  style={{ background: 'oklch(0.7 0.15 162)' }}
+                />
+                <span>{symbol || 'This Asset'}</span>
+              </div>
+              {isLoadingAny ? (
+                <Skeleton className='h-4 w-24' />
+              ) : (
+                <span className='font-mono text-sm break-all'>
+                  {formatCurrency(mcap)}
+                </span>
+              )}
+            </div>
+
+            {/* BTC — hide on Bitcoin page */}
+            {!isBitcoin && (
+              <div className='flex items-center justify-between text-sm break-all'>
+                <div className='flex items-center gap-2'>
+                  <div
+                    className='w-2.5 h-2.5 rounded-full'
+                    style={{ background: 'oklch(0.65 0.12 162 / 0.35)' }}
+                  />
+                  <span className='text-muted-foreground'>Bitcoin</span>
+                </div>
+                {isLoadingAny ? (
+                  <Skeleton className='h-4 w-20' />
+                ) : (
+                  <span className='font-mono text-sm text-muted-foreground'>
+                    {formatCurrency(btcMcap)}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Rest of Market */}
             <div className='flex items-center justify-between text-sm break-all'>
               <div className='flex items-center gap-2'>
                 <div
                   className='w-2.5 h-2.5 rounded-full'
-                  style={{ background: 'oklch(0.65 0.12 162 / 0.35)' }}
+                  style={{ background: '#3f3f46' }}
                 />
-                <span className='text-muted-foreground'>Bitcoin</span>
+                <span className='text-muted-foreground'>Rest of Market</span>
               </div>
               {isLoadingAny ? (
                 <Skeleton className='h-4 w-20' />
               ) : (
                 <span className='font-mono text-sm text-muted-foreground'>
-                  {formatCurrency(btcMcap)}
+                  {formatCurrency(Math.max(0, globalMcap - mcap - btcMcap))}
                 </span>
               )}
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Rest of Market */}
-          <div className='flex items-center justify-between text-sm break-all'>
-            <div className='flex items-center gap-2'>
-              <div
-                className='w-2.5 h-2.5 rounded-full'
-                style={{ background: '#3f3f46' }}
-              />
-              <span className='text-muted-foreground'>Rest of Market</span>
-            </div>
-            {isLoadingAny ? (
-              <Skeleton className='h-4 w-20' />
-            ) : (
-              <span className='font-mono text-sm text-muted-foreground'>
-                {formatCurrency(Math.max(0, globalMcap - mcap - btcMcap))}
-              </span>
-            )}
-          </div>
+        {/* Metrics Grid */}
+        <div className='grid grid-cols-2 gap-2.5'>
+          <MetricCard
+            icon={<Target className='h-3 w-3  shrink-0' />}
+            label='Market Share'
+            value={`${coinDominance < 0.01 ? '<0.01' : coinDominance.toFixed(2)}%`}
+            subvalue={`of ${formatCompact(globalMcap)} total cap`}
+            accent={coinDominance > 1}
+            isLoading={isLoadingAny}
+          />
+          <MetricCard
+            icon={<Activity className='h-3 w-3  shrink-0' />}
+            label='Volume Share'
+            value={`${volumeShare < 0.01 ? '<0.01' : volumeShare.toFixed(2)}%`}
+            subvalue={`of ${formatCompact(globalVolume)} global vol`}
+            accent={volumeShare > 1}
+            isLoading={isLoadingAny}
+          />
+          <MetricCard
+            icon={<Zap className='h-3 w-3 shrink-0' />}
+            label='vs BTC'
+            value={
+              isBitcoin
+                ? '100%'
+                : `${relativeToBtc < 0.01 ? '<0.01' : relativeToBtc.toFixed(2)}%`
+            }
+            subvalue={
+              isBitcoin
+                ? 'Market leader'
+                : `${(btcMcap / Math.max(mcap, 0.001)).toFixed(0)}x smaller`
+            }
+            accent={isBitcoin || relativeToBtc > 10}
+            isLoading={isLoadingAny}
+          />
+          <MetricCard
+            icon={<Droplets className='h-3 w-3 shrink-0' />}
+            label='Relative Volume'
+            value={relativeVolume > 0 ? `${relativeVolume.toFixed(2)}x` : '—'}
+            subvalue={
+              relativeVolume > 3
+                ? 'Very active trading'
+                : relativeVolume > 1
+                  ? 'Active trading'
+                  : relativeVolume > 0.5
+                    ? 'Moderate activity'
+                    : relativeVolume > 0
+                      ? 'Low activity'
+                      : 'No data'
+            }
+            accent={relativeVolume > 1}
+            warning={relativeVolume > 0 && relativeVolume < 0.3}
+            isLoading={isLoadingAny}
+          />
         </div>
-      </div>
-      {/* Metrics Grid */}
-      <div className='grid grid-cols-2 gap-2'>
-        <MetricCard
-          icon={<Target className='h-3 w-3' />}
-          label='Market Share'
-          value={`${coinDominance < 0.01 ? '<0.01' : coinDominance.toFixed(2)}%`}
-          subvalue={`of ${formatCompact(globalMcap)} total cap`}
-          accent={coinDominance > 1}
-          isLoading={isLoadingAny}
-        />
-        <MetricCard
-          icon={<Activity className='h-3 w-3' />}
-          label='Volume Share'
-          value={`${volumeShare < 0.01 ? '<0.01' : volumeShare.toFixed(2)}%`}
-          subvalue={`of ${formatCompact(globalVolume)} global vol`}
-          accent={volumeShare > 1}
-          isLoading={isLoadingAny}
-        />
-        <MetricCard
-          icon={<Zap className='h-3 w-3' />}
-          label='vs BTC'
-          value={
-            isBitcoin
-              ? '100%'
-              : `${relativeToBtc < 0.01 ? '<0.01' : relativeToBtc.toFixed(2)}%`
-          }
-          subvalue={
-            isBitcoin
-              ? 'Market leader'
-              : `${(btcMcap / Math.max(mcap, 0.001)).toFixed(0)}x smaller`
-          }
-          accent={isBitcoin || relativeToBtc > 10}
-          isLoading={isLoadingAny}
-        />
-        <MetricCard
-          icon={<Droplets className='h-3 w-3' />}
-          label='Relative Volume'
-          value={relativeVolume > 0 ? `${relativeVolume.toFixed(2)}x` : '—'}
-          subvalue={
-            relativeVolume > 3
-              ? 'Very active trading'
-              : relativeVolume > 1
-                ? 'Active trading'
-                : relativeVolume > 0.5
-                  ? 'Moderate activity'
-                  : relativeVolume > 0
-                    ? 'Low activity'
-                    : 'No data'
-          }
-          accent={relativeVolume > 1}
-          warning={relativeVolume > 0 && relativeVolume < 0.3}
-          isLoading={isLoadingAny}
-        />
-      </div>
-      {/* Comparison Bar */}
-      {!isBitcoin && (
-        <ComparisonBar
-          leftLabel={symbol || 'This Asset'}
-          leftValue={formatCurrency(mcap)}
-          rightLabel='Bitcoin'
-          rightValue={formatCurrency(btcMcap)}
-          leftPercent={relativeToBtc}
-          color={
-            relativeToBtc > 10
-              ? 'emerald'
-              : relativeToBtc > 1
-                ? 'primary'
-                : 'orange'
-          }
-          isLoading={isLoadingAny}
-        />
-      )}
-      {isBitcoin && !isLoadingAny && (
-        <div className='bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5'>
-          <div className='flex items-center gap-1 '>
-            <ArrowUpRight className='w-4 h-4 text-emerald-500 shrink-0' />
-            <p className='font-semibold text-emerald-500 text-sm'>
-              Market Leader
-            </p>
-          </div>
-          <p className='text-xs text-muted-foreground leading-relaxed mt-1'>
-            Bitcoin commands {coinDominance.toFixed(1)}% of the total crypto
-            market cap.
-          </p>
-        </div>
-      )}
-      {/* Warning for smaller coins */}
-      {!isBitcoin && !isLoadingAny && coinDominance < 0.01 && (
-        <div className='bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5'>
-          <div className='flex items-center gap-2'>
-            <ArrowDownRight className='w-4 h-4 text-orange-500 shrink-0' />
-            <p className='font-semibold text-orange-500 text-sm'>
-              Low Market Presence
-            </p>
-          </div>
-          <p className='text-xs text-muted-foreground leading-relaxed pl-6 mt-1'>
-            Less than 0.01% of total crypto market. Higher risk due to low
-            liquidity and market depth.
-          </p>
-        </div>
-      )}
-      <div className='mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
-        {isLoadingAny ? (
-          <>
-            <span className='flex items-center gap-1'>
-              <BarChart3 className='h-3 w-3' />
-              Total MCAP: <Skeleton className='h-3 w-16 inline-block' />
-            </span>
-            <span className='flex items-center gap-1'>
-              <Layers className='h-3 w-3' />
-              24h Vol: <Skeleton className='h-3 w-16 inline-block' />
-            </span>
-            <span className='flex items-center gap-1'>
-              <Zap className='h-3 w-3' />
-              BTC Dom: <Skeleton className='h-3 w-12 inline-block' />
-            </span>
-          </>
-        ) : (
-          <>
-            <span className='flex items-center gap-1'>
-              <BarChart3 className='h-3 w-3' />
-              Total MCAP:{' '}
-              <span className='font-mono text-foreground'>
-                {formatCompact(globalMcap)}
-              </span>
-            </span>
-            <span className='flex items-center gap-1'>
-              <Layers className='h-3 w-3' />
-              24h Vol:{' '}
-              <span className='font-mono text-foreground'>
-                {formatCompact(globalVolume)}
-              </span>
-            </span>
-            <span className='flex items-center gap-1'>
-              <Zap className='h-3 w-3' />
-              BTC Dom:{' '}
-              <span className='font-mono text-foreground'>
-                {btcDominance.toFixed(1)}%
-              </span>
-            </span>
-          </>
+
+        {/* Comparison Bar */}
+        {!isBitcoin && (
+          <ComparisonBar
+            leftLabel={symbol || 'This Asset'}
+            leftValue={formatCurrency(mcap)}
+            rightLabel='Bitcoin'
+            rightValue={formatCurrency(btcMcap)}
+            leftPercent={relativeToBtc}
+            color={
+              relativeToBtc > 10
+                ? 'emerald'
+                : relativeToBtc > 1
+                  ? 'primary'
+                  : 'orange'
+            }
+            isLoading={isLoadingAny}
+          />
         )}
+
+        {isBitcoin && !isLoadingAny && (
+          <div className='bg-linear-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-xl p-3'>
+            <div className='flex items-center gap-1'>
+              <ArrowUpRight className='w-4 h-4 text-emerald-500 shrink-0' />
+              <p className='font-semibold text-emerald-500 text-sm'>
+                Market Leader
+              </p>
+            </div>
+            <p className='text-xs text-muted-foreground leading-relaxed mt-1'>
+              Bitcoin commands {coinDominance.toFixed(1)}% of the total crypto
+              market cap.
+            </p>
+          </div>
+        )}
+
+        {/* Warning for smaller coins */}
+        {!isBitcoin && !isLoadingAny && coinDominance < 0.01 && (
+          <div className='bg-linear-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 rounded-xl p-3'>
+            <div className='flex items-center gap-2'>
+              <ArrowDownRight className='w-4 h-4 text-orange-500 shrink-0' />
+              <p className='font-semibold text-orange-500 text-sm'>
+                Low Market Presence
+              </p>
+            </div>
+            <p className='text-xs text-muted-foreground leading-relaxed pl-6 mt-1'>
+              Less than 0.01% of total crypto market. Higher risk due to low
+              liquidity and market depth.
+            </p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className='mt-auto flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground border-t pt-2'>
+          {isLoadingAny ? (
+            <>
+              <span className='flex items-center gap-1'>
+                <BarChart3 className='h-3 w-3' />
+                <span className='text-muted-foreground'>Total MCAP:</span>
+                <Skeleton className='h-3 w-16 inline-block' />
+              </span>
+              <span className='flex items-center gap-1'>
+                <Layers className='h-3 w-3' />
+                <span className='text-muted-foreground'>24h Vol:</span>
+                <Skeleton className='h-3 w-16 inline-block' />
+              </span>
+              <span className='flex items-center gap-1'>
+                <Zap className='h-3 w-3' />
+                <span className='text-muted-foreground'>BTC Dom:</span>
+                <Skeleton className='h-3 w-12 inline-block' />
+              </span>
+            </>
+          ) : (
+            <>
+              <span className='flex items-center gap-1'>
+                <BarChart3 className='h-3 w-3' />
+                <span className='text-muted-foreground'>Total MCAP:</span>
+                <span className='font-mono text-foreground'>
+                  {formatCompact(globalMcap)}
+                </span>
+              </span>
+              <span className='flex items-center gap-1'>
+                <Layers className='h-3 w-3' />
+                <span className='text-muted-foreground'>24h Vol:</span>
+                <span className='font-mono text-foreground'>
+                  {formatCompact(globalVolume)}
+                </span>
+              </span>
+              <span className='flex items-center gap-1'>
+                <Zap className='h-3 w-3' />
+                <span className='text-muted-foreground'>BTC Dom:</span>
+                <span className='font-mono text-foreground'>
+                  {btcDominance.toFixed(1)}%
+                </span>
+              </span>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   )
 }
