@@ -192,47 +192,39 @@ export function CoinRoiCalculator({
 
   return (
     <div className='space-y-5'>
-      {/* Header with personality */}
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
-            <Calculator className='h-4 w-4 text-emerald-500' />
-          </div>
-          <div>
-            <div className='flex items-center gap-3'>
-              <h2 className='text-base font-bold tracking-tight'>
-                ROI Calculator
-              </h2>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='h-4 w-4 text-muted-foreground transition-colors' />
-                  </TooltipTrigger>
-                  <TooltipContent side='right' className='max-w-xs'>
-                    <p className='text-xs leading-relaxed'>
-                      Enter your investment and buy price to see profit/loss at
-                      current price. Use presets for quick historical prices.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className='text-xs text-muted-foreground'>
-              What if you bought at...
-            </p>
-          </div>
+      {/* Header */}
+      <div className='flex items-center gap-3'>
+        <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+          <Calculator className='h-4 w-4 text-emerald-500' />
         </div>
-        <div className='flex items-center gap-2'>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-7 w-7 rounded-lg hover:bg-muted'
-            onClick={handleReset}
-            disabled={isLoading}
-          >
-            <RotateCcw className='h-3 w-3' />
-          </Button>
+        <div>
+          <h2 className='text-base font-bold tracking-tight'>ROI Calculator</h2>
+          <p className='text-xs text-muted-foreground'>
+            What if you bought at...
+          </p>
         </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
+            </TooltipTrigger>
+            <TooltipContent side='right' className='max-w-xs'>
+              <p className='text-xs leading-relaxed'>
+                Enter your investment and buy price to see profit/loss at
+                current price. Use presets for quick historical prices.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='h-7 w-7 rounded-lg hover:bg-muted ml-auto'
+          onClick={handleReset}
+          disabled={isLoading}
+        >
+          <RotateCcw className='h-3 w-3' />
+        </Button>
       </div>
 
       <div className='space-y-4'>

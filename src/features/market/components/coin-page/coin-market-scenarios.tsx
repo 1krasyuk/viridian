@@ -357,21 +357,21 @@ export function CoinMarketScenarios({
               Probabilistic projections
             </p>
           </div>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
+              </TooltipTrigger>
+              <TooltipContent side='right' className='max-w-xs'>
+                <p className='text-xs leading-relaxed'>
+                  Probabilistic modeling based on market cap tier, volatility,
+                  liquidity, trend strength, and historical recovery behavior.
+                  Not price prediction.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className='h-4 w-4 text-muted-foreground/60 cursor-help hover:text-muted-foreground transition-colors' />
-            </TooltipTrigger>
-            <TooltipContent side='left' className='max-w-xs'>
-              <p className='text-xs leading-relaxed'>
-                Probabilistic modeling based on market cap tier, volatility,
-                liquidity, trend strength, and historical recovery behavior. Not
-                price prediction.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
 
       {/* Inputs — asymmetric layout */}
@@ -479,7 +479,7 @@ export function CoinMarketScenarios({
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground/40 inline ml-1 cursor-help hover:text-muted-foreground transition-colors' />
+                    <Info className='h-3 w-3 text-muted-foreground inline ml-1  transition-colors' />
                   </TooltipTrigger>
                   <TooltipContent side='top' className='max-w-xs'>
                     <p className='text-xs leading-relaxed'>
@@ -518,7 +518,7 @@ export function CoinMarketScenarios({
               <TooltipProvider delayDuration={100}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className='h-3 w-3 text-muted-foreground/40 inline ml-1 cursor-help hover:text-muted-foreground transition-colors' />
+                    <Info className='h-3 w-3 text-muted-foreground inline ml-1  transition-colors' />
                   </TooltipTrigger>
                   <TooltipContent side='top' className='max-w-xs'>
                     <p className='text-xs leading-relaxed'>
@@ -588,7 +588,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors' />
+                  <Info className='h-3 w-3  transition-colors' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -603,7 +603,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -618,7 +618,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -633,7 +633,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -648,7 +648,7 @@ export function CoinMarketScenarios({
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className='h-3 w-3 cursor-help hover:text-foreground transition-colors shrink-0' />
+                  <Info className='h-3 w-3  transition-colors shrink-0' />
                 </TooltipTrigger>
                 <TooltipContent side='top' className='max-w-xs'>
                   <p className='text-xs leading-relaxed'>
@@ -758,7 +758,7 @@ export function CoinMarketScenarios({
                           <TooltipProvider delayDuration={100}>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Info className='h-3 w-3 text-muted-foreground/40 cursor-help hover:text-muted-foreground transition-colors shrink-0' />
+                                <Info className='h-3 w-3 text-muted-foreground/40  transition-colors shrink-0' />
                               </TooltipTrigger>
                               <TooltipContent side='top' className='max-w-xs'>
                                 <p className='text-xs leading-relaxed'>
@@ -852,7 +852,7 @@ export function CoinMarketScenarios({
       {/* Disclaimer — subtle */}
       <div className='rounded-xl bg-muted/20 border border-border/20 p-3'>
         <p className='text-xs text-muted-foreground leading-relaxed'>
-          <span className='font-semibold text-foreground'>Note:</span>{' '}
+          <span className='font-semibold text-foreground'>Note: </span>
           Probabilistic simulations based on market structure and historical
           behavior. Not financial advice. Reliability decreases beyond 24
           months.
