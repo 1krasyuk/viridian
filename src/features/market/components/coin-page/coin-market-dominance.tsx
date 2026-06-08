@@ -175,9 +175,9 @@ function MetricCard({
     default:
       'bg-gradient-to-br from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30',
     accent:
-      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 hover:from-emerald-500/12 hover:to-emerald-500/7',
+      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 hover:from-emerald-500/12 hover:to-emerald-500/7',
     warning:
-      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 hover:from-orange-500/12 hover:to-orange-500/7',
+      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 hover:from-orange-500/12 hover:to-orange-500/7',
   }
 
   const variant = warning ? 'warning' : accent ? 'accent' : 'default'
@@ -189,7 +189,7 @@ function MetricCard({
 
   return (
     <div
-      className={`rounded-xl p-3 space-y-1.5 transition-all duration-200 ${variants[variant]}`}
+      className={`rounded-xl p-3 flex flex-col gap-1.5 transition-all duration-200 ${variants[variant]}`}
     >
       <div className='flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider'>
         {icon}
@@ -537,7 +537,7 @@ export function CoinMarketDominance({
             leftValue={formatCurrency(mcap)}
             rightLabel='Bitcoin'
             rightValue={formatCurrency(btcMcap)}
-            leftPercent={relativeToBtc}
+            leftPercent={Math.min(relativeToBtc, 100)}
             color={
               relativeToBtc > 10
                 ? 'emerald'
