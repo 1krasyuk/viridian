@@ -209,10 +209,16 @@ export function CoinRoiCalculator({
               <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
             </TooltipTrigger>
             <TooltipContent side='right' className='max-w-xs'>
-              <p className='text-xs leading-relaxed'>
-                Enter your investment and buy price to see profit/loss at
-                current price. Use presets for quick historical prices.
-              </p>
+              <div className='text-xs leading-relaxed space-y-1.5'>
+                <p>
+                  Enter your investment amount and buy price to calculate
+                  potential profit or loss at the current market price.
+                </p>
+                <p className='text-muted-foreground'>
+                  Use historical price presets to quickly simulate past entry
+                  points and compare different timing strategies.
+                </p>
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

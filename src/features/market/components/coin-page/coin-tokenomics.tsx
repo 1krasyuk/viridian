@@ -552,9 +552,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           rightLabel='Fully Diluted'
           rightValue={formatCurrency(fdv)}
           leftPercent={fdv > 0 ? (mcap / fdv) * 100 : 0}
-          color={
-            isHighDilution ? 'orange' : isMediumDilution ? 'emerald' : 'primary'
-          }
+          color={isHighDilution ? 'orange' : 'emerald'}
           isLoading={isLoading}
         />
 

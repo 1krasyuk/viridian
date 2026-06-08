@@ -363,11 +363,16 @@ export function CoinMarketScenarios({
                 <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
               </TooltipTrigger>
               <TooltipContent side='right' className='max-w-xs'>
-                <p className='text-xs leading-relaxed'>
-                  Probabilistic modeling based on market cap tier, volatility,
-                  liquidity, trend strength, and historical recovery behavior.
-                  Not price prediction.
-                </p>
+                <div className='text-xs leading-relaxed space-y-1.5'>
+                  <p>
+                    Explore potential market outcomes based on historical data
+                    and current market conditions.
+                  </p>
+                  <p className='text-muted-foreground'>
+                    Not a price prediction. Adjust investment and time horizon
+                    to see different scenarios.
+                  </p>
+                </div>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -758,7 +763,7 @@ export function CoinMarketScenarios({
                           <TooltipProvider delayDuration={100}>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Info className='h-3 w-3 text-muted-foreground/40  transition-colors shrink-0' />
+                                <Info className='h-3 w-3 text-muted-foreground/90 transition-colors shrink-0' />
                               </TooltipTrigger>
                               <TooltipContent side='top' className='max-w-xs'>
                                 <p className='text-xs leading-relaxed'>
