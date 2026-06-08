@@ -6,13 +6,13 @@ import {
   useGlobalData,
 } from '@/features/market/hooks/coins-queries' // ← добавлен useGlobalData
 import { CoinChart } from '@/features/market/components/coin-page/coin-chart'
-import { CoinConverter } from '@/features/market/components/coin-page/coin-converter'
+import { CoinConverter } from '@/features/market/components/coin-page/coin-overview/coin-converter'
 import { CoinDescription } from '@/features/market/components/coin-page/coin-description'
-import { CoinHeader } from '@/features/market/components/coin-page/coin-header'
-import { CoinInfo } from '@/features/market/components/coin-page/coin-info'
-import { CoinPricePerformance } from '@/features/market/components/coin-page/coin-price-perfomance'
-import { CoinSentiment } from '@/features/market/components/coin-page/coin-sentiment'
-import { CoinStatistics } from '@/features/market/components/coin-page/coin-statistics'
+import { CoinHeader } from '@/features/market/components/coin-page/coin-overview/coin-header'
+import { CoinInfo } from '@/features/market/components/coin-page/coin-overview/coin-info'
+import { CoinPricePerformance } from '@/features/market/components/coin-page/coin-overview/coin-price-perfomance'
+import { CoinSentiment } from '@/features/market/components/coin-page/coin-overview/coin-sentiment'
+import { CoinStatistics } from '@/features/market/components/coin-page/coin-overview/coin-statistics'
 import { CoinTickersTable } from '@/features/market/components/coin-page/coin-tickers-table'
 import {
   ResizableHandle,

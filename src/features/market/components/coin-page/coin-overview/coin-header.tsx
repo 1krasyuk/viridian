@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/shared/ui/button'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { Badge } from '@/shared/ui/badge'
 import { Star, Share, Check } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'

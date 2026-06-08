@@ -4,7 +4,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from '@/shared/ui/tooltip'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { InfinityIcon, Info } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 

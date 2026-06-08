@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Gauge } from 'lucide-react'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 export function CoinSentiment({

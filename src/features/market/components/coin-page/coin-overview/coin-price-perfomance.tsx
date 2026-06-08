@@ -1,5 +1,5 @@
 import { Badge } from '@/shared/ui/badge'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/skeleton'
 

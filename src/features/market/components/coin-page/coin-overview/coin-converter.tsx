@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { Input } from '@/shared/ui/input'
 import { RotateCcw } from 'lucide-react'
 import { Button } from '@/shared/ui/button'

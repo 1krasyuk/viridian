@@ -21,7 +21,7 @@ import {
   Copy,
   Check,
 } from 'lucide-react'
-import type { Coin } from '../../types/coin'
+import type { Coin } from '../../../types/coin'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 const InfoRow = ({
