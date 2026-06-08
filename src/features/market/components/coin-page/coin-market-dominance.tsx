@@ -45,7 +45,6 @@ function formatCurrency(n: number): string {
     maximumFractionDigits: n >= 1000 ? 0 : 2,
   }).format(n)
 }
-
 // === DOMINANCE RING ===
 function DominanceCircleDiagram({
   coinDominance,
@@ -72,14 +71,14 @@ function DominanceCircleDiagram({
 
   const coinAngle = (coinDominance / 100) * 360
 
-  const colorBg = '#3f3f46'
-  const colorCoin = 'oklch(0.7 0.15 162)'
-  const colorBtc = 'oklch(0.65 0.12 162 / 0.35)'
+  const colorBg = 'var(--ring-bg)'
+  const colorCoin = 'var(--ring-coin)'
+  const colorBtc = 'var(--ring-btc)'
 
   if (isLoading) {
     return (
       <div
-        className='relative inline-flex items-center justify-center shrink-0'
+        className='relative inline-flex items-center justify-center shrink-0 [--ring-bg:#d4d4d8] dark:[--ring-bg:#3f3f46]'
         style={{ width: size, height: size }}
       >
         <svg width={size} height={size} className='-rotate-90'>
@@ -102,7 +101,7 @@ function DominanceCircleDiagram({
 
   return (
     <div
-      className='relative inline-flex items-center justify-center shrink-0'
+      className='relative inline-flex items-center justify-center shrink-0 [--ring-bg:#d4d4d8] [--ring-btc:#10b98159] [--ring-coin:#10b981] dark:[--ring-bg:#3f3f46] dark:[--ring-btc:#34d39959] dark:[--ring-coin:#34d399]'
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className='-rotate-90'>
@@ -176,9 +175,9 @@ function MetricCard({
     default:
       'bg-gradient-to-br from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30',
     accent:
-      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20',
+      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 hover:from-emerald-500/12 hover:to-emerald-500/7',
     warning:
-      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20',
+      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 hover:from-orange-500/12 hover:to-orange-500/7',
   }
 
   const variant = warning ? 'warning' : accent ? 'accent' : 'default'
@@ -218,7 +217,7 @@ function MetricCard({
   )
 }
 
-// === COMPARISON BAR ===
+// === COMPARISON BAR (unified) ===
 function ComparisonBar({
   leftLabel,
   leftValue,
@@ -245,7 +244,7 @@ function ComparisonBar({
   if (isLoading) {
     return (
       <div className='space-y-1.5'>
-        <div className='flex justify-between text-xs'>
+        <div className='flex justify-between text-xs gap-2'>
           <div>
             <p className='font-medium text-[11px]'>{leftLabel}</p>
             <Skeleton className='h-3 w-24 mt-0.5' />
@@ -262,16 +261,18 @@ function ComparisonBar({
 
   return (
     <div className='space-y-1.5'>
-      <div className='flex justify-between text-xs'>
-        <div>
-          <p className='font-medium text-[11px]'>{leftLabel}</p>
-          <p className='font-mono text-xs text-muted-foreground'>{leftValue}</p>
-        </div>
-        <div className='text-right'>
-          <p className='font-medium text-[11px]'>{rightLabel}</p>
-          <p className='font-mono text-xs text-muted-foreground'>
-            {rightValue}
+      <div className='flex justify-between text-xs gap-2'>
+        <div className='min-w-0'>
+          <p className='font-medium text-[11px] text-muted-foreground'>
+            {leftLabel}
           </p>
+          <p className='font-mono text-xs break-all'>{leftValue}</p>
+        </div>
+        <div className='text-right min-w-0'>
+          <p className='font-medium text-[11px] text-muted-foreground'>
+            {rightLabel}
+          </p>
+          <p className='font-mono text-xs break-all'>{rightValue}</p>
         </div>
       </div>
       <div className='h-2 bg-muted rounded-full overflow-hidden flex'>
@@ -428,10 +429,7 @@ export function CoinMarketDominance({
             {/* Coin */}
             <div className='flex items-center justify-between text-sm gap-2'>
               <div className='flex items-center gap-2 break-all'>
-                <div
-                  className='w-2.5 h-2.5 rounded-full'
-                  style={{ background: 'oklch(0.7 0.15 162)' }}
-                />
+                <div className='w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400' />
                 <span>{symbol || 'This Asset'}</span>
               </div>
               {isLoadingAny ? (
@@ -447,10 +445,7 @@ export function CoinMarketDominance({
             {!isBitcoin && (
               <div className='flex items-center justify-between text-sm break-all'>
                 <div className='flex items-center gap-2'>
-                  <div
-                    className='w-2.5 h-2.5 rounded-full'
-                    style={{ background: 'oklch(0.65 0.12 162 / 0.35)' }}
-                  />
+                  <div className='w-2.5 h-2.5 rounded-full bg-emerald-500/35 dark:bg-emerald-400/35' />
                   <span className='text-muted-foreground'>Bitcoin</span>
                 </div>
                 {isLoadingAny ? (
@@ -466,10 +461,7 @@ export function CoinMarketDominance({
             {/* Rest of Market */}
             <div className='flex items-center justify-between text-sm break-all'>
               <div className='flex items-center gap-2'>
-                <div
-                  className='w-2.5 h-2.5 rounded-full'
-                  style={{ background: '#3f3f46' }}
-                />
+                <div className='w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600' />
                 <span className='text-muted-foreground'>Rest of Market</span>
               </div>
               {isLoadingAny ? (
