@@ -35,7 +35,7 @@ export function ScenarioMetrics({
 }) {
   return (
     <>
-      <div className='grid grid-cols-2 gap-3'>
+      <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
         <div className='flex items-center justify-between rounded-xl bg-linear-to-br from-muted/40 to-muted/20 px-4 py-3 border border-border/30'>
           <div className='flex items-center gap-2'>
             <div className='w-7 h-7 rounded-lg bg-muted-foreground/10 flex items-center justify-center'>

@@ -37,14 +37,14 @@ export function CoinChartControls({
   isLoading,
 }: CoinChartControlsProps) {
   return (
-    <div className='flex justify-between p-2'>
-      <div className='flex gap-2'>
+    <div className='flex flex-col gap-2 p-2 md:flex-row md:justify-between'>
+      <div className='flex min-w-0 gap-2 overflow-x-auto pb-1 md:overflow-visible md:pb-0'>
         <ToggleGroup
           type='single'
           value={dataType}
           onValueChange={(v) => v && onDataTypeChange(v as CoinChartDataType)}
           disabled={isLoading || chartMode === 'candles'}
-          className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
         >
           <ToggleGroupItem value='price' variant='outline'>
             Price
@@ -67,7 +67,7 @@ export function CoinChartControls({
             }
           }}
           disabled={isLoading}
-          className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
         >
           <ToggleGroupItem variant='outline' value='line'>
             <ChartLine className='h-4 w-4' />
@@ -75,19 +75,20 @@ export function CoinChartControls({
           <ToggleGroupItem variant='outline' value='candles'>
             <ChartCandlestick className='h-4 w-4' />
           </ToggleGroupItem>
-          <ToggleGroupItem variant='outline' value='tradingview'>
-            <ChartCandlestick className='h-4 w-4' /> TradingView
+          <ToggleGroupItem variant='outline' value='tradingview' className='gap-1'>
+            <ChartCandlestick className='h-4 w-4' />
+            <span className='hidden sm:inline'>TradingView</span>
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
 
-      <div className='flex gap-2'>
+      <div className='flex min-w-0 gap-2 overflow-x-auto pb-1 md:overflow-visible md:pb-0'>
         <ToggleGroup
           type='single'
           value={days}
           onValueChange={(v) => v && onDaysChange(v)}
           disabled={isLoading}
-          className='[&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
         >
           <ToggleGroupItem value='1' variant='outline'>
             24H

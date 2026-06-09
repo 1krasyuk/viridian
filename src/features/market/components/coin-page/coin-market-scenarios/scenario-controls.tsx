@@ -19,7 +19,7 @@ export function ScenarioControls({
   isLoading: boolean
 }) {
   return (
-    <div className='grid grid-cols-2 gap-5'>
+    <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5'>
       <div className='space-y-2.5'>
         <div className='flex items-center gap-2'>
           <Wallet className='h-3.5 w-3.5 text-muted-foreground' />

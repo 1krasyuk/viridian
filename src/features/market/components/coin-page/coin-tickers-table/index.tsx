@@ -156,22 +156,22 @@ export function CoinTickersTable({
           mode === 'infinite' && 'px-5',
         )}
       >
-        <div className='flex items-center gap-3'>
-          <h2 className='text-xl font-semibold'>{coinName} Markets</h2>
-          <div className='relative'>
+        <div className='flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3'>
+          <h2 className='text-lg font-semibold sm:text-xl'>{coinName} Markets</h2>
+          <div className='relative w-full sm:w-auto'>
             <Search className='absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search exchange...'
               value={search}
               onChange={(e) => changeSearch(e.target.value)}
-              className='h-7 pl-7 pr-2 text-xs rounded-md border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring'
+              className='h-8 w-full rounded-md border border-input bg-background pl-7 pr-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring sm:h-7 sm:w-auto'
             />
           </div>
         </div>
-        <div className='flex flex-wrap items-center gap-2'>
+        <div className='flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0'>
           {/* Exchange type filters */}
-          <div className='flex items-center gap-1 bg-muted rounded-lg p-1'>
+          <div className='flex shrink-0 items-center gap-1 bg-muted rounded-lg p-1'>
             {EXCHANGE_TYPES.map((type) => (
               <Button
                 key={type.value}
@@ -191,7 +191,7 @@ export function CoinTickersTable({
           </div>
 
           {/* Market type filters */}
-          <div className='flex items-center gap-1 bg-muted rounded-lg p-1'>
+          <div className='flex shrink-0 items-center gap-1 bg-muted rounded-lg p-1'>
             {MARKET_TYPES.map((type) => (
               <Button
                 key={type.value}

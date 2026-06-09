@@ -37,8 +37,10 @@ function RouteComponent() {
   )
 
   return (
-    <div className='flex min-h-screen'>
-      <div className='w-3/4 flex flex-col'>
+    <div className='flex min-h-screen min-w-0 flex-col xl:flex-row'>
+      <CoinPageSidebar coin={data} isLoading={isLoadingCoin} days={days} />
+
+      <div className='flex w-full min-w-0 flex-col xl:flex-1'>
         <CoinPageViewModeTabs value={viewMode} onValueChange={setViewMode} />
 
         {viewMode === 'pagination' ? (
@@ -72,8 +74,6 @@ function RouteComponent() {
           />
         )}
       </div>
-
-      <CoinPageSidebar coin={data} isLoading={isLoadingCoin} days={days} />
     </div>
   )
 }

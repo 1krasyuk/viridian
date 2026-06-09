@@ -62,7 +62,7 @@ export function ClassicCoinPageContent({
 }: ClassicCoinPageContentProps) {
   return (
     <div className='flex flex-col min-w-0'>
-      <div className='h-150 min-w-0 relative w-full'>
+      <div className='h-[420px] min-w-0 relative w-full sm:h-[520px] xl:h-150'>
         <CoinChart
           coinId={coinId}
           chart={chart}
@@ -75,14 +75,14 @@ export function ClassicCoinPageContent({
           view='classic'
         />
       </div>
-      <div className='flex flex-col p-5 gap-5'>
+      <div className='flex flex-col gap-4 p-3 sm:gap-5 sm:p-5'>
         <CoinPriceChange coin={coin} isLoading={isLoadingCoin} />
         <CoinDescription
           description={coin?.description}
           isLoading={isLoadingCoin}
         />
 
-        <div className='grid xs:grid-cols-1 grid-cols-2 gap-5 items-stretch'>
+        <div className='grid grid-cols-1 gap-4 items-stretch lg:grid-cols-2 lg:gap-5'>
           <CoinTokenomics coin={coin} isLoading={isLoadingCoin} />
           <CoinMarketDominance
             coin={coin}
@@ -128,7 +128,60 @@ export function TerminalCoinPageContent({
   isLoadingChart,
 }: CoinPageSectionProps) {
   return (
-    <ResizablePanelGroup orientation='vertical'>
+    <>
+      <div className='flex min-h-[720px] flex-col xl:hidden'>
+        <div className='h-[420px] min-w-0 sm:h-[520px]'>
+          <CoinChart
+            coinId={coinId}
+            chart={chart}
+            symbol={coin?.symbol}
+            days={days}
+            onDaysChange={onDaysChange}
+            dataType={dataType}
+            onDataTypeChange={onDataTypeChange}
+            isLoading={isLoadingChart}
+            view='terminal'
+          />
+        </div>
+        <div className='min-h-0 flex-1 overflow-auto py-4'>
+          <CoinTickersTable
+            coinName={coin?.name || ''}
+            tickers={coin?.tickers ?? []}
+            loading={isLoadingCoin}
+            mode='infinite'
+          />
+        </div>
+      </div>
+      <DesktopTerminalCoinPageContent
+        coinId={coinId}
+        coin={coin}
+        chart={chart}
+        days={days}
+        onDaysChange={onDaysChange}
+        dataType={dataType}
+        onDataTypeChange={onDataTypeChange}
+        isLoadingCoin={isLoadingCoin}
+        isLoadingChart={isLoadingChart}
+      />
+    </>
+  )
+}
+
+export function DesktopTerminalCoinPageContent(props: CoinPageSectionProps) {
+  const {
+    coinId,
+    coin,
+    chart,
+    days,
+    onDaysChange,
+    dataType,
+    onDataTypeChange,
+    isLoadingCoin,
+    isLoadingChart,
+  } = props
+
+  return (
+    <ResizablePanelGroup orientation='vertical' className='hidden xl:flex'>
       <ResizablePanel defaultSize='70%' minSize='35%' className='min-h-0 min-w-0'>
         <div className='h-full min-h-0 min-w-0'>
           <CoinChart
@@ -173,18 +226,18 @@ export function CoinPageSidebar({
   days: string
 }) {
   return (
-    <div className='min-w-1/4 sticky top-0 h-screen flex flex-col border-l'>
-      <div className='bg-background px-5 pt-5 pb-6 relative'>
+    <aside className='order-first flex w-full flex-col border-b bg-background xl:order-last xl:sticky xl:top-0 xl:h-screen xl:w-[360px] xl:shrink-0 xl:border-b-0 xl:border-l 2xl:w-[420px]'>
+      <div className='bg-background px-3 pt-3 pb-4 relative sm:px-5 sm:pt-5 sm:pb-6'>
         <CoinHeader coin={coin} isLoading={isLoading} days={days} />
       </div>
 
-      <div className='flex-1 overflow-y-auto no-scrollbar px-5 pb-5 flex flex-col gap-3'>
+      <div className='grid grid-cols-1 gap-3 px-3 pb-4 sm:grid-cols-2 sm:px-5 xl:flex xl:flex-1 xl:flex-col xl:overflow-y-auto xl:no-scrollbar xl:pb-5'>
         <CoinStatistics coin={coin} isLoading={isLoading} />
         <CoinInfo coin={coin} isLoading={isLoading} />
         <CoinSentiment coin={coin} isLoading={isLoading} />
         <CoinPricePerformance coin={coin} isLoading={isLoading} />
         <CoinConverter coin={coin} isLoading={isLoading} />
       </div>
-    </div>
+    </aside>
   )
 }

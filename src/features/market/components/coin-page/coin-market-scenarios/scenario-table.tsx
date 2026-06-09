@@ -43,24 +43,32 @@ export function ScenarioTable({
 
   return (
     <div className='rounded-xl border border-border/40 overflow-hidden bg-linear-to-b from-card/50 to-background/50'>
-      <ScenarioTableHeader />
-      {isLoading
-        ? loadingRows.map((s, i) => <ScenarioLoadingRow key={i} scenario={s} />)
-        : scenarios.map((scenario) => {
-            const isExpanded = expandedScenario === scenario.type
-            return (
-              <ScenarioRow
-                key={scenario.type}
-                scenario={scenario}
-                isExpanded={isExpanded}
-                onToggle={() =>
-                  onExpandedScenarioChange(isExpanded ? null : scenario.type)
-                }
-                getPriceColor={getPriceColor}
-                getValueColor={getValueColor}
-              />
-            )
-          })}
+      <div className='overflow-x-auto'>
+        <div className='min-w-[760px]'>
+          <ScenarioTableHeader />
+          {isLoading
+            ? loadingRows.map((s, i) => (
+                <ScenarioLoadingRow key={i} scenario={s} />
+              ))
+            : scenarios.map((scenario) => {
+                const isExpanded = expandedScenario === scenario.type
+                return (
+                  <ScenarioRow
+                    key={scenario.type}
+                    scenario={scenario}
+                    isExpanded={isExpanded}
+                    onToggle={() =>
+                      onExpandedScenarioChange(
+                        isExpanded ? null : scenario.type,
+                      )
+                    }
+                    getPriceColor={getPriceColor}
+                    getValueColor={getValueColor}
+                  />
+                )
+              })}
+        </div>
+      </div>
     </div>
   )
 }
