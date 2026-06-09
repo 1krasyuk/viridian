@@ -19,23 +19,14 @@ import {
   TooltipProvider,
 } from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
+import {
+  formatCurrency,
+  formatThousandsCompact,
+} from './shared/formatters'
 
 const INVESTMENT_PRESETS = [
   1000, 2500, 5000, 10000, 15000, 30000, 50000, 100000,
 ]
-
-function formatCompact(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
-  return n.toFixed(0)
-}
-
-function formatCurrency(n: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: n >= 1000 ? 0 : 2,
-  }).format(n)
-}
 
 function getHistoricalPrice(
   currentPrice: number | undefined,
@@ -80,7 +71,7 @@ function PricePresetButton({
         {isLoading || value === undefined ? (
           <Skeleton className='h-3.5 w-10 inline-block' />
         ) : (
-          `$${formatCompact(value)}`
+          `$${formatThousandsCompact(value)}`
         )}
       </span>
     </Button>
@@ -267,7 +258,7 @@ export function CoinRoiCalculator({
                 }`}
                 onClick={() => setInvestment(String(preset))}
               >
-                ${formatCompact(preset)}
+                ${formatThousandsCompact(preset)}
               </Button>
             ))}
           </div>

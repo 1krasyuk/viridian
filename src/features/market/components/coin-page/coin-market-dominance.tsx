@@ -20,6 +20,12 @@ import {
 import type { Coin } from '@/features/market/types/coin'
 import type { GlobalData } from '@/features/market/types/global'
 import { Badge } from '@/shared/ui/badge'
+import { CoinMetricCard } from './shared/coin-metric-card'
+import { ComparisonBar } from './shared/comparison-bar'
+import {
+  formatCompact as formatCompactValue,
+  formatCurrency,
+} from './shared/formatters'
 
 interface CoinMarketDominanceProps {
   coin: Coin | undefined
@@ -27,24 +33,8 @@ interface CoinMarketDominanceProps {
   globalData?: GlobalData | null
 }
 
-function formatCompact(n: number): string {
-  if (!isFinite(n) || n === 0) return '—'
-  if (Math.abs(n) >= 1_000_000_000_000)
-    return (n / 1_000_000_000_000).toFixed(2) + 'T'
-  if (Math.abs(n) >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B'
-  if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M'
-  if (Math.abs(n) >= 1_000) return (n / 1_000).toFixed(2) + 'K'
-  return n.toLocaleString(undefined, { maximumFractionDigits: 2 })
-}
+const formatCompact = (n: number) => formatCompactValue(n, 2)
 
-function formatCurrency(n: number): string {
-  if (!isFinite(n) || n === 0) return '—'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: n >= 1000 ? 0 : 2,
-  }).format(n)
-}
 // === DOMINANCE RING ===
 function DominanceCircleDiagram({
   coinDominance,
@@ -148,138 +138,6 @@ function DominanceCircleDiagram({
         <span className='text-[9px] text-muted-foreground uppercase tracking-wider'>
           Market Share
         </span>
-      </div>
-    </div>
-  )
-}
-
-// === METRIC CARD ===
-function MetricCard({
-  icon,
-  label,
-  value,
-  subvalue,
-  accent = false,
-  warning = false,
-  isLoading = false,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  subvalue?: string
-  accent?: boolean
-  warning?: boolean
-  isLoading?: boolean
-}) {
-  const variants = {
-    default:
-      'bg-gradient-to-br from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30',
-    accent:
-      'bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 hover:from-emerald-500/12 hover:to-emerald-500/7',
-    warning:
-      'bg-gradient-to-br from-orange-500/10 to-orange-500/5 hover:from-orange-500/12 hover:to-orange-500/7',
-  }
-
-  const variant = warning ? 'warning' : accent ? 'accent' : 'default'
-  const textColor = warning
-    ? 'text-orange-500'
-    : accent
-      ? 'text-emerald-500'
-      : ''
-
-  return (
-    <div
-      className={`rounded-xl p-3 flex flex-col gap-1.5 transition-all duration-200 ${variants[variant]}`}
-    >
-      <div className='flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider'>
-        {icon}
-        <span>{label}</span>
-      </div>
-      {isLoading ? (
-        <Skeleton className='h-6 w-28' />
-      ) : (
-        <p
-          className={`text-lg font-bold font-mono tracking-tight ${textColor}`}
-        >
-          {value}
-        </p>
-      )}
-      {subvalue && (
-        <p className='text-xs text-muted-foreground font-mono'>
-          {isLoading ? (
-            <Skeleton className='h-3 w-20 inline-block' />
-          ) : (
-            subvalue
-          )}
-        </p>
-      )}
-    </div>
-  )
-}
-
-// === COMPARISON BAR (unified) ===
-function ComparisonBar({
-  leftLabel,
-  leftValue,
-  rightLabel,
-  rightValue,
-  leftPercent,
-  color = 'primary',
-  isLoading = false,
-}: {
-  leftLabel: string
-  leftValue: string
-  rightLabel: string
-  rightValue: string
-  leftPercent: number
-  color?: 'primary' | 'emerald' | 'orange'
-  isLoading?: boolean
-}) {
-  const colors = {
-    primary: 'bg-primary',
-    emerald: 'bg-emerald-500',
-    orange: 'bg-orange-500',
-  }
-
-  if (isLoading) {
-    return (
-      <div className='space-y-1.5'>
-        <div className='flex justify-between text-xs gap-2'>
-          <div>
-            <p className='font-medium text-[11px]'>{leftLabel}</p>
-            <Skeleton className='h-3 w-24 mt-0.5' />
-          </div>
-          <div className='text-right'>
-            <p className='font-medium text-[11px]'>{rightLabel}</p>
-            <Skeleton className='h-3 w-24 mt-0.5 ml-auto' />
-          </div>
-        </div>
-        <Skeleton className='h-2 w-full rounded-full' />
-      </div>
-    )
-  }
-
-  return (
-    <div className='space-y-1.5'>
-      <div className='flex justify-between text-xs gap-2'>
-        <div className='min-w-0'>
-          <p className='font-medium text-[11px] text-muted-foreground'>
-            {leftLabel}
-          </p>
-          <p className='font-mono text-xs break-all'>{leftValue}</p>
-        </div>
-        <div className='text-right min-w-0'>
-          <p className='font-medium text-[11px] text-muted-foreground'>
-            {rightLabel}
-          </p>
-          <p className='font-mono text-xs break-all'>{rightValue}</p>
-        </div>
-      </div>
-      <div className='h-2 bg-muted rounded-full overflow-hidden flex'>
-        <div
-          className={`${colors[color]} transition-all duration-500`}
-          style={{ width: `${Math.min(leftPercent, 100)}%` }}
-        />
       </div>
     </div>
   )
@@ -477,7 +335,7 @@ export function CoinMarketDominance({
 
         {/* Metrics Grid */}
         <div className='grid grid-cols-2 gap-2.5'>
-          <MetricCard
+          <CoinMetricCard
             icon={<Target className='h-3 w-3  shrink-0' />}
             label='Market Share'
             value={`${coinDominance < 0.01 ? '<0.01' : coinDominance.toFixed(2)}%`}
@@ -485,7 +343,7 @@ export function CoinMarketDominance({
             accent={coinDominance > 1}
             isLoading={isLoadingAny}
           />
-          <MetricCard
+          <CoinMetricCard
             icon={<Activity className='h-3 w-3  shrink-0' />}
             label='Volume Share'
             value={`${volumeShare < 0.01 ? '<0.01' : volumeShare.toFixed(2)}%`}
@@ -493,7 +351,7 @@ export function CoinMarketDominance({
             accent={volumeShare > 1}
             isLoading={isLoadingAny}
           />
-          <MetricCard
+          <CoinMetricCard
             icon={<Zap className='h-3 w-3 shrink-0' />}
             label='vs BTC'
             value={
@@ -509,7 +367,7 @@ export function CoinMarketDominance({
             accent={isBitcoin || relativeToBtc > 10}
             isLoading={isLoadingAny}
           />
-          <MetricCard
+          <CoinMetricCard
             icon={<Droplets className='h-3 w-3 shrink-0' />}
             label='Relative Volume'
             value={relativeVolume > 0 ? `${relativeVolume.toFixed(2)}x` : '—'}

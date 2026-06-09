@@ -119,10 +119,24 @@ export function CoinTickersTable({
     [totalVolume],
   )
 
-  // Reset pagination when filters change
-  React.useEffect(() => {
+  const resetPagination = () => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }, [exchangeType, marketType, search])
+  }
+
+  const changeExchangeType = (value: ExchangeType) => {
+    setExchangeType(value)
+    resetPagination()
+  }
+
+  const changeMarketType = (value: MarketType) => {
+    setMarketType(value)
+    resetPagination()
+  }
+
+  const changeSearch = (value: string) => {
+    setSearch(value)
+    resetPagination()
+  }
 
   const hasActiveFilters =
     exchangeType !== 'all' || marketType !== 'all' || search !== ''
@@ -131,6 +145,7 @@ export function CoinTickersTable({
     setExchangeType('all')
     setMarketType('all')
     setSearch('')
+    resetPagination()
   }
 
   return (
@@ -149,7 +164,7 @@ export function CoinTickersTable({
               type='text'
               placeholder='Search exchange...'
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => changeSearch(e.target.value)}
               className='h-7 pl-7 pr-2 text-xs rounded-md border border-input bg-background focus:outline-none focus:ring-1 focus:ring-ring'
             />
           </div>
@@ -168,7 +183,7 @@ export function CoinTickersTable({
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-transparent',
                 )}
-                onClick={() => setExchangeType(type.value)}
+                onClick={() => changeExchangeType(type.value)}
               >
                 {type.label}
               </Button>
@@ -188,7 +203,7 @@ export function CoinTickersTable({
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-transparent',
                 )}
-                onClick={() => setMarketType(type.value)}
+                onClick={() => changeMarketType(type.value)}
               >
                 {type.label}
               </Button>
