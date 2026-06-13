@@ -75,7 +75,11 @@ export function CoinChartControls({
           <ToggleGroupItem variant='outline' value='candles'>
             <ChartCandlestick className='h-4 w-4' />
           </ToggleGroupItem>
-          <ToggleGroupItem variant='outline' value='tradingview' className='gap-1'>
+          <ToggleGroupItem
+            variant='outline'
+            value='tradingview'
+            className='gap-1'
+          >
             <ChartCandlestick className='h-4 w-4' />
             <span className='hidden sm:inline'>TradingView</span>
           </ToggleGroupItem>

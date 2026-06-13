@@ -9,6 +9,7 @@ import {
   ClassicCoinPageContent,
   CoinPageSidebar,
   TerminalCoinPageContent,
+  MobileCoinPageContent,
 } from '@/features/market/components/coin-page/coin-page-sections'
 import { CoinPageViewModeTabs } from '@/features/market/components/coin-page/coin-page-view-mode-tabs'
 import { useCoinViewMode } from '@/features/market/components/coin-page/use-coin-view-mode'
@@ -38,41 +39,75 @@ function RouteComponent() {
 
   return (
     <div className='flex min-h-screen min-w-0 flex-col xl:flex-row'>
-      <CoinPageSidebar coin={data} isLoading={isLoadingCoin} days={days} />
+      {/* Desktop sidebar — справа */}
+      <div className='hidden order-first xl:block xl:order-last'>
+        <CoinPageSidebar coin={data} isLoading={isLoadingCoin} days={days} />
+      </div>
 
       <div className='flex w-full min-w-0 flex-col xl:flex-1'>
-        <CoinPageViewModeTabs value={viewMode} onValueChange={setViewMode} />
+        {/* Desktop tabs */}
+        <div className='hidden xl:block'>
+          <CoinPageViewModeTabs value={viewMode} onValueChange={setViewMode} />
+        </div>
 
-        {viewMode === 'pagination' ? (
-          <ClassicCoinPageContent
-            coinId={coinId}
-            coin={data}
-            chart={dataChart}
-            days={days}
-            onDaysChange={setDays}
-            dataType={dataType}
-            onDataTypeChange={setDataType}
-            isLoadingCoin={isLoadingCoin}
-            isLoadingChart={isLoadingChart}
-            globalData={globalData}
-            metricsChart={metricsChart}
-            metricDays={metricDays}
-            onMetricDaysChange={setMetricDays}
-            isLoadingMetrics={isLoadingMetrics}
-          />
-        ) : (
-          <TerminalCoinPageContent
-            coinId={coinId}
-            coin={data}
-            chart={dataChart}
-            days={days}
-            onDaysChange={setDays}
-            dataType={dataType}
-            onDataTypeChange={setDataType}
-            isLoadingCoin={isLoadingCoin}
-            isLoadingChart={isLoadingChart}
-          />
+        {/* Desktop Classic */}
+        {viewMode === 'pagination' && (
+          <div className='hidden xl:block'>
+            <ClassicCoinPageContent
+              coinId={coinId}
+              coin={data}
+              chart={dataChart}
+              days={days}
+              onDaysChange={setDays}
+              dataType={dataType}
+              onDataTypeChange={setDataType}
+              isLoadingCoin={isLoadingCoin}
+              isLoadingChart={isLoadingChart}
+              globalData={globalData}
+              metricsChart={metricsChart}
+              metricDays={metricDays}
+              onMetricDaysChange={setMetricDays}
+              isLoadingMetrics={isLoadingMetrics}
+            />
+          </div>
         )}
+
+        {/* Desktop Terminal */}
+        {viewMode === 'infinite' && (
+          <div className='hidden xl:block h-full'>
+            <TerminalCoinPageContent
+              coinId={coinId}
+              coin={data}
+              chart={dataChart}
+              days={days}
+              onDaysChange={setDays}
+              dataType={dataType}
+              onDataTypeChange={setDataType}
+              isLoadingCoin={isLoadingCoin}
+              isLoadingChart={isLoadingChart}
+            />
+          </div>
+        )}
+
+        {/* Mobile */}
+        <MobileCoinPageContent
+          coinId={coinId}
+          coin={data}
+          chart={dataChart}
+          days={days}
+          onDaysChange={setDays}
+          dataType={dataType}
+          onDataTypeChange={setDataType}
+          isLoadingCoin={isLoadingCoin}
+          isLoadingChart={isLoadingChart}
+          globalData={globalData}
+          metricsChart={metricsChart}
+          metricDays={metricDays}
+          onMetricDaysChange={setMetricDays}
+          isLoadingMetrics={isLoadingMetrics}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
       </div>
     </div>
   )

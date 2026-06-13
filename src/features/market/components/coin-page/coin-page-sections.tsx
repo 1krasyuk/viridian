@@ -182,7 +182,11 @@ export function DesktopTerminalCoinPageContent(props: CoinPageSectionProps) {
 
   return (
     <ResizablePanelGroup orientation='vertical' className='hidden xl:flex'>
-      <ResizablePanel defaultSize='70%' minSize='35%' className='min-h-0 min-w-0'>
+      <ResizablePanel
+        defaultSize='70%'
+        minSize='35%'
+        className='min-h-0 min-w-0'
+      >
         <div className='h-full min-h-0 min-w-0'>
           <CoinChart
             coinId={coinId}
@@ -239,5 +243,140 @@ export function CoinPageSidebar({
         <CoinConverter coin={coin} isLoading={isLoading} />
       </div>
     </aside>
+  )
+}
+
+type MobileViewMode = 'pagination' | 'infinite'
+
+type MobileCoinPageContentProps = CoinPageSectionProps & {
+  globalData?: GlobalData | null
+  metricsChart?: CoinChartData
+  metricDays: string
+  onMetricDaysChange: (value: string) => void
+  isLoadingMetrics: boolean
+  viewMode: MobileViewMode
+  onViewModeChange: (value: MobileViewMode) => void
+}
+
+export function MobileCoinPageContent({
+  coinId,
+  coin,
+  chart,
+  days,
+  onDaysChange,
+  dataType,
+  onDataTypeChange,
+  isLoadingCoin,
+  isLoadingChart,
+  globalData,
+  metricsChart,
+  metricDays,
+  onMetricDaysChange,
+  isLoadingMetrics,
+  viewMode,
+  onViewModeChange,
+}: MobileCoinPageContentProps) {
+  return (
+    <div className='flex flex-col min-w-0 xl:hidden'>
+      {/* Sticky Header */}
+      <div className='sticky top-0 z-50 bg-background border-b'>
+        <div className='px-3 pt-3 pb-4 sm:px-5 sm:pt-5 sm:pb-6'>
+          <CoinHeader coin={coin} isLoading={isLoadingCoin} days={days} />
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className='h-[420px] p-4 min-w-0 relative w-full sm:h-[520px]'>
+        <CoinChart
+          coinId={coinId}
+          chart={chart}
+          symbol={coin?.symbol}
+          days={days}
+          onDaysChange={onDaysChange}
+          dataType={dataType}
+          onDataTypeChange={onDataTypeChange}
+          isLoading={isLoadingChart}
+          view={viewMode === 'infinite' ? 'terminal' : 'classic'}
+        />
+      </div>
+      {/* View mode switcher */}
+      <div className='px-4 pb-4'>
+        <div className='flex items-center gap-1 rounded-lg border bg-muted/50 p-1'>
+          <button
+            onClick={() => onViewModeChange('pagination')}
+            className={`flex-1 rounded-md px-3 py-1.5 text-base font-medium transition-colors ${
+              viewMode === 'pagination'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Classic
+          </button>
+          <button
+            onClick={() => onViewModeChange('infinite')}
+            className={`flex-1 rounded-md px-3 py-1.5 text-base font-medium transition-colors ${
+              viewMode === 'infinite'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Terminal
+          </button>
+        </div>
+      </div>
+
+      <div className='px-4  space-y-3'>
+        <CoinPriceChange coin={coin} isLoading={isLoadingCoin} />
+        <CoinConverter coin={coin} isLoading={isLoadingCoin} />
+      </div>
+
+      {/* Sidebar components */}
+      <div className='border-t p-4 grid grid-cols-1 gap-3 sm:grid-cols-2'>
+        <p className='font-bold text-base'>{coin?.name} statictics</p>
+        <CoinStatistics coin={coin} isLoading={isLoadingCoin} />
+        <CoinInfo coin={coin} isLoading={isLoadingCoin} />
+        <CoinSentiment coin={coin} isLoading={isLoadingCoin} />
+        <CoinPricePerformance coin={coin} isLoading={isLoadingCoin} />
+      </div>
+
+      {/* Content */}
+      <div className='flex flex-col gap-4 p-3 sm:gap-5 sm:p-5'>
+        <CoinDescription
+          description={coin?.description}
+          isLoading={isLoadingCoin}
+        />
+
+        <div className='grid grid-cols-1 gap-4'>
+          <CoinTokenomics coin={coin} isLoading={isLoadingCoin} />
+          <CoinMarketDominance
+            coin={coin}
+            isLoading={isLoadingCoin}
+            globalData={globalData}
+          />
+        </div>
+
+        <div className='grid grid-cols-1 gap-5'>
+          <CoinRiskMetrics
+            coin={coin}
+            chart={metricsChart}
+            days={metricDays}
+            onDaysChange={onMetricDaysChange}
+            isLoadingCoin={isLoadingCoin}
+            isLoadingChart={isLoadingMetrics}
+          />
+        </div>
+
+        <CoinRoiCalculator coin={coin} isLoading={isLoadingCoin} />
+        <CoinMarketScenarios coin={coin} isLoading={isLoadingCoin} />
+
+        {/* Markets — always pagination */}
+        <CoinTickersTable
+          coinName={coin?.name || ''}
+          tickers={coin?.tickers ?? []}
+          loading={isLoadingCoin}
+          mode='pagination'
+        />
+      </div>
+    </div>
   )
 }

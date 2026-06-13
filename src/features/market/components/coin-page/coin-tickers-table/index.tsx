@@ -157,7 +157,9 @@ export function CoinTickersTable({
         )}
       >
         <div className='flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3'>
-          <h2 className='text-lg font-semibold sm:text-xl'>{coinName} Markets</h2>
+          <h2 className='text-lg font-semibold sm:text-xl'>
+            {coinName} Markets
+          </h2>
           <div className='relative w-full sm:w-auto'>
             <Search className='absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground' />
             <input
@@ -169,7 +171,7 @@ export function CoinTickersTable({
             />
           </div>
         </div>
-        <div className='flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0'>
+        <div className='flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto justify-between sm:flex-wrap sm:overflow-visible sm:pb-0'>
           {/* Exchange type filters */}
           <div className='flex shrink-0 items-center gap-1 bg-muted rounded-lg p-1'>
             {EXCHANGE_TYPES.map((type) => (
