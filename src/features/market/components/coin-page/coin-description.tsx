@@ -1,4 +1,8 @@
+import { useState } from 'react'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { cn } from '@/shared/lib/utils'
+
+const MAX_LINES = 6
 
 export function CoinDescription({
   description,
@@ -7,6 +11,8 @@ export function CoinDescription({
   description?: Record<string, string>
   isLoading?: boolean
 }) {
+  const [expanded, setExpanded] = useState(false)
+
   if (isLoading) {
     return (
       <div>
@@ -26,12 +32,22 @@ export function CoinDescription({
     return null
   }
 
+  const paragraphs = description.en.split('\n\n\n')
+  const totalLines = description.en.split('\n').length
+
+  const shouldTruncate = totalLines > MAX_LINES && !expanded
+
   return (
     <div>
       <h2 className='text-xl font-bold mb-3'>About</h2>
-      <div className='prose max-w-full text-sm text-muted-foreground'>
-        {description.en.split('\n\n\n').map((para, i) => (
-          <p key={i}>
+      <div
+        className={cn(
+          'prose max-w-full text-sm text-muted-foreground relative',
+          shouldTruncate && 'max-h-36 overflow-hidden',
+        )}
+      >
+        {paragraphs.map((para, i) => (
+          <p key={i} className='leading-6'>
             {para.split('\n').map((line, j) => (
               <span key={j}>
                 {line}
@@ -40,7 +56,20 @@ export function CoinDescription({
             ))}
           </p>
         ))}
+
+        {shouldTruncate && (
+          <div className='absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-background to-transparent' />
+        )}
       </div>
+
+      {totalLines > MAX_LINES && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className='mt-2 text-base font-bold text-muted-foreground hover:text-muted-foreground/80 transition-colors '
+        >
+          {expanded ? 'Show less' : 'More...'}
+        </button>
+      )}
     </div>
   )
 }
