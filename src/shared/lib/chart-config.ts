@@ -54,8 +54,18 @@ export const createChartOptions = (
 ) =>
   ({
     autoSize: true,
-    handleScroll: true,
-    handleScale: true,
+    handleScroll: {
+      vertTouchDrag: false,
+      horzTouchDrag: true,
+      pressedMouseMove: true,
+    },
+    handleScale: {
+      axisPressedMouseMove: {
+        time: true,
+        price: true,
+      },
+      pinch: true,
+    },
     pinch: true,
     layout: {
       attributionLogo: false,

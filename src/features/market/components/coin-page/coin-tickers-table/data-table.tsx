@@ -213,17 +213,18 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-2 flex-wrap'>
+      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-2'>
         {/* Showing text */}
         <div className='text-sm text-muted-foreground whitespace-nowrap order-2 sm:order-1'>
           Showing {startRow} to {endRow} of {totalRows} results
         </div>
 
-        <div className='flex items-center gap-1 order-1 sm:order-2'>
+        {/* Page numbers — скролл на мобиле */}
+        <div className='flex items-center gap-1 order-1 sm:order-2 overflow-x-auto max-w-full pb-1'>
           <Button
             variant='outline'
             size='icon'
-            className='h-8 w-8'
+            className='h-8 w-8 shrink-0'
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
@@ -232,7 +233,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant='outline'
             size='icon'
-            className='h-8 w-8'
+            className='h-8 w-8 shrink-0'
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -243,7 +244,7 @@ export function DataTable<TData, TValue>({
             page === '...' ? (
               <span
                 key={`ellipsis-${idx}`}
-                className='px-2 text-muted-foreground'
+                className='px-2 text-muted-foreground shrink-0'
               >
                 ...
               </span>
@@ -253,7 +254,7 @@ export function DataTable<TData, TValue>({
                 variant={currentPage === page ? 'default' : 'outline'}
                 size='sm'
                 className={cn(
-                  'h-8 w-8 p-0 text-sm',
+                  'h-8 w-8 p-0 text-sm shrink-0',
                   currentPage === page && 'bg-primary text-primary-foreground',
                 )}
                 onClick={() => table.setPageIndex((page as number) - 1)}
@@ -266,7 +267,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant='outline'
             size='icon'
-            className='h-8 w-8'
+            className='h-8 w-8 shrink-0'
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
@@ -275,7 +276,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant='outline'
             size='icon'
-            className='h-8 w-8'
+            className='h-8 w-8 shrink-0'
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
