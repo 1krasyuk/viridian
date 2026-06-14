@@ -44,7 +44,7 @@ export function ScenarioTable({
   return (
     <div className='rounded-xl border border-border/40 overflow-hidden bg-linear-to-b from-card/50 to-background/50'>
       <div className='overflow-x-auto'>
-        <div className='min-w-[760px]'>
+        <div className='min-w-190'>
           <ScenarioTableHeader />
           {isLoading
             ? loadingRows.map((s, i) => (
@@ -80,7 +80,11 @@ function ScenarioTableHeader() {
       <HeaderCell label='Price' tooltip={COLUMN_TOOLTIPS.priceRange} alignEnd />
       <HeaderCell label='Value' tooltip={COLUMN_TOOLTIPS.valueRange} alignEnd />
       <HeaderCell label='ROI' tooltip={COLUMN_TOOLTIPS.roiRange} alignEnd />
-      <HeaderCell label='Prob.' tooltip={COLUMN_TOOLTIPS.probability} alignEnd />
+      <HeaderCell
+        label='Prob.'
+        tooltip={COLUMN_TOOLTIPS.probability}
+        alignEnd
+      />
     </div>
   )
 }
@@ -266,7 +270,11 @@ const loadingRows = [
   },
 ] as const
 
-function ScenarioLoadingRow({ scenario }: { scenario: (typeof loadingRows)[number] }) {
+function ScenarioLoadingRow({
+  scenario,
+}: {
+  scenario: (typeof loadingRows)[number]
+}) {
   const Icon = scenario.icon
   const iconColor =
     scenario.color === 'red'

@@ -81,7 +81,7 @@ export function DataTableInfinite<TData, TValue>({
   return (
     <div className='rounded-md border relative'>
       <div className='overflow-x-auto custom-scrollbar'>
-        <Table className='min-w-[920px]'>
+        <Table className='min-w-230'>
           <TableHeader className='bg-popover z-10 sticky top-0'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className='hover:bg-transparent'>

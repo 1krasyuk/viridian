@@ -62,7 +62,7 @@ export function ClassicCoinPageContent({
 }: ClassicCoinPageContentProps) {
   return (
     <div className='flex flex-col min-w-0'>
-      <div className='h-[420px] min-w-0 relative w-full sm:h-[520px] xl:h-150'>
+      <div className='h-105 min-w-0 relative w-full sm:h-130 xl:h-150'>
         <CoinChart
           coinId={coinId}
           chart={chart}
@@ -129,8 +129,8 @@ export function TerminalCoinPageContent({
 }: CoinPageSectionProps) {
   return (
     <>
-      <div className='flex min-h-[720px] flex-col xl:hidden'>
-        <div className='h-[420px] min-w-0 sm:h-[520px]'>
+      <div className='flex min-h-180 flex-col xl:hidden'>
+        <div className='h-105 min-w-0 sm:h-130'>
           <CoinChart
             coinId={coinId}
             chart={chart}
@@ -230,7 +230,7 @@ export function CoinPageSidebar({
   days: string
 }) {
   return (
-    <aside className='order-first flex w-full flex-col border-b bg-background xl:order-last xl:sticky xl:top-0 xl:h-screen xl:w-[360px] xl:shrink-0 xl:border-b-0 xl:border-l 2xl:w-[420px]'>
+    <aside className='order-first flex w-full flex-col border-b bg-background xl:order-last xl:sticky xl:top-0 xl:h-screen xl:w-90 xl:shrink-0 xl:border-b-0 xl:border-l 2xl:w-105'>
       <div className='bg-background px-3 pt-3 pb-4 relative sm:px-5 sm:pt-5 sm:pb-6'>
         <CoinHeader coin={coin} isLoading={isLoading} days={days} />
       </div>
@@ -286,7 +286,7 @@ export function MobileCoinPageContent({
       </div>
 
       {/* Chart */}
-      <div className='h-[420px] p-4 min-w-0 relative w-full sm:h-[520px]'>
+      <div className='h-105 p-4 min-w-0 relative w-full sm:h-130'>
         <CoinChart
           coinId={coinId}
           chart={chart}
@@ -304,7 +304,7 @@ export function MobileCoinPageContent({
         <div className='flex items-center gap-1 rounded-lg border bg-muted/50 p-1'>
           <button
             onClick={() => onViewModeChange('pagination')}
-            className={`flex-1 rounded-md px-3 py-1.5 text-base font-medium transition-colors ${
+            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               viewMode === 'pagination'
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -314,7 +314,7 @@ export function MobileCoinPageContent({
           </button>
           <button
             onClick={() => onViewModeChange('infinite')}
-            className={`flex-1 rounded-md px-3 py-1.5 text-base font-medium transition-colors ${
+            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               viewMode === 'infinite'
                 ? 'bg-background text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
@@ -331,7 +331,7 @@ export function MobileCoinPageContent({
       </div>
 
       {/* Sidebar components */}
-      <div className='border-t p-4 grid grid-cols-1 gap-3 sm:grid-cols-2'>
+      <div className='border-t p-4 grid grid-cols-1 gap-3'>
         <p className='font-bold text-base'>{coin?.name} statictics</p>
         <CoinStatistics coin={coin} isLoading={isLoadingCoin} />
         <CoinInfo coin={coin} isLoading={isLoadingCoin} />

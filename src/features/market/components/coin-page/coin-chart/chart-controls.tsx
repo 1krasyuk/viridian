@@ -37,7 +37,7 @@ export function CoinChartControls({
   isLoading,
 }: CoinChartControlsProps) {
   return (
-    <div className='flex flex-col gap-2 p-2 md:flex-row md:justify-between'>
+    <div className='flex flex-col gap-2 p-2 md:justify-between'>
       <div className='flex min-w-0 gap-2 overflow-x-auto pb-1 md:overflow-visible md:pb-0'>
         <ToggleGroup
           type='single'

@@ -39,7 +39,7 @@ function RouteComponent() {
 
   return (
     <div className='flex min-h-screen min-w-0 flex-col xl:flex-row'>
-      {/* Desktop sidebar — справа */}
+      {/* Desktop sidebar */}
       <div className='hidden order-first xl:block xl:order-last'>
         <CoinPageSidebar coin={data} isLoading={isLoadingCoin} days={days} />
       </div>
