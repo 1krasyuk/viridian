@@ -21,6 +21,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/shared/ui/resizable'
+import { CoinPageViewModeTabs } from './coin-page-view-mode-tabs'
 
 type DataType = 'price' | 'marketCap'
 
@@ -277,106 +278,128 @@ export function MobileCoinPageContent({
   onViewModeChange,
 }: MobileCoinPageContentProps) {
   return (
-    <div className='flex flex-col min-w-0 xl:hidden'>
-      {/* Sticky Header */}
-      <div className='sticky top-0 z-50 bg-background border-b'>
+    <div className='flex flex-col min-w-0 h-dvh xl:hidden'>
+      {/* Sticky Header + Tabs */}
+      <div className='shrink-0 bg-background'>
         <div className='px-3 pt-3 pb-4 sm:px-5 sm:pt-5 sm:pb-6'>
           <CoinHeader coin={coin} isLoading={isLoadingCoin} days={days} />
         </div>
-      </div>
-
-      {/* Chart */}
-      <div className='h-105 p-4 min-w-0 relative w-full sm:h-130'>
-        <CoinChart
-          coinId={coinId}
-          chart={chart}
-          symbol={coin?.symbol}
-          days={days}
-          onDaysChange={onDaysChange}
-          dataType={dataType}
-          onDataTypeChange={onDataTypeChange}
-          isLoading={isLoadingChart}
-          view={viewMode === 'infinite' ? 'terminal' : 'classic'}
-        />
-      </div>
-      {/* View mode switcher */}
-      <div className='px-4 pb-4'>
-        <div className='flex items-center gap-1 rounded-lg border bg-muted/50 p-1'>
-          <button
-            onClick={() => onViewModeChange('pagination')}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              viewMode === 'pagination'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Classic
-          </button>
-          <button
-            onClick={() => onViewModeChange('infinite')}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              viewMode === 'infinite'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Terminal
-          </button>
-        </div>
-      </div>
-
-      <div className='px-4  space-y-3'>
-        <CoinPriceChange coin={coin} isLoading={isLoadingCoin} />
-        <CoinConverter coin={coin} isLoading={isLoadingCoin} />
-      </div>
-
-      {/* Sidebar components */}
-      <div className='border-t p-4 grid grid-cols-1 gap-3'>
-        <p className='font-bold text-base'>{coin?.name} statictics</p>
-        <CoinStatistics coin={coin} isLoading={isLoadingCoin} />
-        <CoinInfo coin={coin} isLoading={isLoadingCoin} />
-        <CoinSentiment coin={coin} isLoading={isLoadingCoin} />
-        <CoinPricePerformance coin={coin} isLoading={isLoadingCoin} />
-      </div>
-
-      {/* Content */}
-      <div className='flex flex-col gap-4 p-3 sm:gap-5 sm:p-5'>
-        <CoinDescription
-          description={coin?.description}
-          isLoading={isLoadingCoin}
-        />
-
-        <div className='grid grid-cols-1 gap-4'>
-          <CoinTokenomics coin={coin} isLoading={isLoadingCoin} />
-          <CoinMarketDominance
-            coin={coin}
-            isLoading={isLoadingCoin}
-            globalData={globalData}
+        <div>
+          <CoinPageViewModeTabs
+            value={viewMode}
+            onValueChange={onViewModeChange}
           />
         </div>
-
-        <div className='grid grid-cols-1 gap-5'>
-          <CoinRiskMetrics
-            coin={coin}
-            chart={metricsChart}
-            days={metricDays}
-            onDaysChange={onMetricDaysChange}
-            isLoadingCoin={isLoadingCoin}
-            isLoadingChart={isLoadingMetrics}
-          />
-        </div>
-
-        <CoinRoiCalculator coin={coin} isLoading={isLoadingCoin} />
-        <CoinMarketScenarios coin={coin} isLoading={isLoadingCoin} />
-
-        {/* Markets — always pagination */}
-        <CoinTickersTable
-          coinName={coin?.name || ''}
-          tickers={coin?.tickers ?? []}
-          loading={isLoadingCoin}
-          mode='pagination'
-        />
       </div>
+
+      {viewMode === 'pagination' ? (
+        /* ===== CLASSIC MOBILE VIEW ===== */
+        <div className='flex-1 overflow-auto'>
+          {/* Chart */}
+          <div className='h-105 p-4 min-w-0 relative w-full sm:h-130'>
+            <CoinChart
+              coinId={coinId}
+              chart={chart}
+              symbol={coin?.symbol}
+              days={days}
+              onDaysChange={onDaysChange}
+              dataType={dataType}
+              onDataTypeChange={onDataTypeChange}
+              isLoading={isLoadingChart}
+              view='classic'
+            />
+          </div>
+
+          <div className='px-4 space-y-3'>
+            <CoinPriceChange coin={coin} isLoading={isLoadingCoin} />
+            <CoinConverter coin={coin} isLoading={isLoadingCoin} />
+          </div>
+
+          {/* Sidebar components */}
+          <div className='border-t p-4 grid grid-cols-1 gap-3'>
+            <p className='font-bold text-base'>{coin?.name} statistics</p>
+            <CoinStatistics coin={coin} isLoading={isLoadingCoin} />
+            <CoinInfo coin={coin} isLoading={isLoadingCoin} />
+            <CoinSentiment coin={coin} isLoading={isLoadingCoin} />
+            <CoinPricePerformance coin={coin} isLoading={isLoadingCoin} />
+          </div>
+
+          {/* Content */}
+          <div className='flex flex-col gap-4 p-3 sm:gap-5 sm:p-5'>
+            <CoinDescription
+              description={coin?.description}
+              isLoading={isLoadingCoin}
+            />
+
+            <div className='grid grid-cols-1 gap-4'>
+              <CoinTokenomics coin={coin} isLoading={isLoadingCoin} />
+              <CoinMarketDominance
+                coin={coin}
+                isLoading={isLoadingCoin}
+                globalData={globalData}
+              />
+            </div>
+
+            <div className='grid grid-cols-1 gap-5'>
+              <CoinRiskMetrics
+                coin={coin}
+                chart={metricsChart}
+                days={metricDays}
+                onDaysChange={onMetricDaysChange}
+                isLoadingCoin={isLoadingCoin}
+                isLoadingChart={isLoadingMetrics}
+              />
+            </div>
+
+            <CoinRoiCalculator coin={coin} isLoading={isLoadingCoin} />
+            <CoinMarketScenarios coin={coin} isLoading={isLoadingCoin} />
+
+            {/* Markets — pagination */}
+            <CoinTickersTable
+              coinName={coin?.name || ''}
+              tickers={coin?.tickers ?? []}
+              loading={isLoadingCoin}
+              mode='pagination'
+            />
+          </div>
+        </div>
+      ) : (
+        /* ===== TERMINAL MOBILE VIEW ===== */
+        <div className='flex-1 min-h-0'>
+          <ResizablePanelGroup orientation='vertical' className='h-full'>
+            <ResizablePanel defaultSize='60%' minSize='30%'>
+              <div className='h-full min-h-0 p-4'>
+                <CoinChart
+                  coinId={coinId}
+                  chart={chart}
+                  symbol={coin?.symbol}
+                  days={days}
+                  onDaysChange={onDaysChange}
+                  dataType={dataType}
+                  onDataTypeChange={onDataTypeChange}
+                  isLoading={isLoadingChart}
+                  view='terminal'
+                />
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            <ResizablePanel defaultSize='40%' minSize='20%'>
+              <div className='relative h-full overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
+                <div className='py-4'>
+                  <CoinTickersTable
+                    coinName={coin?.name || ''}
+                    tickers={coin?.tickers ?? []}
+                    loading={isLoadingCoin}
+                    mode='infinite'
+                  />
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
+      )}
     </div>
   )
 }
