@@ -367,7 +367,7 @@ export function MobileCoinPageContent({
         /* ===== TERMINAL MOBILE VIEW ===== */
         <div className='flex-1 min-h-0'>
           <ResizablePanelGroup orientation='vertical' className='h-full'>
-            <ResizablePanel defaultSize='60%' minSize='30%'>
+            <ResizablePanel defaultSize='60%' minSize='40%'>
               <div className='h-full min-h-0 p-4'>
                 <CoinChart
                   coinId={coinId}
