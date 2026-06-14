@@ -153,7 +153,7 @@ export function CoinTickersTable({
       <div
         className={cn(
           'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4',
-          mode === 'infinite' && 'px-5',
+          mode === 'infinite' && 'px-4',
         )}
       >
         <div className='flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3'>
