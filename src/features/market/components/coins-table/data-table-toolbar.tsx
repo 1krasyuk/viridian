@@ -130,9 +130,9 @@ export function DataTableToolbar<TData>({
               <Settings2 />
             </Button>
           </DialogTrigger>
-          <DialogContent className='bg-card sm:max-w-3xl'>
-            <DialogHeader>
-              <DialogTitle>
+          <DialogContent className='bg-card grid-rows-[auto_minmax(0,1fr)_auto] max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] gap-4 overflow-hidden rounded-3xl p-4 sm:max-w-3xl sm:gap-6 sm:rounded-4xl sm:p-6'>
+            <DialogHeader className='pr-10'>
+              <DialogTitle className='flex flex-wrap items-center gap-y-1 leading-snug'>
                 Choose up to
                 <Badge
                   className='px-2 mx-2 rounded-md text-sm font-bold'
@@ -150,96 +150,105 @@ export function DataTableToolbar<TData>({
                 Add, delete and sort metrics just how you need it
               </DialogDescription>
             </DialogHeader>
-            <div className=''>
-              <p className='text-xs font-semibold uppercase text-muted-foreground mb-3'>
-                Selected Columns
-              </p>
-              <div className='flex flex-wrap gap-2 min-h-10 p-2 bg-accent/50 rounded-xl'>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={table
-                      .getVisibleLeafColumns()
-                      .filter((col) => col.getCanHide())
-                      .map((col) => col.id)}
-                    strategy={() => null}
+            <div className='min-h-0 overflow-y-auto overscroll-contain pr-1 -mr-1'>
+              <div>
+                <p className='text-xs font-semibold uppercase text-muted-foreground mb-3'>
+                  Selected Columns
+                </p>
+                <div className='flex flex-wrap gap-2 min-h-10 p-2 bg-accent/50 rounded-xl'>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                   >
-                    {table
-                      .getVisibleLeafColumns()
-                      .filter((col) => col.getCanHide())
-                      .map((column, idx) => {
-                        const columnMeta = column.columnDef.meta as {
-                          label?: string
-                        }
-                        const label = columnMeta?.label ?? column.id
-
-                        return (
-                          <DraggableColumnItem
-                            key={column.id}
-                            id={column.id}
-                            index={idx}
-                            label={label}
-                          />
-                        )
-                      })}
-                  </SortableContext>
-                </DndContext>
-              </div>
-            </div>
-            <div className='space-y-5'>
-              {Object.entries(
-                table
-                  .getAllLeafColumns()
-                  .filter((column) => column.getCanHide())
-                  .reduce<
-                    Record<string, ReturnType<typeof table.getAllLeafColumns>>
-                  >((groups, column) => {
-                    const category =
-                      (
-                        column.columnDef.meta as {
-                          category?: string
-                        }
-                      )?.category ?? 'Other'
-                    if (!groups[category]) groups[category] = []
-                    groups[category].push(column)
-                    return groups
-                  }, {}),
-              ).map(([category, cols]) => (
-                <div key={category} className='flex items-start'>
-                  <span className='text-sm text-muted-foreground w-28 shrink-0 pt-1.5 '>
-                    {category}
-                  </span>
-                  <div className='flex flex-wrap gap-1.5 w-full justify-end'>
-                    {cols.map((column) => (
-                      <Button
-                        key={column.id}
-                        variant={column.getIsVisible() ? 'soft' : 'outline'}
-                        disabled={
-                          !column.getIsVisible() &&
-                          table.getVisibleLeafColumns().length - 2 >= 12
-                        }
-                        size='sm'
-                        className='rounded-3xl gap-1.5 font-bold'
-                        onClick={() => column.toggleVisibility()}
-                      >
-                        {(
-                          column.columnDef.meta as {
+                    <SortableContext
+                      items={table
+                        .getVisibleLeafColumns()
+                        .filter((col) => col.getCanHide())
+                        .map((col) => col.id)}
+                      strategy={() => null}
+                    >
+                      {table
+                        .getVisibleLeafColumns()
+                        .filter((col) => col.getCanHide())
+                        .map((column, idx) => {
+                          const columnMeta = column.columnDef.meta as {
                             label?: string
                           }
-                        )?.label ?? column.id}
-                        {column.getIsVisible() && (
-                          <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
-                        )}
-                      </Button>
-                    ))}
-                  </div>
+                          const label = columnMeta?.label ?? column.id
+
+                          return (
+                            <DraggableColumnItem
+                              key={column.id}
+                              id={column.id}
+                              index={idx}
+                              label={label}
+                              onRemove={() => column.toggleVisibility(false)}
+                            />
+                          )
+                        })}
+                    </SortableContext>
+                  </DndContext>
                 </div>
-              ))}
+              </div>
+
+              <div className='space-y-5 mt-5'>
+                {Object.entries(
+                  table
+                    .getAllLeafColumns()
+                    .filter((column) => column.getCanHide())
+                    .reduce<
+                      Record<string, ReturnType<typeof table.getAllLeafColumns>>
+                    >((groups, column) => {
+                      const category =
+                        (
+                          column.columnDef.meta as {
+                            category?: string
+                          }
+                        )?.category ?? 'Other'
+                      if (!groups[category]) groups[category] = []
+                      groups[category].push(column)
+                      return groups
+                    }, {}),
+                ).map(([category, cols]) => (
+                  <div
+                    key={category}
+                    className='flex flex-col gap-2 sm:flex-row sm:items-start'
+                  >
+                    <span className='text-sm text-muted-foreground shrink-0 sm:w-28 sm:pt-1.5'>
+                      {category}
+                    </span>
+                    <div className='flex flex-wrap gap-1.5 w-full sm:justify-end'>
+                      {cols.map((column) => (
+                        <Button
+                          key={column.id}
+                          variant={column.getIsVisible() ? 'soft' : 'outline'}
+                          disabled={
+                            !column.getIsVisible() &&
+                            table.getVisibleLeafColumns().length - 2 >= 12
+                          }
+                          size='sm'
+                          className='rounded-3xl gap-1.5 font-bold max-w-full'
+                          onClick={() => column.toggleVisibility()}
+                        >
+                          <span className='truncate'>
+                            {(
+                              column.columnDef.meta as {
+                                label?: string
+                              }
+                            )?.label ?? column.id}
+                          </span>
+                          {column.getIsVisible() && (
+                            <X className='rounded-full bg-primary text-primary-foreground size-4 p-0.5' />
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className='flex justify-between items-center'>
+            <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-between sm:items-center'>
               <Button variant='destructive' onClick={onResetColumns}>
                 Reset
               </Button>
