@@ -93,7 +93,7 @@ export function LeadStory({ article }: { article: CryptoNewsArticle }) {
       rel='noreferrer'
       className='group block rounded-2xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50'
     >
-      <Card className='min-h-[25rem] border-primary/15 bg-card shadow-sm transition-colors group-hover:border-primary/30 group-hover:bg-card/90'>
+      <Card className='min-h-100 border-primary/15 bg-card shadow-sm transition-colors group-hover:border-primary/30 group-hover:bg-card/90'>
         <NewsImage
           article={article}
           priority
@@ -106,7 +106,7 @@ export function LeadStory({ article }: { article: CryptoNewsArticle }) {
               <Badge variant='secondary'>{article.symbol}</Badge>
             ) : null}
           </div>
-          <CardTitle className='text-3xl leading-tight tracking-tight transition-colors group-hover:text-primary'>
+          <CardTitle className='text-2xl md:text-3xl leading-tight tracking-tight transition-colors group-hover:text-primary'>
             {article.title}
           </CardTitle>
           {article.description ? (
@@ -168,22 +168,31 @@ export function ArticleCard({ article }: { article: CryptoNewsArticle }) {
       rel='noreferrer'
       className='group block rounded-2xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50'
     >
-      <Card className='h-full bg-card/75 transition-colors group-hover:border-primary/30 group-hover:bg-card/90'>
+      <Card className='flex h-full flex-col bg-card/75 transition-colors group-hover:border-primary/30 group-hover:bg-card/90'>
         <NewsImage
           article={article}
           className='aspect-[2.35/1] w-full object-cover md:aspect-[1.7/1]'
         />
-        <CardHeader className='gap-3'>
+        <CardHeader className='flex flex-col gap-3'>
           <ArticleMeta article={article} />
-          <CardTitle className='line-clamp-3 text-xl leading-snug transition-colors group-hover:text-primary'>
-            {article.title}
-          </CardTitle>
-          {article.description ? (
-            <CardDescription className='line-clamp-3 leading-6'>
-              {article.description}
-            </CardDescription>
-          ) : null}
+
+          <div className='h-20 overflow-hidden'>
+            <CardTitle className='line-clamp-3 text-xl leading-snug transition-colors group-hover:text-primary'>
+              {article.title}
+            </CardTitle>
+          </div>
+
+          <div className='h-18 overflow-hidden'>
+            {article.description ? (
+              <CardDescription className='line-clamp-3 leading-6'>
+                {article.description}
+              </CardDescription>
+            ) : (
+              <span className='text-sm text-muted-foreground'>—</span>
+            )}
+          </div>
         </CardHeader>
+
         <CardContent className='mt-auto flex items-center justify-between gap-3'>
           {article.symbol ? (
             <Badge variant='outline'>{article.symbol}</Badge>

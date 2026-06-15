@@ -38,7 +38,7 @@ export function NewsPage() {
 
   return (
     <div className='min-h-screen bg-[radial-gradient(circle_at_top_left,color-mix(in_oklch,var(--primary)_12%,transparent),transparent_30rem)] px-4 py-6 md:px-6 lg:px-8'>
-      <div className='mx-auto flex max-w-7xl flex-col gap-6'>
+      <div className='mx-auto flex max-w-8xl flex-col gap-6'>
         <header className='grid gap-5 border-b pb-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-end'>
           <div className='max-w-4xl space-y-2'>
             <h1 className='text-4xl font-semibold tracking-tight md:text-5xl'>
@@ -46,8 +46,7 @@ export function NewsPage() {
             </h1>
             <p className='max-w-3xl text-sm leading-6 text-muted-foreground md:text-base'>
               Follow the stories shaping crypto-adjacent markets, macro
-              sentiment, fintech, earnings, and high-conviction watchlist
-              names.
+              sentiment, fintech, earnings, and high-conviction watchlist names.
             </p>
           </div>
 
@@ -147,16 +146,12 @@ export function NewsPage() {
                   </span>
                 </div>
                 {sideArticles.map((article, index) => (
-                  <SideStory
-                    key={article.id}
-                    article={article}
-                    index={index}
-                  />
+                  <SideStory key={article.id} article={article} index={index} />
                 ))}
               </div>
             </section>
 
-            <section className='grid gap-5 sm:grid-cols-2 xl:grid-cols-3'>
+            <section className='grid gap-5 sm:grid-cols-2 xl:grid-cols-4'>
               {gridArticles.map((article) => (
                 <ArticleCard key={article.id} article={article} />
               ))}
