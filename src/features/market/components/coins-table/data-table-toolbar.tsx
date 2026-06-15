@@ -56,6 +56,8 @@ interface DataTableToolbarProps<TData> {
   onPageChange: (page: number, size?: number) => void
   onReset: () => void
   onResetColumns: () => void
+  showCategoryFilter?: boolean
+  showRowsSelector?: boolean
 }
 
 export function DataTableToolbar<TData>({
@@ -67,6 +69,8 @@ export function DataTableToolbar<TData>({
   onPageChange,
   onReset,
   onResetColumns,
+  showCategoryFilter = true,
+  showRowsSelector = true,
 }: DataTableToolbarProps<TData>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -88,31 +92,35 @@ export function DataTableToolbar<TData>({
 
   return (
     <div className='bg-background h-16 flex items-center justify-between px-3'>
-      <Combobox
-        items={categories || []}
-        itemToStringValue={(category: Category) => category.name}
-        itemToStringLabel={(category: Category) => category.name}
-        value={categoryValue}
-        onValueChange={(category) => {
-          onCategoryChange(category?.category_id)
-        }}
-      >
-        <ComboboxInput
-          placeholder='Select a category'
-          className='w-50 rounded-lg'
-          showClear
-        />
-        <ComboboxContent>
-          <ComboboxEmpty>No category found.</ComboboxEmpty>
-          <ComboboxList>
-            {(category) => (
-              <ComboboxItem key={category.category_id} value={category}>
-                {category.name}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
+      {showCategoryFilter ? (
+        <Combobox
+          items={categories || []}
+          itemToStringValue={(category: Category) => category.name}
+          itemToStringLabel={(category: Category) => category.name}
+          value={categoryValue}
+          onValueChange={(category) => {
+            onCategoryChange(category?.category_id)
+          }}
+        >
+          <ComboboxInput
+            placeholder='Select a category'
+            className='w-50 rounded-lg'
+            showClear
+          />
+          <ComboboxContent>
+            <ComboboxEmpty>No category found.</ComboboxEmpty>
+            <ComboboxList>
+              {(category) => (
+                <ComboboxItem key={category.category_id} value={category}>
+                  {category.name}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      ) : (
+        <div />
+      )}
 
       <div className='flex gap-5 items-center'>
         <Dialog>
@@ -242,32 +250,34 @@ export function DataTableToolbar<TData>({
           </DialogContent>
         </Dialog>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='outline' className='w-30'>
-              {perPage} Rows
-              <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className='min-w-0 p-1'>
-            <DropdownMenuRadioGroup
-              value={String(perPage)}
-              onValueChange={(value) => {
-                onPageChange(1, Number(value))
-              }}
-            >
-              {[20, 50, 100, 200, 250].map((size) => (
-                <DropdownMenuRadioItem
-                  key={size}
-                  value={String(size)}
-                  className='my-0.5'
-                >
-                  {size} Rows
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {showRowsSelector && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className='w-30'>
+                {perPage} Rows
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='min-w-0 p-1'>
+              <DropdownMenuRadioGroup
+                value={String(perPage)}
+                onValueChange={(value) => {
+                  onPageChange(1, Number(value))
+                }}
+              >
+                {[20, 50, 100, 200, 250].map((size) => (
+                  <DropdownMenuRadioItem
+                    key={size}
+                    value={String(size)}
+                    className='my-0.5'
+                  >
+                    {size} Rows
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Button variant='outline' className='w-10 h-10 group' onClick={onReset}>
           <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
         </Button>

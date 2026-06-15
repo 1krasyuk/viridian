@@ -1,9 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/shared/ui/button'
 import type { Coin } from '../../../types/coin'
 import { Badge } from '@/shared/ui/badge'
 import { Star, Share, Check } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { cn } from '@/shared/lib/utils'
+import {
+  coinToWatchlistCoin,
+  useWatchlistStore,
+} from '@/features/watchlist/store/watchlist-store'
 
 export function CoinHeader({
   coin,
@@ -15,12 +20,22 @@ export function CoinHeader({
   days?: string
 }) {
   const [copied, setCopied] = useState(false)
+  const isWatched = useWatchlistStore((state) =>
+    coin ? state.isWatched(coin.id) : false,
+  )
+  const addCoin = useWatchlistStore((state) => state.addCoin)
+  const toggleCoin = useWatchlistStore((state) => state.toggleCoin)
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  useEffect(() => {
+    if (!coin || !isWatched) return
+    addCoin(coinToWatchlistCoin(coin))
+  }, [addCoin, coin, isWatched])
 
   if (isLoading || !coin) {
     return (
@@ -34,17 +49,17 @@ export function CoinHeader({
           </div>
           <div className='flex gap-1'>
             <Button variant='secondary' size='sm' disabled className='gap-1.5'>
-              <Star className='h-4 w-4' />
+              <Star />
               <Skeleton className='h-4 w-8' />
             </Button>
 
             <Button
               variant='secondary'
-              size='sm'
+              size='icon'
               disabled
-              className='w-8 h-8 p-0 flex items-center justify-center'
+              className='size-8'
             >
-              <Share className='h-4 w-4 opacity-50' />
+              <Share className='opacity-50' />
             </Button>
           </div>
         </div>
@@ -104,6 +119,14 @@ export function CoinHeader({
 
   const priceChangeRaw = getPriceChange()
   const priceChange = normalizePriceChange(priceChangeRaw)
+  const watchlistCount = new Intl.NumberFormat('en', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(coin.watchlist_portfolio_users)
+
+  const handleWatchlistToggle = () => {
+    toggleCoin(coinToWatchlistCoin(coin))
+  }
 
   return (
     <div className='w-full space-y-3'>
@@ -128,23 +151,30 @@ export function CoinHeader({
           )}
         </div>
         <div className='flex gap-1'>
-          <Button variant='secondary' size='sm' className='gap-1.5'>
-            <Star className='h-4 w-4 shrink-0' />
-            {new Intl.NumberFormat('en', {
-              notation: 'compact',
-              maximumFractionDigits: 1,
-            }).format(coin.watchlist_portfolio_users)}
+          <Button
+            variant='secondary'
+            size='sm'
+            className='gap-1.5'
+            onClick={handleWatchlistToggle}
+          >
+            <Star
+              className={cn(
+                'shrink-0',
+                isWatched && 'fill-foreground text-foreground',
+              )}
+            />
+            <span>{watchlistCount}</span>
           </Button>
           <Button
             variant='secondary'
             onClick={handleCopy}
             size='sm'
-            className='w-8 h-8 p-0 flex items-center justify-center'
+            className='size-8'
           >
             {copied ? (
-              <Check className='h-4 w-4' />
+              <Check />
             ) : (
-              <Share className='h-4 w-4' />
+              <Share />
             )}
           </Button>
         </div>
@@ -159,13 +189,12 @@ export function CoinHeader({
         </p>
 
         <p
-          className={`inline-flex items-center font-bold text-md ${
-            priceChange == null
-              ? 'text-gray-400'
-              : priceChange >= 0
-                ? 'text-emerald-500'
-                : 'text-red-500'
-          }`}
+          className={`inline-flex items-center font-bold text-md ${priceChange == null
+            ? 'text-gray-400'
+            : priceChange >= 0
+              ? 'text-emerald-500'
+              : 'text-red-500'
+            }`}
         >
           <span className='inline-block scale-x-150 scale-y-80 mr-1 text-xs'>
             {priceChange == null ? '—' : priceChange >= 0 ? '▲' : '▼'}

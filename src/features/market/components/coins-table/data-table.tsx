@@ -78,6 +78,9 @@ interface DataTableProps<TData, TValue> {
   loadingCategories?: boolean
   category: string | undefined
   onCategoryChange: (category: string | undefined) => void
+  showCategoryFilter?: boolean
+  showRowsSelector?: boolean
+  showPagination?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -91,6 +94,9 @@ export function DataTable<TData, TValue>({
   categories,
   category,
   onCategoryChange,
+  showCategoryFilter = true,
+  showRowsSelector = true,
+  showPagination = true,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -186,6 +192,8 @@ export function DataTable<TData, TValue>({
         onPageChange={onPageChange}
         onReset={handleReset}
         onResetColumns={handleResetColumns}
+        showCategoryFilter={showCategoryFilter}
+        showRowsSelector={showRowsSelector}
       />
       {/* Sticky table header — separate table synced with body */}
       <div
@@ -304,13 +312,15 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </table>
       </div>
-      <DataTablePagination
-        page={page}
-        perPage={perPage}
-        pageCount={pageCount}
-        loading={loading}
-        onPageChange={onPageChange}
-      />
+      {showPagination && (
+        <DataTablePagination
+          page={page}
+          perPage={perPage}
+          pageCount={pageCount}
+          loading={loading}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   )
 }

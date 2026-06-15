@@ -29,7 +29,11 @@ export const coinsApi = {
   },
 
   async getCoin(id: string): Promise<Coin> {
-    const { data } = await http.get<Coin>(`/coins/${id}`)
+    const { data } = await http.get<Coin>(`/coins/${id}`, {
+      params: {
+        sparkline: true,
+      },
+    })
     return data
   },
 

@@ -30,6 +30,7 @@ export interface Coin {
 
   market_data: {
     current_price: Record<string, number>
+    price_change_24h: number | null
     price_change_percentage_24h: number | null
 
     price_change_percentage_1h_in_currency?: Record<string, number>
@@ -41,6 +42,7 @@ export interface Coin {
     price_change_percentage_1y_in_currency?: Record<string, number>
 
     market_cap: Record<string, number>
+    market_cap_change_24h: number | null
     market_cap_change_percentage_24h: number | null
 
     total_volume: Record<string, number>
@@ -61,6 +63,10 @@ export interface Coin {
     atl: Record<string, number>
     atl_change_percentage: Record<string, number>
     atl_date: Record<string, string>
+
+    sparkline_7d?: {
+      price: number[]
+    }
   }
 
   sentiment_votes_up_percentage: number
