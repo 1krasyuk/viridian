@@ -21,17 +21,13 @@ import {
   ChevronRight,
   ChevronsUpDown,
   DollarSign,
-  Grid2X2,
   Languages,
-  Layers,
   Moon,
-  Newspaper,
   Settings,
-  Star,
   Sun,
-  WalletMinimal,
 } from 'lucide-react'
 import { useTheme } from '@/shared/lib/theme-provider'
+import { sidebarNavItems } from './nav-items'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
@@ -70,13 +66,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className='gap-1'>
-            {[
-              { to: '/watchlist', icon: <Star />, label: 'Watchlist' },
-              { to: '/multichart', icon: <Grid2X2 />, label: 'Multichart' },
-              { to: '/heatmap', icon: <Layers />, label: 'Heatmap' },
-              { to: '/portfolio', icon: <WalletMinimal />, label: 'Portfolio' },
-              { to: '/news', icon: <Newspaper />, label: 'News' },
-            ].map((item) => (
+            {sidebarNavItems.map((item) => (
               <SidebarMenuItem key={item.to}>
                 <SidebarMenuButton
                   asChild
@@ -105,7 +95,7 @@ export function AppSidebar() {
                   '
                 >
                   <Link to={item.to} activeProps={{ 'data-active': true }}>
-                    {item.icon}
+                    <item.icon />
                     <span className='group-data-[collapsible=icon]:hidden'>
                       {item.label}
                     </span>
