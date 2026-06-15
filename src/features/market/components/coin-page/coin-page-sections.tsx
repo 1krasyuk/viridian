@@ -316,7 +316,7 @@ export function MobileCoinPageContent({
           </div>
 
           {/* Sidebar components */}
-          <div className='border-t p-4 grid grid-cols-1 gap-3'>
+          <div className='p-4 grid grid-cols-1 gap-3'>
             <p className='font-bold text-base'>{coin?.name} statistics</p>
             <CoinStatistics coin={coin} isLoading={isLoadingCoin} />
             <CoinInfo coin={coin} isLoading={isLoadingCoin} />
