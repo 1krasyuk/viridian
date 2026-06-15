@@ -7,3 +7,13 @@ export const http = axios.create({
     x_cg_demo_api_key: import.meta.env.VITE_CG_API_KEY,
   },
 })
+
+export const fmpHttp = axios.create({
+  baseURL:
+    import.meta.env.VITE_FMP_API_BASE_URL ??
+    'https://financialmodelingprep.com/stable/',
+  timeout: 10000,
+  params: {
+    apikey: import.meta.env.VITE_FMP_API_KEY,
+  },
+})
