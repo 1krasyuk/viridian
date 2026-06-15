@@ -91,7 +91,7 @@ export function DataTableToolbar<TData>({
   }
 
   return (
-    <div className='grid grid-rows-2 w-full gap-2 py-2 bg-background md:flex items-center md:justify-between px-3'>
+    <div className=' py-2 bg-background md:flex items-center md:justify-between px-3'>
       {showCategoryFilter ? (
         <Combobox
           items={categories || []}
@@ -104,7 +104,7 @@ export function DataTableToolbar<TData>({
         >
           <ComboboxInput
             placeholder='Select a category'
-            className='md:w-50 w-full rounded-lg'
+            className='md:w-50 w-full rounded-lg mb-2 md: mb-0'
             showClear
           />
           <ComboboxContent>
