@@ -53,12 +53,7 @@ export function CoinHeader({
               <Skeleton className='h-4 w-8' />
             </Button>
 
-            <Button
-              variant='secondary'
-              size='icon'
-              disabled
-              className='size-8'
-            >
+            <Button variant='secondary' size='icon' disabled className='size-8'>
               <Share className='opacity-50' />
             </Button>
           </div>
@@ -171,11 +166,7 @@ export function CoinHeader({
             size='sm'
             className='size-8'
           >
-            {copied ? (
-              <Check />
-            ) : (
-              <Share />
-            )}
+            {copied ? <Check /> : <Share />}
           </Button>
         </div>
       </div>
@@ -189,12 +180,13 @@ export function CoinHeader({
         </p>
 
         <p
-          className={`inline-flex items-center font-bold text-md ${priceChange == null
-            ? 'text-gray-400'
-            : priceChange >= 0
-              ? 'text-emerald-500'
-              : 'text-red-500'
-            }`}
+          className={`inline-flex items-center font-bold text-md ${
+            priceChange == null
+              ? 'text-gray-400'
+              : priceChange >= 0
+                ? 'text-emerald-500'
+                : 'text-red-500'
+          }`}
         >
           <span className='inline-block scale-x-150 scale-y-80 mr-1 text-xs'>
             {priceChange == null ? '—' : priceChange >= 0 ? '▲' : '▼'}

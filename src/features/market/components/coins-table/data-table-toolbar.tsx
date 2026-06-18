@@ -46,6 +46,7 @@ import { Badge } from '@/shared/ui/badge'
 import { ChevronDown, RefreshCcw, Settings2, X } from 'lucide-react'
 
 import { DraggableColumnItem } from './draggable-column-item'
+import { cn } from '@/shared/lib/utils'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -91,7 +92,7 @@ export function DataTableToolbar<TData>({
   }
 
   return (
-    <div className=' py-2 bg-background md:flex items-center md:justify-between px-3'>
+    <div className='py-2 bg-background md:flex items-center md:justify-between px-3'>
       {showCategoryFilter ? (
         <Combobox
           items={categories || []}
@@ -104,7 +105,7 @@ export function DataTableToolbar<TData>({
         >
           <ComboboxInput
             placeholder='Select a category'
-            className='md:w-50 w-full rounded-lg mb-2 md: mb-0'
+            className='md:w-50 w-full rounded-lg mb-2 md:mb-0'
             showClear
           />
           <ComboboxContent>
@@ -122,7 +123,12 @@ export function DataTableToolbar<TData>({
         <div />
       )}
 
-      <div className='flex justify-between w-full md:max-w-75 items-center'>
+      <div
+        className={cn(
+          'flex w-full items-center gap-2 justify-between',
+          showCategoryFilter ? 'md:max-w-75 ' : '',
+        )}
+      >
         <Dialog>
           <DialogTrigger>
             <Button variant='outline' className=''>
@@ -258,7 +264,6 @@ export function DataTableToolbar<TData>({
             </div>
           </DialogContent>
         </Dialog>
-
         {showRowsSelector && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
