@@ -47,7 +47,7 @@ export function CoinRiskNow({
         </div>
         <h4 className='text-base font-bold tracking-tight'>Risk Now</h4>
       </div>
-      <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2'>
+      <div className='grid grid-cols-2 gap-2.5'>
         <RiskMetricCard
           label='Volatility'
           value={
