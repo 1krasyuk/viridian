@@ -28,10 +28,16 @@ import {
 } from 'lucide-react'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { sidebarNavItems } from './nav-items'
+import { useState } from 'react'
+import { useCurrencyStore } from '@/features/currency/store'
+import { CurrencyModal } from '../currency/currencyModal'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
   const { state } = useSidebar()
+
+  const [currencyOpen, setCurrencyOpen] = useState(false)
+  const currency = useCurrencyStore((s) => s.currency)
 
   return (
     <Sidebar collapsible='icon'>
@@ -171,14 +177,22 @@ export function AppSidebar() {
                   </div>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={() => setCurrencyOpen(true)}
+                  className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'
+                >
                   <DollarSign className='size-4 opacity-80' />
                   <span className='font-medium text-xs'>Currency</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
-                    <span>USD</span>
+                    <span>{currency.toUpperCase()}</span>
                     <ChevronRight className='size-3' />
                   </div>
                 </DropdownMenuItem>
+                <CurrencyModal
+                  open={currencyOpen}
+                  onOpenChange={setCurrencyOpen}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

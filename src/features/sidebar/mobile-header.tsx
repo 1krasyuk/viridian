@@ -7,6 +7,9 @@ import { sidebarNavItems } from './nav-items'
 import { useTheme } from '@/shared/lib/theme-provider'
 import { ChevronDown, DollarSign, Languages } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { useState } from 'react'
+import { useCurrencyStore } from '@/features/currency/store'
+import { CurrencyModal } from '../currency/currencyModal'
 
 const themeOptions = ['light', 'dark', 'system'] as const
 type ThemeOption = (typeof themeOptions)[number]
@@ -14,6 +17,9 @@ type ThemeOption = (typeof themeOptions)[number]
 export function MobileHeader() {
   const [open, setOpen] = React.useState(false)
   const { theme, setTheme } = useTheme()
+
+  const [currencyOpen, setCurrencyOpen] = useState(false)
+  const currency = useCurrencyStore((s) => s.currency)
 
   return (
     <header className='sticky top-0 z-40 flex h-16 items-center justify-between border-b border-sidebar-border bg-background px-4 backdrop-blur-xl md:hidden'>
@@ -109,14 +115,18 @@ export function MobileHeader() {
                 </Button>
 
                 <Button
-                  disabled
                   variant='secondary'
+                  onClick={() => setCurrencyOpen(true)}
                   className='h-9 justify-center gap-2 rounded-lg border border-sidebar-border'
                 >
                   <DollarSign className='opacity-80' />
-                  USD
+                  {currency.toUpperCase()}
                   <ChevronDown className='size-4 opacity-70' />
                 </Button>
+                <CurrencyModal
+                  open={currencyOpen}
+                  onOpenChange={setCurrencyOpen}
+                />
               </div>
 
               <Tabs
