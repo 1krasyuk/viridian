@@ -278,9 +278,9 @@ export function MobileCoinPageContent({
   onViewModeChange,
 }: MobileCoinPageContentProps) {
   return (
-    <div className='flex flex-col min-w-0 h-dvh xl:hidden'>
+    <div className='flex flex-col min-w-0 h-[calc(100dvh-4rem)] xl:hidden'>
       {/* Sticky Header + Tabs */}
-      <div className='shrink-0 bg-background'>
+      <div className='sticky top-16 z-50 shrink-0 bg-background'>
         <div className='px-3 pt-3 pb-4 sm:px-5 sm:pt-5 sm:pb-6'>
           <CoinHeader coin={coin} isLoading={isLoadingCoin} days={days} />
         </div>

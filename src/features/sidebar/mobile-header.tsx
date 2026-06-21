@@ -16,7 +16,7 @@ export function MobileHeader() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className='sticky top-0 z-40 flex h-16 items-center justify-between border-b border-sidebar-border bg-background/90 px-4 backdrop-blur-xl md:hidden'>
+    <header className='sticky top-0 z-40 flex h-16 items-center justify-between border-b border-sidebar-border bg-background px-4 backdrop-blur-xl md:hidden'>
       <Link
         to='/'
         onClick={() => setOpen(false)}
