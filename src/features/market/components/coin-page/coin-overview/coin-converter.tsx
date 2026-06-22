@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react'
+import { useState, useMemo } from 'react'
 import type { Coin } from '../../../types/coin'
 import { Input } from '@/shared/ui/input'
 import { RotateCcw } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { useCurrency } from '@/features/currency/hooks'
 
 export function CoinConverter({
   coin,
@@ -12,40 +13,34 @@ export function CoinConverter({
   coin: Coin | undefined
   isLoading?: boolean
 }) {
-  const price = coin?.market_data?.current_price?.usd
+  const { getValue, currency } = useCurrency()
+
+  const price = getValue(coin?.market_data?.current_price)
   const symbol = coin?.symbol?.toUpperCase()
 
   const [coinInput, setCoinInput] = useState('1')
-  const [usdInput, setUsdInput] = useState(price?.toString() || '')
 
-  if (price && !usdInput) {
-    setUsdInput(price.toString())
-  }
+  // Вычисляем fiat всегда от текущего coinInput и price
+  const fiatInput = useMemo(() => {
+    const parsed = Number(coinInput)
+    if (isNaN(parsed) || !price) return ''
+    return (parsed * price).toString()
+  }, [coinInput, price])
 
   const parse = (val: string) => {
     const num = Number(val)
     return isNaN(num) ? null : num
   }
 
-  const handleCoinChange = useCallback(
-    (value: string) => {
-      setCoinInput(value)
-      const parsed = parse(value)
-      if (parsed === null || !price) return
-      setUsdInput((parsed * price).toString())
-    },
-    [price],
-  )
+  const handleCoinChange = (value: string) => {
+    setCoinInput(value)
+  }
 
-  const handleUsdChange = useCallback(
-    (value: string) => {
-      setUsdInput(value)
-      const parsed = parse(value)
-      if (parsed === null || !price) return
-      setCoinInput((parsed / price).toString())
-    },
-    [price],
-  )
+  const handleFiatChange = (value: string) => {
+    const parsed = parse(value)
+    if (parsed === null || !price) return
+    setCoinInput((parsed / price).toString())
+  }
 
   const handleSelectAll = (e: React.SyntheticEvent<HTMLInputElement>) => {
     e.currentTarget.select()
@@ -89,13 +84,14 @@ export function CoinConverter({
 
   const handleReset = () => {
     setCoinInput('1')
-    setUsdInput((1 * price).toString())
   }
 
   return (
     <div>
       <div className='flex items-center justify-between pb-3'>
-        <p className='font-bold text-sm'>{symbol} to USD converter</p>
+        <p className='font-bold text-sm'>
+          {symbol} to {currency.toUpperCase()} converter
+        </p>
 
         <Button
           onClick={handleReset}
@@ -124,13 +120,13 @@ export function CoinConverter({
 
         <div className='flex items-center'>
           <span className='px-3 text-sm font-bold text-muted-foreground'>
-            USD
+            {currency.toUpperCase()}
           </span>
           <Input
             type='text'
             inputMode='decimal'
-            value={usdInput}
-            onChange={(e) => handleUsdChange(e.target.value)}
+            value={fiatInput}
+            onChange={(e) => handleFiatChange(e.target.value)}
             onFocus={handleSelectAll}
             onClick={handleSelectAll}
             className='border-0 ring-0 focus-visible:ring-0 bg-transparent text-right font-semibold'
