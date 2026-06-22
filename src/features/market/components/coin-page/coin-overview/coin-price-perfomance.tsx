@@ -2,20 +2,7 @@ import { Badge } from '@/shared/ui/badge'
 import type { Coin } from '../../../types/coin'
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/skeleton'
-
-function formatCurrency(v?: number | null) {
-  if (v == null) return '--'
-  if (v < 1) {
-    return `$${v.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    })}`
-  }
-  return `$${v.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`
-}
+import { useCurrency } from '@/features/currency/hooks'
 
 function formatPercent(v?: number | null) {
   if (v == null) return '--'
@@ -44,6 +31,8 @@ function PriceRow({
   change?: number
   isLoading?: boolean
 }) {
+  const { format } = useCurrency()
+
   if (isLoading) {
     return (
       <div className='flex justify-between items-center'>
@@ -66,7 +55,7 @@ function PriceRow({
         <div className='text-sm text-ring'>{formatDate(date)}</div>
       </div>
       <div className='text-right'>
-        <div className='text-sm font-bold'>{formatCurrency(price)}</div>
+        <div className='text-sm font-bold'>{format(price)}</div>
         <div
           className={cn(
             'text-xs font-semibold',
@@ -81,6 +70,7 @@ function PriceRow({
   )
 }
 
+// === PriceRangeBar ===
 function PriceRangeBar({
   low,
   high,
@@ -124,6 +114,8 @@ export function CoinPricePerformance({
   coin: Coin | undefined
   isLoading?: boolean
 }) {
+  const { getValue, format } = useCurrency()
+
   if (!coin) {
     return (
       <div>
@@ -174,7 +166,7 @@ export function CoinPricePerformance({
               {isLoading ? (
                 <Skeleton className='h-4 w-16 mt-1' />
               ) : (
-                formatCurrency(data.low_24h?.usd)
+                format(getValue(data.low_24h))
               )}
             </div>
           </div>
@@ -184,15 +176,15 @@ export function CoinPricePerformance({
               {isLoading ? (
                 <Skeleton className='h-4 w-16 mt-1 ml-auto' />
               ) : (
-                formatCurrency(data.high_24h?.usd)
+                format(getValue(data.high_24h))
               )}
             </div>
           </div>
         </div>
         <PriceRangeBar
-          low={data.low_24h.usd}
-          high={data.high_24h.usd}
-          current={data.current_price.usd}
+          low={getValue(data.low_24h) ?? 0}
+          high={getValue(data.high_24h) ?? 0}
+          current={getValue(data.current_price) ?? 0}
           isLoading={isLoading}
         />
       </div>
@@ -200,15 +192,15 @@ export function CoinPricePerformance({
         <PriceRow
           label='All-time high'
           date={data.ath_date?.usd}
-          price={data.ath?.usd}
-          change={data.ath_change_percentage?.usd}
+          price={getValue(data.ath) ?? undefined}
+          change={data.ath_change_percentage?.usd ?? undefined}
           isLoading={isLoading}
         />
         <PriceRow
           label='All-time low'
           date={data.atl_date?.usd}
-          price={data.atl?.usd}
-          change={data.atl_change_percentage?.usd}
+          price={getValue(data.atl) ?? undefined}
+          change={data.atl_change_percentage?.usd ?? undefined}
           isLoading={isLoading}
         />
       </div>

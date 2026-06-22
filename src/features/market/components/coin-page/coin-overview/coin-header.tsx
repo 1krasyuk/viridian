@@ -9,6 +9,7 @@ import {
   coinToWatchlistCoin,
   useWatchlistStore,
 } from '@/features/watchlist/store/watchlist-store'
+import { useCurrency } from '@/features/currency/hooks'
 
 export function CoinHeader({
   coin,
@@ -25,6 +26,8 @@ export function CoinHeader({
   )
   const addCoin = useWatchlistStore((state) => state.addCoin)
   const toggleCoin = useWatchlistStore((state) => state.toggleCoin)
+
+  const { getValue, format } = useCurrency()
 
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -94,9 +97,10 @@ export function CoinHeader({
     if (value == null) return null
     if (typeof value === 'number') return value
 
-    const v = value.usd
+    const v = getValue(value)
     return typeof v === 'number' ? v : null
   }
+
   const label =
     days === '1'
       ? '(24h)'
@@ -173,10 +177,7 @@ export function CoinHeader({
 
       <div className='flex flex-wrap items-center gap-3'>
         <p className='font-bold text-3xl'>
-          {coin.market_data.current_price.usd.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          })}
+          {format(getValue(coin.market_data.current_price))}
         </p>
 
         <p

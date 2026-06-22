@@ -7,6 +7,7 @@ import {
 import type { Coin } from '../../../types/coin'
 import { InfinityIcon, Info } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
+import { useCurrency } from '@/features/currency/hooks'
 
 type Format = 'currency' | 'number' | 'percent' | 'suffix'
 
@@ -24,12 +25,7 @@ type StatCardProps = {
 function formatValue(value: number, format?: Format, suffix?: string) {
   switch (format) {
     case 'currency':
-      return value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        notation: 'compact',
-        maximumFractionDigits: 2,
-      })
+      throw new Error('Use format() from useCurrency for currency')
     case 'percent':
       return `${value.toFixed(2)}%`
     case 'suffix':
@@ -50,7 +46,7 @@ function formatTooltipValue(
   if (value == null) return '--'
   switch (format) {
     case 'currency':
-      return `$${value.toLocaleString('en-US')}`
+      throw new Error('Use format() from useCurrency for currency')
     case 'percent':
       return `${value.toFixed(5)}%`
     case 'suffix':
@@ -81,17 +77,21 @@ function StatCard({
   tooltip,
   value,
   isInfinite,
-  format,
+  format: formatType,
   change,
   suffix,
   isLoading,
 }: StatCardProps) {
+  const { format } = useCurrency()
+
   const formattedValue = isInfinite ? (
     <InfinityIcon className='w-5 h-5' />
   ) : value == null ? (
     '—'
+  ) : formatType === 'currency' ? (
+    format(value)
   ) : (
-    formatValue(value, format, suffix)
+    formatValue(value, formatType, suffix)
   )
 
   return (
@@ -129,8 +129,10 @@ function StatCard({
                     <InfinityIcon className='w-4 h-4' />
                   ) : value == null ? (
                     '—'
+                  ) : formatType === 'currency' ? (
+                    format(value)
                   ) : (
-                    formatTooltipValue(value, format, suffix)
+                    formatTooltipValue(value, formatType, suffix)
                   )}
                 </span>
               </TooltipContent>
@@ -150,6 +152,8 @@ export function CoinStatistics({
   coin: Coin | undefined
   isLoading?: boolean
 }) {
+  const { getValue } = useCurrency()
+
   if (!coin) {
     return (
       <div className='grid grid-cols-6 gap-2 items-stretch'>
@@ -221,7 +225,7 @@ export function CoinStatistics({
         <StatCard
           label='Market Cap'
           tooltip='The total market value of a cryptocurrency circulating supply.'
-          value={data.market_cap.usd}
+          value={getValue(data.market_cap)}
           format='currency'
           change={data.price_change_percentage_24h}
           isLoading={isLoading}
@@ -232,7 +236,7 @@ export function CoinStatistics({
         <StatCard
           label='Volume (24h)'
           tooltip='A measure of how much of a cryptocurrency was traded in the last 24 hours. Shows current market activity.'
-          value={data.total_volume.usd}
+          value={getValue(data.total_volume)}
           format='currency'
           isLoading={isLoading}
         />
@@ -241,7 +245,9 @@ export function CoinStatistics({
         <StatCard
           label='Vol/MCap (24h)'
           tooltip='Indicator of liquidity. Higher = more liquid and easier to trade.'
-          value={(data.total_volume.usd / data.market_cap.usd) * 100}
+          value={
+            (getValue(data.total_volume)! / getValue(data.market_cap)!) * 100
+          }
           format='percent'
           isLoading={isLoading}
         />
@@ -251,7 +257,7 @@ export function CoinStatistics({
         <StatCard
           label='FDV'
           tooltip='Fully-diluted value (FDV) = price x max supply. Market cap if all coins were in circulation. Helps estimate potential future valuation.'
-          value={data.fully_diluted_valuation.usd}
+          value={getValue(data.fully_diluted_valuation)}
           format='currency'
           isLoading={isLoading}
         />
