@@ -22,6 +22,7 @@ import {
   ResizablePanelGroup,
 } from '@/shared/ui/resizable'
 import { CoinPageViewModeTabs } from './coin-page-view-mode-tabs'
+import { useCurrency } from '@/features/currency/hooks'
 
 type DataType = 'price' | 'marketCap'
 
@@ -61,6 +62,8 @@ export function ClassicCoinPageContent({
   onMetricDaysChange,
   isLoadingMetrics,
 }: ClassicCoinPageContentProps) {
+  const { currency } = useCurrency()
+
   return (
     <div className='flex flex-col min-w-0'>
       <div className='h-105 min-w-0 relative w-full sm:h-130 xl:h-150'>
@@ -103,7 +106,11 @@ export function ClassicCoinPageContent({
           />
         </div>
 
-        <CoinRoiCalculator coin={coin} isLoading={isLoadingCoin} />
+        <CoinRoiCalculator
+          key={currency}
+          coin={coin}
+          isLoading={isLoadingCoin}
+        />
         <CoinMarketScenarios coin={coin} isLoading={isLoadingCoin} />
 
         <CoinTickersTable
@@ -277,6 +284,8 @@ export function MobileCoinPageContent({
   viewMode,
   onViewModeChange,
 }: MobileCoinPageContentProps) {
+  const { currency } = useCurrency()
+
   return (
     <div className='flex flex-col min-w-0 h-[calc(100dvh-4rem)] xl:hidden'>
       {/* Sticky Header + Tabs */}
@@ -351,7 +360,11 @@ export function MobileCoinPageContent({
               />
             </div>
 
-            <CoinRoiCalculator coin={coin} isLoading={isLoadingCoin} />
+            <CoinRoiCalculator
+              key={currency}
+              coin={coin}
+              isLoading={isLoadingCoin}
+            />
             <CoinMarketScenarios coin={coin} isLoading={isLoadingCoin} />
 
             {/* Markets — pagination */}

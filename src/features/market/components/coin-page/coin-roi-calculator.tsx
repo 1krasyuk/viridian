@@ -19,10 +19,7 @@ import {
   TooltipProvider,
 } from '@/shared/ui/tooltip'
 import type { Coin } from '../../types/coin'
-import {
-  formatCurrency,
-  formatThousandsCompact,
-} from './shared/formatters'
+import { useCurrency } from '@/features/currency/hooks'
 
 const INVESTMENT_PRESETS = [
   1000, 2500, 5000, 10000, 15000, 30000, 50000, 100000,
@@ -53,6 +50,8 @@ function PricePresetButton({
   onClick,
   isLoading = false,
 }: PricePresetButtonProps) {
+  const { format } = useCurrency()
+
   return (
     <Button
       variant={active ? 'default' : 'outline'}
@@ -71,7 +70,7 @@ function PricePresetButton({
         {isLoading || value === undefined ? (
           <Skeleton className='h-3.5 w-10 inline-block' />
         ) : (
-          `$${formatThousandsCompact(value)}`
+          format(value, { notation: 'compact' })
         )}
       </span>
     </Button>
@@ -97,6 +96,8 @@ function TimePresetButton({
   setBuyPrice,
   isLoading,
 }: TimePresetButtonProps) {
+  const { getValue } = useCurrency()
+
   if (isLoading) {
     return (
       <PricePresetButton
@@ -116,7 +117,7 @@ function TimePresetButton({
 
   const percent =
     typeof raw === 'object' && raw !== null
-      ? (raw as Record<string, number>).usd
+      ? (getValue(raw as Record<string, number>) ?? undefined) // ← заменить .usd на getValue
       : undefined
 
   const price = getHistoricalPrice(currentPrice, percent)
@@ -142,20 +143,33 @@ export function CoinRoiCalculator({
   coin: Coin | undefined
   isLoading?: boolean
 }) {
-  const currentPrice = coin?.market_data?.current_price?.usd
-  const ath = coin?.market_data?.ath?.usd
-  const atl = coin?.market_data?.atl?.usd
+  const { getValue, format, currency } = useCurrency()
+
+  const currentPrice = getValue(coin?.market_data?.current_price) ?? undefined
+  const ath = getValue(coin?.market_data?.ath) ?? undefined
+  const atl = getValue(coin?.market_data?.atl) ?? undefined
 
   const raw24h = coin?.market_data?.price_change_percentage_24h_in_currency
   const percent24h =
     typeof raw24h === 'object' && raw24h !== null
-      ? (raw24h as Record<string, number>).usd
+      ? (getValue(raw24h as Record<string, number>) ?? undefined)
       : undefined
 
   const [investment, setInvestment] = useState('1000')
-  const [buyPrice, setBuyPrice] = useState('')
-
   const default24h = getHistoricalPrice(currentPrice, percent24h)
+
+  const [buyPrice, setBuyPrice] = useState(() => {
+    const default24h = getHistoricalPrice(
+      getValue(coin?.market_data?.current_price) ?? undefined,
+      getValue(
+        coin?.market_data?.price_change_percentage_24h_in_currency as Record<
+          string,
+          number
+        >,
+      ) ?? undefined,
+    )
+    return default24h ? String(Math.round(default24h)) : ''
+  })
 
   if (default24h && !buyPrice) {
     setBuyPrice(String(Math.round(default24h)))
@@ -234,16 +248,19 @@ export function CoinRoiCalculator({
             </label>
           </div>
           <div className='relative'>
-            <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
-              $
-            </span>
-            <Input
-              type='number'
-              value={investment}
-              onChange={(e) => setInvestment(e.target.value)}
-              className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
-              placeholder='1000'
-            />
+            <div className='relative'>
+              <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
+                {currency.toUpperCase()}
+              </span>
+              <Input
+                type='number'
+                value={buyPrice}
+                onChange={(e) => setBuyPrice(e.target.value)}
+                className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+                placeholder={default24h ? String(Math.round(default24h)) : '0'}
+                disabled={isLoading}
+              />
+            </div>
           </div>
           <div className='flex flex-wrap gap-1.5'>
             {INVESTMENT_PRESETS.map((preset) => (
@@ -258,7 +275,7 @@ export function CoinRoiCalculator({
                 }`}
                 onClick={() => setInvestment(String(preset))}
               >
-                ${formatThousandsCompact(preset)}
+                {format(preset, { notation: 'compact' })}
               </Button>
             ))}
           </div>
@@ -274,13 +291,13 @@ export function CoinRoiCalculator({
           </div>
           <div className='relative'>
             <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
-              $
+              {currency.toUpperCase()}
             </span>
             <Input
               type='number'
               value={buyPrice}
               onChange={(e) => setBuyPrice(e.target.value)}
-              className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
               placeholder={default24h ? String(Math.round(default24h)) : '0'}
               disabled={isLoading}
             />
@@ -289,7 +306,7 @@ export function CoinRoiCalculator({
 
         {/* Price Presets — grouped visually */}
         <div className='space-y-2'>
-          <p className='text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+          <p className='text-xs font-medium text-muted-foreground capitalize tracking-wider'>
             Historical Prices
           </p>
           <div className='flex flex-wrap gap-1.5'>
@@ -369,7 +386,7 @@ export function CoinRoiCalculator({
                 {isLoading ? (
                   <Skeleton className='h-5 w-24 inline-block' />
                 ) : valueNow > 0 ? (
-                  formatCurrency(valueNow)
+                  format(valueNow)
                 ) : (
                   '—'
                 )}
@@ -391,7 +408,7 @@ export function CoinRoiCalculator({
                       }
                     >
                       {profit >= 0 ? '+' : '−'}
-                      {formatCurrency(Math.abs(profit))}
+                      {format(Math.abs(profit))}
                     </span>
                     <span className='text-xs ml-2 opacity-60 font-mono bg-muted/50 px-1.5 py-0.5 rounded-md'>
                       {roi >= 0 ? '+' : '−'}
