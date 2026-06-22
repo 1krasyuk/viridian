@@ -10,14 +10,16 @@ export const coinsApi = {
     page,
     per_page,
     category,
+    vs_currency = 'usd',
   }: {
     page: number
     per_page: number
     category?: string
+    vs_currency?: string
   }): Promise<CoinsList[]> {
     const { data } = await http.get<CoinsList[]>('/coins/markets', {
       params: {
-        vs_currency: 'usd',
+        vs_currency,
         sparkline: true,
         price_change_percentage: '1h,7d,30d,1y',
         page,

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { coinsApi } from '../api/coins-api'
 import type { CoinChart, CoinChartRaw } from '../types/coin-chart'
 import type { UTCTimestamp } from 'lightweight-charts'
+import type { OhlcData } from 'lightweight-charts'
 
 export const coinsKeys = {
   all: ['coins'] as const,
@@ -9,10 +10,21 @@ export const coinsKeys = {
   global: ['global'] as const,
 }
 
-export function useCoins(page: number, per_page: number, category?: string) {
+export function useCoins(
+  page: number,
+  per_page: number,
+  category?: string,
+  currency: string = 'usd',
+) {
   return useQuery({
-    queryKey: [coinsKeys.all, page, per_page, category],
-    queryFn: () => coinsApi.getCoins({ page, per_page, category }),
+    queryKey: [coinsKeys.all, page, per_page, category, currency],
+    queryFn: () =>
+      coinsApi.getCoins({
+        page,
+        per_page,
+        category,
+        vs_currency: currency,
+      }),
     refetchInterval: 60000,
   })
 }
@@ -48,8 +60,6 @@ export function useCoinChart(id: string, days: string) {
     refetchIntervalInBackground: false,
   })
 }
-
-import type { OhlcData } from 'lightweight-charts'
 
 export function useCoinOHLC(id: string, days: string, enabled: boolean) {
   return useQuery({
