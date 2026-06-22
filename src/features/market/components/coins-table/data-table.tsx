@@ -81,6 +81,7 @@ interface DataTableProps<TData, TValue> {
   showCategoryFilter?: boolean
   showRowsSelector?: boolean
   showPagination?: boolean
+  currency?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -97,6 +98,7 @@ export function DataTable<TData, TValue>({
   showCategoryFilter = true,
   showRowsSelector = true,
   showPagination = true,
+  currency = 'usd',
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -128,6 +130,7 @@ export function DataTable<TData, TValue>({
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
+    meta: { currency },
   })
 
   const handleResetColumns = () => {

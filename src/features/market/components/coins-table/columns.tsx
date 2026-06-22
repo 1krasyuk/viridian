@@ -39,6 +39,14 @@ function sortableHeader<TData, TValue>(
   )
 }
 
+function getCurrencyFromContext<TData extends CoinsList, TValue>(
+  context: CellContext<TData, TValue>,
+): string {
+  return (
+    (context.table.options.meta as { currency?: string })?.currency ?? 'usd'
+  )
+}
+
 function formatCurrencyCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
@@ -46,6 +54,7 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
     naText?: string
     showSign?: boolean
     colored?: boolean
+    currency?: string
   },
 ) {
   const value = context.getValue() as number | null | undefined
@@ -54,6 +63,7 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
     naText = '—',
     showSign = false,
     colored = false,
+    currency = getCurrencyFromContext(context),
   } = options ?? {}
 
   let colorClass = ''
@@ -73,7 +83,7 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
   const prefix = showSign && value > 0 ? '+' : '-'
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currency.toUpperCase(),
     signDisplay: showSign ? 'never' : 'auto',
     maximumFractionDigits,
   }).format(showSign ? Math.abs(value) : value)
@@ -174,10 +184,8 @@ function formatDateCell<TData extends CoinsList, TValue>(
 function formatSparklineCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
 ) {
-  // Get the { price: number[] } object
   const sparkline = context.getValue() as { price: number[] } | undefined
 
-  // If no data or array is empty
   if (!sparkline?.price?.length)
     return <div className='text-muted-foreground'>—</div>
 
@@ -185,15 +193,12 @@ function formatSparklineCell<TData extends CoinsList, TValue>(
   const width = 150
   const height = 35
 
-  // Find boundaries for scaling
   const min = Math.min(...data)
   const max = Math.max(...data)
   const range = max - min || 1
 
-  // Function to calculate Y coordinate
   const getY = (val: number) => height - ((val - min) / range) * height
 
-  // Build the path: M (start) x,y L (line) x,y ...
   const pathD = data
     .map(
       (val, i) =>
@@ -201,7 +206,6 @@ function formatSparklineCell<TData extends CoinsList, TValue>(
     )
     .join(' ')
 
-  // Color: if the last price is higher than the first - green, otherwise red
   const colorClass =
     data[data.length - 1] >= data[0]
       ? 'stroke-emerald-500 dark:stroke-emerald-400'
@@ -397,7 +401,6 @@ export const columns: ColumnDef<CoinsList>[] = [
         maximumFractionDigits: 0,
       }),
   },
-
   {
     id: 'market_cap_change_percentage_24h',
     accessorKey: 'market_cap_change_percentage_24h',
@@ -405,7 +408,6 @@ export const columns: ColumnDef<CoinsList>[] = [
     header: ({ column }) => sortableHeader(column, '24h Market Cap Change %'),
     cell: (row) => formatPercentageChangeCell(row),
   },
-
   {
     id: 'total_supply',
     accessorKey: 'total_supply',
