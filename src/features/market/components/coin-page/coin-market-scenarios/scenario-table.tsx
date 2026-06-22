@@ -14,10 +14,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/shared/ui/tooltip'
-import { formatCurrency } from '../shared/formatters'
 import { COLUMN_TOOLTIPS, SCENARIO_META } from './constants'
 import { formatScenarioPercent, getProbabilityColor } from './formatters'
 import type { buildScenarios } from './scenario-model'
+import { useCurrency } from '@/features/currency/hooks'
 
 type Scenario = ReturnType<typeof buildScenarios>[number]
 
@@ -238,12 +238,14 @@ function RangeCell({
   high: number
   classNameFor: (value: number) => string
 }) {
+  const { format } = useCurrency()
+
   return (
     <div className='text-right'>
       <p className='text-sm font-mono font-semibold'>
-        <span className={classNameFor(low)}>{formatCurrency(low)}</span>
+        <span className={classNameFor(low)}>{format(low)}</span>
         <span className='text-muted-foreground/50 mx-1'>→</span>
-        <span className={classNameFor(high)}>{formatCurrency(high)}</span>
+        <span className={classNameFor(high)}>{format(high)}</span>
       </p>
     </div>
   )

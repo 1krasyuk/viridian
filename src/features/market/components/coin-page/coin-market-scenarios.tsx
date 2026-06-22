@@ -9,6 +9,7 @@ import { ScenarioControls } from './coin-market-scenarios/scenario-controls'
 import { ScenarioHeader } from './coin-market-scenarios/scenario-header'
 import { ScenarioMetrics } from './coin-market-scenarios/scenario-metrics'
 import { ScenarioTable } from './coin-market-scenarios/scenario-table'
+import { useCurrency } from '@/features/currency/hooks'
 
 interface CoinMarketScenariosProps {
   coin: Coin | undefined
@@ -19,21 +20,24 @@ export function CoinMarketScenarios({
   coin,
   isLoading,
 }: CoinMarketScenariosProps) {
+  const { getValue } = useCurrency()
+
   const [investment, setInvestment] = useState('1000')
   const [months, setMonths] = useState(12)
   const [expandedScenario, setExpandedScenario] = useState<string | null>(null)
 
   const marketData = coin?.market_data
-  const currentPrice = marketData?.current_price?.usd || 0
-  const marketCap = marketData?.market_cap?.usd || 0
-  const volume = marketData?.total_volume?.usd || 0
-  const ath = marketData?.ath?.usd || 0
+
+  const currentPrice = getValue(marketData?.current_price) ?? 0
+  const marketCap = getValue(marketData?.market_cap) ?? 0
+  const volume = getValue(marketData?.total_volume) ?? 0
+  const ath = getValue(marketData?.ath) ?? 0
   const athDistance = ath > 0 ? ((currentPrice - ath) / ath) * 100 : 0
 
-  const p24 = marketData?.price_change_percentage_24h_in_currency?.usd || 0
-  const p7 = marketData?.price_change_percentage_7d_in_currency?.usd || 0
-  const p30 = marketData?.price_change_percentage_30d_in_currency?.usd || 0
-  const p1y = marketData?.price_change_percentage_1y_in_currency?.usd || 0
+  const p24 = getValue(marketData?.price_change_percentage_24h_in_currency) ?? 0
+  const p7 = getValue(marketData?.price_change_percentage_7d_in_currency) ?? 0
+  const p30 = getValue(marketData?.price_change_percentage_30d_in_currency) ?? 0
+  const p1y = getValue(marketData?.price_change_percentage_1y_in_currency) ?? 0
 
   const volatility = useMemo(() => stddev([p24, p7, p30]), [p24, p7, p30])
   const trendScore = useMemo(

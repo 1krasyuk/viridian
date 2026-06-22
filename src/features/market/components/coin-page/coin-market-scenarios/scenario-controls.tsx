@@ -4,6 +4,7 @@ import { Input } from '@/shared/ui/input'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Slider } from '@/shared/ui/slider'
 import { HORIZON_PRESETS, INVESTMENT_PRESETS } from './constants'
+import { useCurrency } from '@/features/currency/hooks'
 
 export function ScenarioControls({
   investment,
@@ -18,6 +19,8 @@ export function ScenarioControls({
   onMonthsChange: (value: number) => void
   isLoading: boolean
 }) {
+  const { format, currency } = useCurrency()
+
   return (
     <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5'>
       <div className='space-y-2.5'>
@@ -32,13 +35,13 @@ export function ScenarioControls({
         ) : (
           <div className='relative'>
             <span className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono'>
-              $
+              {currency.toUpperCase()}
             </span>
             <Input
               type='number'
               value={investment}
               onChange={(e) => onInvestmentChange(e.target.value)}
-              className='h-10 pl-7 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
             />
           </div>
         )}
@@ -56,7 +59,7 @@ export function ScenarioControls({
               onClick={() => onInvestmentChange(String(preset))}
               disabled={isLoading}
             >
-              ${preset >= 1000 ? `${preset / 1000}k` : preset}
+              {format(preset, { notation: 'compact' })}
             </Button>
           ))}
         </div>
