@@ -6,6 +6,7 @@ import type {
   CoinChartMode,
   CoinChartTooltipState,
 } from './types'
+import { useCurrency } from '@/features/currency/hooks'
 
 type CoinChartTooltipProps = {
   tooltip: CoinChartTooltipState
@@ -26,6 +27,8 @@ export function CoinChartTooltip({
   colors,
   baseValue,
 }: CoinChartTooltipProps) {
+  const { format } = useCurrency()
+
   if (!tooltip) return null
 
   if (chartMode === 'line') {
@@ -48,28 +51,25 @@ export function CoinChartTooltip({
 
         <div className='flex items-center gap-2 text-sm mb-1'>
           <span
-            className={`w-2 h-2 rounded-full ${dataType === 'marketCap'
-              ? 'bg-blue-500'
-              : view === 'classic'
-                ? getLineColor(prices, colors) === colors.positive
-                  ? 'bg-emerald-500'
-                  : 'bg-red-500'
-                : tooltip.value >= baseValue
-                  ? 'bg-emerald-500'
-                  : 'bg-red-500'
-              }`}
+            className={`w-2 h-2 rounded-full ${
+              dataType === 'marketCap'
+                ? 'bg-blue-500'
+                : view === 'classic'
+                  ? getLineColor(prices, colors) === colors.positive
+                    ? 'bg-emerald-500'
+                    : 'bg-red-500'
+                  : tooltip.value >= baseValue
+                    ? 'bg-emerald-500'
+                    : 'bg-red-500'
+            }`}
           />
           <span className='font-semibold text-muted-foreground'>
             {dataType === 'price' ? 'Price:' : 'Market Cap:'}
           </span>
           <span className='font-bold'>
-            {new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              notation: dataType === 'marketCap' ? 'compact' : undefined,
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(tooltip.value)}
+            {format(tooltip.value, {
+              notation: dataType === 'marketCap' ? 'compact' : 'standard',
+            })}
           </span>
         </div>
 
@@ -78,12 +78,7 @@ export function CoinChartTooltip({
           <span className='font-semibold text-muted-foreground'>Volume:</span>
           <span className='font-bold'>
             {tooltip.volume > 0
-              ? new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                notation: 'compact',
-                maximumFractionDigits: 2,
-              }).format(tooltip.volume)
+              ? format(tooltip.volume, { notation: 'compact' })
               : '—'}
           </span>
         </div>
@@ -92,6 +87,13 @@ export function CoinChartTooltip({
   }
 
   if (chartMode !== 'candles') return null
+
+  // === Candles: inline format ===
+  const candleFormat = (value?: number) =>
+    format(value ?? 0, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
 
   return (
     <div
@@ -114,7 +116,7 @@ export function CoinChartTooltip({
         <div className='flex items-center gap-2'>
           <span className='text-muted-foreground'>Open:</span>
           <span className='font-mono font-bold text-foreground'>
-            {formatCandlePrice(tooltip.open)}
+            {candleFormat(tooltip.open)}
           </span>
         </div>
         <div className='flex items-center gap-2'>
@@ -127,31 +129,22 @@ export function CoinChartTooltip({
                 : 'text-red-500',
             )}
           >
-            {formatCandlePrice(tooltip.close)}
+            {candleFormat(tooltip.close)}
           </span>
         </div>
         <div className='flex items-center gap-2'>
           <span className='text-muted-foreground'>High:</span>
           <span className='font-mono font-bold text-muted-foreground'>
-            {formatCandlePrice(tooltip.high)}
+            {candleFormat(tooltip.high)}
           </span>
         </div>
         <div className='flex items-center gap-2'>
           <span className='text-muted-foreground'>Low:</span>
           <span className='font-mono font-bold text-muted-foreground'>
-            {formatCandlePrice(tooltip.low)}
+            {candleFormat(tooltip.low)}
           </span>
         </div>
       </div>
     </div>
   )
-}
-
-function formatCandlePrice(value?: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value ?? 0)
 }

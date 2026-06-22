@@ -10,6 +10,7 @@ import {
   Percent,
   Scale,
   BarChart3,
+  Activity,
 } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Badge } from '@/shared/ui/badge'
@@ -22,11 +23,8 @@ import {
 import type { Coin } from '@/features/market/types/coin'
 import { CoinMetricCard } from './shared/coin-metric-card'
 import { ComparisonBar } from './shared/comparison-bar'
-import {
-  formatCompact,
-  formatCurrency,
-  formatPercent,
-} from './shared/formatters'
+import { formatCompact, formatPercent } from './shared/formatters'
+import { useCurrency } from '@/features/currency/hooks'
 
 interface CoinTokenomicsProps {
   coin: Coin | undefined
@@ -183,6 +181,8 @@ function DilutionWarning({
 }
 
 export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
+  const { getValue, format } = useCurrency()
+
   const marketData = coin?.market_data
   const symbol = coin?.symbol?.toUpperCase() || ''
   const mcapRank = coin?.market_cap_rank
@@ -190,10 +190,10 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
   const circulating_supply = marketData?.circulating_supply
   const total_supply = marketData?.total_supply
   const max_supply = marketData?.max_supply
-  const mcap = marketData?.market_cap?.usd || 0
-  const fdv = marketData?.fully_diluted_valuation?.usd || 0
-  const current_price = marketData?.current_price?.usd || 0
-  const volume = marketData?.total_volume?.usd || 0
+  const mcap = getValue(marketData?.market_cap) ?? 0
+  const fdv = getValue(marketData?.fully_diluted_valuation) ?? 0
+  const current_price = getValue(marketData?.current_price) ?? 0
+  const volume = getValue(marketData?.total_volume) ?? 0
 
   const maxSupply = max_supply ?? total_supply ?? circulating_supply ?? 0
   const circulatingPercent =
@@ -353,7 +353,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           <CoinMetricCard
             icon={<DollarSign className='h-3 w-3 shrink-0' />}
             label='Market Cap'
-            value={formatCurrency(mcap)}
+            value={format(mcap)}
             subvalue={
               volumeToMcap > 0
                 ? `Vol/MCap: ${volumeToMcap.toFixed(1)}%`
@@ -364,7 +364,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           <CoinMetricCard
             icon={<Scale className='h-3 w-3  shrink-0' />}
             label='Fully Diluted Val'
-            value={formatCurrency(fdv)}
+            value={format(fdv)}
             subvalue={`${fdvRatio.toFixed(2)}x of MCap`}
             warning={isHighDilution}
             isLoading={isLoading}
@@ -399,9 +399,9 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
         {/* Comparison Bar */}
         <ComparisonBar
           leftLabel='Market Cap'
-          leftValue={formatCurrency(mcap)}
+          leftValue={format(mcap)}
           rightLabel='Fully Diluted'
-          rightValue={formatCurrency(fdv)}
+          rightValue={format(fdv)}
           leftPercent={fdv > 0 ? (mcap / fdv) * 100 : 0}
           color={isHighDilution ? 'orange' : 'emerald'}
           isLoading={isLoading}
@@ -429,7 +429,7 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
             {
               icon: <TrendingUp className='h-3 w-3' />,
               label: 'Price',
-              value: `$${current_price.toLocaleString()}`,
+              value: `${format(current_price)}`,
               show: !isLoading && current_price > 0,
             },
             {
@@ -439,9 +439,9 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
               show: !isLoading && max_supply && current_price > 0,
             },
             {
-              icon: <DollarSign className='h-3 w-3' />,
+              icon: <Activity className='h-3 w-3' />,
               label: '24h Vol',
-              value: `$${formatCompact(volume)}`,
+              value: `${format(volume, { notation: 'compact' })}`,
               show: !isLoading && volume > 0,
             },
           ]

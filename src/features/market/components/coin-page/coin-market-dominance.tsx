@@ -22,10 +22,8 @@ import type { GlobalData } from '@/features/market/types/global'
 import { Badge } from '@/shared/ui/badge'
 import { CoinMetricCard } from './shared/coin-metric-card'
 import { ComparisonBar } from './shared/comparison-bar'
-import {
-  formatCompact as formatCompactValue,
-  formatCurrency,
-} from './shared/formatters'
+import { formatCompact as formatCompactValue } from './shared/formatters'
+import { useCurrency } from '@/features/currency/hooks'
 
 interface CoinMarketDominanceProps {
   coin: Coin | undefined
@@ -171,12 +169,14 @@ export function CoinMarketDominance({
   isLoading,
   globalData,
 }: CoinMarketDominanceProps) {
+  const { getValue, format } = useCurrency()
+
   const marketData = coin?.market_data
   const symbol = coin?.symbol?.toUpperCase() || ''
   const isBitcoin = coin?.id === 'bitcoin'
 
-  const mcap = marketData?.market_cap?.usd || 0
-  const volume = marketData?.total_volume?.usd || 0
+  const mcap = getValue(marketData?.market_cap) ?? 0
+  const volume = getValue(marketData?.total_volume) ?? 0
 
   // Global data
   const globalMcap = globalData?.total_market_cap?.usd || 0
@@ -294,7 +294,7 @@ export function CoinMarketDominance({
                 <Skeleton className='h-4 w-24' />
               ) : (
                 <span className='font-mono text-sm break-all'>
-                  {formatCurrency(mcap)}
+                  {format(mcap)}
                 </span>
               )}
             </div>
@@ -310,7 +310,7 @@ export function CoinMarketDominance({
                   <Skeleton className='h-4 w-20' />
                 ) : (
                   <span className='font-mono text-sm text-muted-foreground'>
-                    {formatCurrency(btcMcap)}
+                    {format(btcMcap)}
                   </span>
                 )}
               </div>
@@ -326,7 +326,7 @@ export function CoinMarketDominance({
                 <Skeleton className='h-4 w-20' />
               ) : (
                 <span className='font-mono text-sm text-muted-foreground'>
-                  {formatCurrency(Math.max(0, globalMcap - mcap - btcMcap))}
+                  {format(Math.max(0, globalMcap - mcap - btcMcap))}
                 </span>
               )}
             </div>
@@ -392,9 +392,9 @@ export function CoinMarketDominance({
         {!isBitcoin && (
           <ComparisonBar
             leftLabel={symbol || 'This Asset'}
-            leftValue={formatCurrency(mcap)}
+            leftValue={format(mcap)}
             rightLabel='Bitcoin'
-            rightValue={formatCurrency(btcMcap)}
+            rightValue={format(btcMcap)}
             leftPercent={Math.min(relativeToBtc, 100)}
             color={
               relativeToBtc > 10

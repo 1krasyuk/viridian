@@ -8,15 +8,6 @@ export function formatCompact(n: number, maximumFractionDigits = 4): string {
   return n.toLocaleString(undefined, { maximumFractionDigits })
 }
 
-export function formatCurrency(n: number): string {
-  if (!isFinite(n) || n === 0) return '—'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: n >= 1000 ? 0 : 2,
-  }).format(n)
-}
-
 export function formatPercent(n: number): string {
   if (!isFinite(n)) return '—'
   return n.toFixed(1) + '%'

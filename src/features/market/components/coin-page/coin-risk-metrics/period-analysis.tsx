@@ -22,6 +22,7 @@ import {
   getRiskColor,
 } from './risk-calculations'
 import { RiskMetricCard } from './risk-metric-card'
+import { useCurrency } from '@/features/currency/hooks'
 
 const PERIOD_LABELS: Record<string, string> = {
   '1': '24H',
@@ -46,6 +47,8 @@ export function CoinPeriodAnalysis({
 }) {
   const prices = chart?.prices
 
+  const { getValue } = useCurrency()
+
   const periodVolatility = isLoading ? null : calculateVolatility(prices)
   const periodDrawdown = isLoading ? null : calculateMaxDrawdown(prices)
 
@@ -61,7 +64,7 @@ export function CoinPeriodAnalysis({
       ? prices.reduce((sum, p) => sum + p.value, 0) / prices.length
       : null
 
-  const current = coin?.market_data?.current_price?.usd
+  const current = getValue(coin?.market_data?.current_price)
   const vsAvg =
     !isLoading && current && avgPrice
       ? ((current - avgPrice) / avgPrice) * 100
@@ -225,6 +228,8 @@ function PriceRow({
   value?: number | null
   isLoading: boolean
 }) {
+  const { format } = useCurrency()
+
   return (
     <div className='flex justify-between text-xs'>
       <span className='text-muted-foreground'>{label}</span>
@@ -232,10 +237,7 @@ function PriceRow({
         <Skeleton className='h-3.5 w-20 rounded-lg' />
       ) : (
         <span className='font-mono font-medium'>
-          $
-          {value?.toLocaleString('en-US', {
-            maximumFractionDigits: 2,
-          }) || '—'}
+          {value != null ? format(value) : '—'}
         </span>
       )}
     </div>
