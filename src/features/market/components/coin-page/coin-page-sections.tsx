@@ -243,7 +243,7 @@ export function CoinPageSidebar({
         <CoinHeader coin={coin} isLoading={isLoading} days={days} />
       </div>
 
-      <div className='grid grid-cols-1 gap-3 px-3 pb-4 sm:grid-cols-2 sm:px-5 xl:flex xl:flex-1 xl:flex-col xl:overflow-y-auto xl:no-scrollbar xl:pb-5'>
+      <div className='grid grid-cols-1 gap-3 px-3 pb-4 sm:grid-cols-2 sm:px-5 xl:flex xl:flex-1 xl:flex-col xl:overflow-y-auto xl:overscroll-y-contain xl:no-scrollbar xl:pb-5'>
         <CoinStatistics coin={coin} isLoading={isLoading} />
         <CoinInfo coin={coin} isLoading={isLoading} />
         <CoinSentiment coin={coin} isLoading={isLoading} />
@@ -287,9 +287,9 @@ export function MobileCoinPageContent({
   const { currency } = useCurrency()
 
   return (
-    <div className='flex flex-col min-w-0 h-[calc(100dvh-4rem)] xl:hidden'>
+    <div className='flex flex-col min-w-0 h-[calc(100dvh-4rem)] md:h-screen  xl:hidden'>
       {/* Sticky Header + Tabs */}
-      <div className='sticky top-16 z-50 shrink-0 bg-background'>
+      <div className='sticky top-0 z-50 shrink-0 bg-background md:static'>
         <div className='px-3 pt-3 pb-4 sm:px-5 sm:pt-5 sm:pb-6'>
           <CoinHeader coin={coin} isLoading={isLoadingCoin} days={days} />
         </div>
