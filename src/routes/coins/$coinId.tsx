@@ -13,6 +13,7 @@ import {
 } from '@/features/market/components/coin-page/coin-page-sections'
 import { CoinPageViewModeTabs } from '@/features/market/components/coin-page/coin-page-view-mode-tabs'
 import { useCoinViewMode } from '@/features/market/components/coin-page/use-coin-view-mode'
+import { useCurrency } from '@/features/currency/hooks'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -20,6 +21,7 @@ export const Route = createFileRoute('/coins/$coinId')({
 
 function RouteComponent() {
   const { coinId } = Route.useParams()
+  const { currency } = useCurrency()
   const { data, isLoading: isLoadingCoin } = useCoin(coinId)
   const { data: globalData } = useGlobalData()
   const [days, setDays] = useState('1')
@@ -30,11 +32,13 @@ function RouteComponent() {
   const { data: metricsChart, isLoading: isLoadingMetrics } = useCoinChart(
     coinId,
     metricDays,
+    currency,
   )
 
   const { data: dataChart, isLoading: isLoadingChart } = useCoinChart(
     coinId,
     days,
+    currency,
   )
 
   return (

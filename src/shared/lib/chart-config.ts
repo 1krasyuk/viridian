@@ -35,6 +35,13 @@ export const formatPrice = (price: number) => {
   return price.toExponential(2)
 }
 
+export const formatMarketCap = (value: number) => {
+  if (value >= 1_000) return (value / 1_000).toFixed(2) + 'T'
+  if (value >= 1) return value.toFixed(2) + 'B'
+  if (value >= 0.001) return (value * 1_000).toFixed(2) + 'M'
+  return value.toFixed(2)
+}
+
 export const getLineColor = (
   prices: { value: number }[],
   colors: ReturnType<typeof getChartColors>,
@@ -157,9 +164,6 @@ export const createChartOptions = (
           hour12: false,
         })
       },
-      priceFormatter: (price: number) => {
-        return formatPrice(price)
-      },
     },
   }) as const
 
@@ -229,7 +233,7 @@ export const createLineSeriesOptions = (
     priceLineVisible: false,
     priceFormat: {
       type: 'custom' as const,
-      formatter: formatPrice,
+      formatter: isMarketCap ? formatMarketCap : formatPrice,
     },
   } as const
 }
