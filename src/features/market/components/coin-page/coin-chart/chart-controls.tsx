@@ -131,6 +131,7 @@ export function CoinChartControls({
           variant='outline'
           onClick={onToggleFullscreen}
           disabled={isLoading}
+          className='hidden md:flex'
         >
           {isFullscreen ? (
             <Minimize className='h-4 w-4' />
