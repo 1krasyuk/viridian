@@ -31,6 +31,7 @@ import { useChartFullscreen } from './coin-chart/use-chart-fullscreen'
 import { useResizeKey } from './coin-chart/use-resize-key'
 import { downloadChartImage } from './coin-chart/download-chart'
 import { CoinChartRenderer } from './coin-chart/chart-renderer'
+import { useCurrency } from '@/features/currency/hooks'
 
 export function CoinChart({
   coinId,
@@ -54,14 +55,21 @@ export function CoinChart({
   view: 'classic' | 'terminal'
 }) {
   const { theme } = useTheme()
+  const { currency } = useCurrency()
 
   const [chartMode, setChartMode] = useChartMode()
 
   const { data: currentPrice } = useCoinCurrentPrice(
     coinId,
     view === 'terminal',
+    currency,
   )
-  const { data: ohlcData } = useCoinOHLC(coinId, days, chartMode === 'candles')
+  const { data: ohlcData } = useCoinOHLC(
+    coinId,
+    days,
+    chartMode === 'candles',
+    currency,
+  )
 
   const [tooltip, setTooltip] = useState<CoinChartTooltipState>(null)
 
@@ -69,9 +77,10 @@ export function CoinChart({
   const containerRef = useRef<HTMLDivElement>(null)
   const chartApiRef = useRef<IChartApi | null>(null)
   const { resizeKey, bumpResizeKey } = useResizeKey(containerRef)
-  const handleFullscreenResize = useCallback(() => bumpResizeKey(), [
-    bumpResizeKey,
-  ])
+  const handleFullscreenResize = useCallback(
+    () => bumpResizeKey(),
+    [bumpResizeKey],
+  )
   const { isFullscreen, toggleFullscreen } = useChartFullscreen(
     wrapperRef,
     handleFullscreenResize,
@@ -142,28 +151,6 @@ export function CoinChart({
     const newTooltip: CoinChartTooltipState =
       chartMode === 'candles' && 'open' in data
         ? {
-          x: param.point.x,
-          y: param.point.y,
-          date: time.toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          }),
-          time: time.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true,
-          }),
-          value: data.close,
-          open: data.open,
-          high: data.high,
-          low: data.low,
-          close: data.close,
-          volume,
-        }
-        : 'value' in data
-          ? {
             x: param.point.x,
             y: param.point.y,
             date: time.toLocaleDateString('en-US', {
@@ -177,9 +164,31 @@ export function CoinChart({
               second: '2-digit',
               hour12: true,
             }),
-            value: data.value,
+            value: data.close,
+            open: data.open,
+            high: data.high,
+            low: data.low,
+            close: data.close,
             volume,
           }
+        : 'value' in data
+          ? {
+              x: param.point.x,
+              y: param.point.y,
+              date: time.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              }),
+              time: time.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+              }),
+              value: data.value,
+              volume,
+            }
           : null
 
     if (JSON.stringify(newTooltip) !== JSON.stringify(tooltip)) {
@@ -257,14 +266,6 @@ export function CoinChart({
     const diffTime = now.getTime() - startOfYear.getTime()
     return String(Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
   })
-
-  useEffect(() => {
-    if (chartMode === 'candles' && days === ytdDays) {
-      onDaysChange('180')
-    } else if (chartMode !== 'candles' && days === '180') {
-      onDaysChange(ytdDays)
-    }
-  }, [chartMode, days, onDaysChange, ytdDays])
 
   const downloadChart = () => {
     downloadChartImage({
