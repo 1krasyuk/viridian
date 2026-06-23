@@ -10,6 +10,25 @@ interface FormatOptions {
   sign?: boolean
 }
 
+const SYMBOLS: Record<string, string> = {
+  usd: '$',
+  eur: '€',
+  gbp: '£',
+  jpy: '¥',
+  cny: '¥',
+  rub: '₽',
+  uah: '₴',
+  kzt: '₸',
+  chf: 'Fr',
+  cad: 'C$',
+  aud: 'A$',
+  btc: '₿',
+}
+
+const ZERO_DECIMAL = ['jpy', 'cny', 'krw', 'vnd']
+
+const CRYPTO = ['btc', 'eth', 'ltc', 'bch', 'xrp', 'sol', 'dot']
+
 export function useCurrency() {
   const currency = useCurrencyStore((s) => s.currency)
   const setCurrency = useCurrencyStore((s) => s.setCurrency)
@@ -44,38 +63,26 @@ export function useCurrency() {
       }).format(Math.abs(value))
 
       const signStr = sign ? (value >= 0 ? '+' : '-') : ''
-      const prefixStr = prefix ? prefix : ''
-      const suffixStr = suffix ? ` ${suffix}` : ''
-
-      return `${signStr}${prefixStr}${num}${suffixStr}`
+      return `${signStr}${prefix ?? ''}${num}${suffix ? ` ${suffix}` : ''}`
     }
 
-    const isCrypto = ['btc', 'eth', 'ltc', 'bch', 'xrp', 'sol', 'dot'].includes(
-      currency,
-    )
+    const c = currency.toLowerCase()
+    const isCrypto = CRYPTO.includes(c)
+    const isZero = ZERO_DECIMAL.includes(c)
+
     const digits =
       isCrypto && notation === 'standard' ? 6 : maximumFractionDigits
+    const max = isZero ? 0 : digits
+    const min = isZero ? 0 : minimumFractionDigits
 
-    const isZeroDecimal = ['jpy', 'cny'].includes(currency)
-    const finalMax = isZeroDecimal ? 0 : digits
-    const finalMin = isZeroDecimal ? 0 : minimumFractionDigits
+    const num = new Intl.NumberFormat('en', {
+      notation,
+      maximumFractionDigits: max,
+      minimumFractionDigits: min,
+    }).format(value)
 
-    try {
-      return new Intl.NumberFormat('en', {
-        style: 'currency',
-        currency: currency.toUpperCase(),
-        notation,
-        maximumFractionDigits: finalMax,
-        minimumFractionDigits: finalMin,
-      }).format(value)
-    } catch {
-      const num = new Intl.NumberFormat('en', {
-        notation,
-        maximumFractionDigits: finalMax,
-        minimumFractionDigits: finalMin,
-      }).format(value)
-      return `${currency.toUpperCase()} ${num}`
-    }
+    const sym = SYMBOLS[c]
+    return sym ? `${sym}${num}` : `${num} ${c.toUpperCase()}`
   }
 
   const f = (
