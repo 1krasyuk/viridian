@@ -37,10 +37,14 @@ export function useCoin(id: string) {
   })
 }
 
-export function useCoinChart(id: string, days: string) {
+export function useCoinChart(
+  id: string,
+  days: string,
+  currency: string = 'usd',
+) {
   return useQuery({
-    queryKey: [coinsKeys.detail(id), 'chart', days],
-    queryFn: () => coinsApi.getCoinChart(id, days),
+    queryKey: [coinsKeys.detail(id), 'chart', days, currency],
+    queryFn: () => coinsApi.getCoinChart(id, days, currency),
     select: (data: CoinChartRaw): CoinChart => {
       const mapToSeries = (data: number[][]) =>
         data.map(([time, value]) => ({
@@ -48,11 +52,17 @@ export function useCoinChart(id: string, days: string) {
           value,
         }))
 
+      const mapToBillions = (data: number[][]) =>
+        data.map(([time, value]) => ({
+          time: (time / 1000) as UTCTimestamp,
+          value: value / 1_000_000_000,
+        }))
+
       return {
         ...data,
         prices: mapToSeries(data.prices),
-        market_caps: mapToSeries(data.market_caps),
-        total_volumes: mapToSeries(data.total_volumes),
+        market_caps: mapToBillions(data.market_caps),
+        total_volumes: mapToBillions(data.total_volumes),
       }
     },
     enabled: !!id,
@@ -61,10 +71,15 @@ export function useCoinChart(id: string, days: string) {
   })
 }
 
-export function useCoinOHLC(id: string, days: string, enabled: boolean) {
+export function useCoinOHLC(
+  id: string,
+  days: string,
+  enabled: boolean,
+  currency: string = 'usd',
+) {
   return useQuery({
-    queryKey: [coinsKeys.detail(id), 'ohlc', days],
-    queryFn: () => coinsApi.getCoinOHLC(id, days),
+    queryKey: [coinsKeys.detail(id), 'ohlc', days, currency],
+    queryFn: () => coinsApi.getCoinOHLC(id, days, currency),
     select: (data: number[][]): OhlcData[] => {
       return data.map(([time, open, high, low, close]) => ({
         time: (time / 1000) as UTCTimestamp,
@@ -79,10 +94,14 @@ export function useCoinOHLC(id: string, days: string, enabled: boolean) {
   })
 }
 
-export function useCoinCurrentPrice(id: string, enabled: boolean) {
+export function useCoinCurrentPrice(
+  id: string,
+  enabled: boolean,
+  currency: string = 'usd',
+) {
   return useQuery({
-    queryKey: [coinsKeys.detail(id), 'current'],
-    queryFn: () => coinsApi.getCoinCurrentPrice(id),
+    queryKey: [coinsKeys.detail(id), 'current', currency],
+    queryFn: () => coinsApi.getCoinCurrentPrice(id, currency),
     enabled: enabled && !!id,
     refetchInterval: 60000,
     refetchIntervalInBackground: false,

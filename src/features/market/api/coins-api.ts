@@ -39,27 +39,38 @@ export const coinsApi = {
     return data
   },
 
-  async getCoinChart(id: string, days: string): Promise<CoinChartRaw> {
+  async getCoinChart(
+    id: string,
+    days: string,
+    vs_currency: string = 'usd',
+  ): Promise<CoinChartRaw> {
     const { data } = await http.get<CoinChartRaw>(`/coins/${id}/market_chart`, {
       params: {
-        vs_currency: 'usd',
+        vs_currency,
         days,
       },
     })
     return data
   },
 
-  async getCoinOHLC(id: string, days: string): Promise<number[][]> {
+  async getCoinOHLC(
+    id: string,
+    days: string,
+    vs_currency: string = 'usd',
+  ): Promise<number[][]> {
     const { data } = await http.get<number[][]>(`/coins/${id}/ohlc`, {
       params: {
-        vs_currency: 'usd',
+        vs_currency,
         days,
       },
     })
     return data
   },
 
-  async getCoinCurrentPrice(id: string): Promise<{
+  async getCoinCurrentPrice(
+    id: string,
+    vs_currency: string = 'usd',
+  ): Promise<{
     price: number
     marketCap: number
     volume: number
@@ -76,9 +87,15 @@ export const coinsApi = {
       },
     })
     return {
-      price: data.market_data.current_price.usd,
-      marketCap: data.market_data.market_cap.usd,
-      volume: data.market_data.total_volume.usd,
+      price:
+        data.market_data.current_price[vs_currency] ??
+        data.market_data.current_price.usd,
+      marketCap:
+        data.market_data.market_cap[vs_currency] ??
+        data.market_data.market_cap.usd,
+      volume:
+        data.market_data.total_volume[vs_currency] ??
+        data.market_data.total_volume.usd,
       timestamp: Date.now(),
     }
   },
