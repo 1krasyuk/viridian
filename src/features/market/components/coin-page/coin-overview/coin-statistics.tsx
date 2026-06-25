@@ -227,7 +227,7 @@ export function CoinStatistics({
           tooltip='The total market value of a cryptocurrency circulating supply.'
           value={getValue(data.market_cap)}
           format='currency'
-          change={data.price_change_percentage_24h}
+          change={getValue(data.price_change_percentage_24h_in_currency)}
           isLoading={isLoading}
         />
       </div>

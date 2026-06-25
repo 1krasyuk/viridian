@@ -75,7 +75,7 @@ export function CoinHeader({
 
     switch (days) {
       case '1':
-        return coin.market_data.price_change_percentage_24h
+        return coin.market_data.price_change_percentage_24h_in_currency
       case '7':
         return coin.market_data.price_change_percentage_7d_in_currency
       case '30':

@@ -1,3 +1,4 @@
+import { useCurrency } from '@/features/currency/hooks'
 import type { Coin } from '../../types/coin'
 import { Skeleton } from '@/shared/ui/skeleton'
 
@@ -17,6 +18,8 @@ export function CoinPriceChange({
   coin: Coin | undefined
   isLoading?: boolean
 }) {
+  const { getValue } = useCurrency()
+
   if (!coin) {
     return (
       <div className='grid grid-cols-6 gap-px bg-border rounded-lg overflow-hidden border-2'>
@@ -42,32 +45,32 @@ export function CoinPriceChange({
     {
       key: '1h',
       label: '1h',
-      value: data.price_change_percentage_1h_in_currency?.usd,
+      value: getValue(data.price_change_percentage_1h_in_currency),
     },
     {
       key: '24h',
       label: '24h',
-      value: data.price_change_percentage_24h_in_currency?.usd,
+      value: getValue(data.price_change_percentage_24h_in_currency),
     },
     {
       key: '7d',
       label: '7d',
-      value: data.price_change_percentage_7d_in_currency?.usd,
+      value: getValue(data.price_change_percentage_7d_in_currency),
     },
     {
       key: '14d',
       label: '14d',
-      value: data.price_change_percentage_14d_in_currency?.usd,
+      value: getValue(data.price_change_percentage_14d_in_currency),
     },
     {
       key: '30d',
       label: '30d',
-      value: data.price_change_percentage_30d_in_currency?.usd,
+      value: getValue(data.price_change_percentage_30d_in_currency),
     },
     {
       key: '1y',
       label: '1y',
-      value: data.price_change_percentage_1y_in_currency?.usd,
+      value: getValue(data.price_change_percentage_1y_in_currency),
     },
   ] as const
 

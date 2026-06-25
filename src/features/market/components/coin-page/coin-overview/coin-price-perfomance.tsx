@@ -193,14 +193,14 @@ export function CoinPricePerformance({
           label='All-time high'
           date={data.ath_date?.usd}
           price={getValue(data.ath) ?? undefined}
-          change={data.ath_change_percentage?.usd ?? undefined}
+          change={getValue(data.ath_change_percentage) ?? undefined}
           isLoading={isLoading}
         />
         <PriceRow
           label='All-time low'
           date={data.atl_date?.usd}
           price={getValue(data.atl) ?? undefined}
-          change={data.atl_change_percentage?.usd ?? undefined}
+          change={getValue(data.atl_change_percentage) ?? undefined}
           isLoading={isLoading}
         />
       </div>
