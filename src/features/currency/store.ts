@@ -7,6 +7,7 @@ export const POPULAR_CURRENCIES: CurrencyCode[] = [
   'usd',
   'eur',
   'gbp',
+  'rub',
   'btc',
   'eth',
 ]

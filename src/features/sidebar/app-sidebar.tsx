@@ -168,7 +168,10 @@ export function AppSidebar() {
 
                 <div className='my-1 h-px bg-border/40' />
 
-                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                <DropdownMenuItem
+                  disabled
+                  className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'
+                >
                   <Languages className='size-4 opacity-80' />
                   <span className='font-medium text-xs'>Language</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
