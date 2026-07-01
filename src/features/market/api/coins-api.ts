@@ -4,6 +4,7 @@ import type { Coin } from '../types/coin'
 import type { Category } from '../types/categories'
 import type { CoinChartRaw } from '../types/coin-chart'
 import type { GlobalData } from '../types/global'
+import type { TrendingResponse } from '../types/trending'
 
 export const coinsApi = {
   async getCoins({
@@ -108,5 +109,28 @@ export const coinsApi = {
   async getGlobalData(): Promise<GlobalData> {
     const { data } = await http.get<{ data: GlobalData }>('/global')
     return data.data
+  },
+
+  async getTrending(): Promise<TrendingResponse> {
+    const { data } = await http.get<TrendingResponse>('/search/trending')
+    return data
+  },
+
+  async getCoinMarketChart(
+    id: string,
+    days: string = '7',
+    vs_currency: string = 'usd',
+  ): Promise<{
+    prices: number[][]
+    market_caps: number[][]
+    total_volumes: number[][]
+  }> {
+    const { data } = await http.get(`/coins/${id}/market_chart`, {
+      params: {
+        vs_currency,
+        days,
+      },
+    })
+    return data
   },
 }

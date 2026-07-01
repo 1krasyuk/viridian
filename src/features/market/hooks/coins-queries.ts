@@ -124,3 +124,26 @@ export function useGlobalData() {
     refetchInterval: 50000,
   })
 }
+
+export function useTrending() {
+  return useQuery({
+    queryKey: ['trending'],
+    queryFn: () => coinsApi.getTrending(),
+    refetchInterval: 60000,
+    staleTime: 30000,
+  })
+}
+
+export function useCoinMarketChart(
+  id: string,
+  days: string = '7',
+  currency: string = 'usd',
+) {
+  return useQuery({
+    queryKey: [coinsKeys.detail(id), 'market-chart', days, currency],
+    queryFn: () => coinsApi.getCoinMarketChart(id, days, currency),
+    enabled: !!id,
+    staleTime: 300000,
+    refetchInterval: 300000,
+  })
+}

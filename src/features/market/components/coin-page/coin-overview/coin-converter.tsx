@@ -20,7 +20,6 @@ export function CoinConverter({
 
   const [coinInput, setCoinInput] = useState('1')
 
-  // Вычисляем fiat всегда от текущего coinInput и price
   const fiatInput = useMemo(() => {
     const parsed = Number(coinInput)
     if (isNaN(parsed) || !price) return ''

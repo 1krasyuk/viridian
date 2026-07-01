@@ -117,7 +117,7 @@ function TimePresetButton({
 
   const percent =
     typeof raw === 'object' && raw !== null
-      ? (getValue(raw as Record<string, number>) ?? undefined) // ← заменить .usd на getValue
+      ? (getValue(raw as Record<string, number>) ?? undefined)
       : undefined
 
   const price = getHistoricalPrice(currentPrice, percent)
