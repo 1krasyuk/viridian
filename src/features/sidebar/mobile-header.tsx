@@ -49,7 +49,7 @@ export function MobileHeader() {
         </span>
       </Link>
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant='ghost'
@@ -79,7 +79,7 @@ export function MobileHeader() {
           side='bottom'
           alignOffset={16}
           sideOffset={12}
-          className='h-[calc(100svh-4rem)] w-screen max-w-none gap-0 overflow-y-auto rounded-none border-x-0 border-b-0 border-t border-sidebar-border bg-background p-4 shadow-none backdrop-blur-xl duration-150 data-open:slide-in-from-top-2'
+          className='h-[calc(100dvh-4rem)] w-screen max-w-none gap-0 overflow-y-auto rounded-none border-x-0 border-b-0 border-t border-sidebar-border bg-background p-4 shadow-none backdrop-blur-xl duration-150 data-open:slide-in-from-top-2'
         >
           <div className='mx-auto flex min-h-full w-full max-w-md flex-col gap-6'>
             <nav
