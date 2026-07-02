@@ -34,7 +34,7 @@ function TickerItem({
     <Link
       to='/coins/$coinId'
       params={{ coinId: id }}
-      className='inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/30 transition-colors cursor-pointer shrink-0'
+      className='inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/60 transition-colors cursor-pointer shrink-0'
     >
       {/* Rank */}
       <span className='text-xs font-mono text-muted-foreground tabular-nums'>
@@ -58,7 +58,7 @@ function TickerItem({
       {/* Symbol badge */}
       <Badge
         variant='secondary'
-        className='h-5 px-1.5 text-xs font-semibold font-mono uppercase tracking-wide bg-muted/40 hover:bg-muted/40'
+        className='h-5 px-1.5 text-xs text-muted-foreground font-semibold font-mono uppercase tracking-wide bg-input '
       >
         {symbol}
       </Badge>
@@ -151,7 +151,7 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
         {isLoading ? (
           <div className='flex items-center gap-3 px-3 py-2'>
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className='h-8 w-56 shrink-0' />
+              <Skeleton key={i} className='h-6 w-56 shrink-0 rounded-lg' />
             ))}
           </div>
         ) : duplicatedCoins.length === 0 ? (
