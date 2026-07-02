@@ -133,4 +133,21 @@ export const coinsApi = {
     })
     return data
   },
+
+  async getFearGreed(): Promise<{
+    value: number
+    value_classification: string
+    timestamp: string
+  }> {
+    try {
+      const { data } = await http.get('https://api.alternative.me/fng/?limit=1')
+      return data.data[0]
+    } catch {
+      return {
+        value: 50,
+        value_classification: 'Neutral',
+        timestamp: String(Date.now() / 1000),
+      }
+    }
+  },
 }
