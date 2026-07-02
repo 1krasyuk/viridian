@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Badge } from '@/shared/ui/badge'
 import type { TrendingResponse } from '@/features/market/types/trending'
+import { Link } from '@tanstack/react-router'
 
 interface MarketTickerProps {
   data: TrendingResponse | undefined
@@ -10,6 +11,7 @@ interface MarketTickerProps {
 }
 
 function TickerItem({
+  id,
   symbol,
   name,
   price,
@@ -17,6 +19,7 @@ function TickerItem({
   rank,
   iconUrl,
 }: {
+  id: string
   symbol: string
   name: string
   price: string
@@ -28,7 +31,11 @@ function TickerItem({
   const isNegative = change < 0
 
   return (
-    <div className='bg-card inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/80 transition-colors cursor-default shrink-0'>
+    <Link
+      to='/coins/$coinId'
+      params={{ coinId: id }}
+      className='inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/30 transition-colors cursor-pointer shrink-0'
+    >
       {/* Rank */}
       <span className='text-xs font-mono text-muted-foreground tabular-nums'>
         #{rank}
@@ -78,7 +85,7 @@ function TickerItem({
         )}
         {Math.abs(change).toFixed(2)}%
       </span>
-    </div>
+    </Link>
   )
 }
 
@@ -135,8 +142,7 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
   const duplicatedCoins = [...coins, ...coins]
 
   return (
-    <div className='relative w-full overflow-hidden border-y border-border/15 bg-card/50'>
-      {/* Ticker */}
+    <div className='relative w-full overflow-hidden border-y border-border/15 bg-card'>
       <div
         ref={scrollRef}
         className='flex items-center overflow-hidden'
@@ -165,6 +171,7 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
                 className='inline-flex items-center shrink-0'
               >
                 <TickerItem
+                  id={item.id}
                   symbol={item.symbol}
                   name={item.name}
                   iconUrl={item.small}
@@ -181,9 +188,8 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
                   change={change}
                   rank={item.market_cap_rank}
                 />
-                {/* Partial-height divider between coins */}
                 {!isLast && (
-                  <div className='h-4 w-px bg-muted-foreground/15 shrink-0' />
+                  <div className='h-4 w-px bg-muted-foreground/50 shrink-0' />
                 )}
               </div>
             )
@@ -191,7 +197,6 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
         )}
       </div>
 
-      {/* Fade edges */}
       <div className='pointer-events-none absolute inset-y-0 left-0 w-5 bg-linear-to-r from-card to-transparent z-10' />
       <div className='pointer-events-none absolute inset-y-0 right-0 w-5 bg-linear-to-l from-card to-transparent z-10' />
     </div>
