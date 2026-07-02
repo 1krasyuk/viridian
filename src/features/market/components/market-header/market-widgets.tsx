@@ -1,7 +1,10 @@
 import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import type { GlobalData } from '@/features/market/types/global'
-import { useCoinMarketChart } from '@/features/market/hooks/coins-queries'
+import {
+  useCoinMarketChart,
+  useFearGreed,
+} from '@/features/market/hooks/coins-queries'
 import { useCurrency } from '@/features/currency/hooks'
 import { useTheme } from 'next-themes'
 import { getChartColors } from '@/shared/lib/chart-config'
@@ -82,7 +85,7 @@ function WidgetCard({
   const isNegative = change !== undefined && change < 0
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-semibold mb-1'>
@@ -155,9 +158,9 @@ function DominanceWidget({
   const others = Math.max(0, 100 - btcDominance - ethDominance)
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
-      <div className='flex items-center justify-between mb-1 min-h-8'>
+      <div className='flex items-center justify-between mb-1 min-h-8 sm:min-h-5'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
           Dominance
         </span>
@@ -213,45 +216,93 @@ function DominanceWidget({
   )
 }
 
-function StatsWidget({
-  activeCoins,
-  markets,
+function FearGreedWidget({
+  value,
+  label,
   isLoading,
 }: {
-  activeCoins: number
-  markets: number
+  value: number
+  label: string
   isLoading: boolean
 }) {
+  const cx = 60
+  const cy = 60
+  const r = 55
+
+  const angle = 180 - (value / 100) * 180
+  const rad = (angle * Math.PI) / 180
+  const px = cx + r * Math.cos(rad)
+  const py = cy - r * Math.sin(rad)
+
+  // 5 segments, each 30° + 6° gap = 180°
+  const arcPath = (startAngle: number, endAngle: number) => {
+    const startRad = (startAngle * Math.PI) / 180
+    const endRad = (endAngle * Math.PI) / 180
+    const x1 = cx + r * Math.cos(startRad)
+    const y1 = cy - r * Math.sin(startRad)
+    const x2 = cx + r * Math.cos(endRad)
+    const y2 = cy - r * Math.sin(endRad)
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`
+  }
+
+  const segments = [
+    { path: arcPath(180, 152), color: '#ef4444' },
+    { path: arcPath(144, 116), color: '#f97316' },
+    { path: arcPath(108, 80), color: '#eab308' },
+    { path: arcPath(72, 44), color: '#84cc16' },
+    { path: arcPath(36, 0), color: '#22c55e' },
+  ]
+
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       <div className='flex items-center justify-between mb-1'>
-        <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium'>
-          Market Overview
+        <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
+          Fear & Greed
         </span>
       </div>
 
-      <div className='grid grid-cols-2 gap-2'>
-        <div>
-          {isLoading ? (
-            <Skeleton className='h-5 sm:h-6 w-14 sm:w-20 mb-1' />
-          ) : (
-            <p className='text-base sm:text-lg lg:text-xl font-bold font-mono tracking-tight'>
-              {activeCoins.toLocaleString()}
-            </p>
-          )}
-          <p className='text-xs text-muted-foreground capitalize'>Coins</p>
+      {isLoading ? (
+        <div className='flex flex-col items-center gap-2'>
+          <Skeleton className='h-20 w-28 sm:w-32' />
         </div>
-        <div className='hidden sm:block'>
-          {isLoading ? (
-            <Skeleton className='h-5 sm:h-6 w-16 mb-1' />
-          ) : (
-            <p className='text-base sm:text-lg lg:text-xl font-bold font-mono tracking-tight'>
-              {markets.toLocaleString()}
-            </p>
-          )}
-          <p className='text-xs text-muted-foreground capitalize'>Markets</p>
+      ) : (
+        <div className='flex flex-col items-center relative'>
+          <svg
+            viewBox='0 0 120 70'
+            className='w-full max-w-30 sm:max-w-35 h-auto'
+          >
+            {segments.map((seg, i) => (
+              <path
+                key={i}
+                d={seg.path}
+                fill='none'
+                stroke={seg.color}
+                strokeWidth='6'
+                strokeLinecap='round'
+              />
+            ))}
+            <circle
+              cx={px}
+              cy={py}
+              r='4.5'
+              fill='white'
+              stroke='white'
+              strokeWidth='1.5'
+            />
+          </svg>
+
+          {/* Value + Label */}
+          <div className='flex flex-col items-center -mt-4 sm:-mt-10'>
+            <span className='text-base sm:text-2xl font-bold font-mono text-foreground leading-none'>
+              {value}
+            </span>
+            <span className='text-xs sm:text-sm font-medium text-muted-foreground capitalize tracking-wider text-center'>
+              {label}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -269,10 +320,9 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const btcDominance = data?.market_cap_percentage?.btc ?? 0
   const ethDominance = data?.market_cap_percentage?.eth ?? 0
   const marketChange = data?.market_cap_change_percentage_24h_usd ?? 0
-  const activeCoins = data?.active_cryptocurrencies ?? 0
-  const markets = data?.markets ?? 0
 
   const { data: btcChart } = useCoinMarketChart('bitcoin', '7', currency)
+  const { data: fngData, isLoading: fngLoading } = useFearGreed()
 
   const mcapSparkline = btcChart?.prices?.map(([, price]) => price) ?? []
   const volumeSparkline = btcChart?.total_volumes?.map(([, vol]) => vol) ?? []
@@ -317,10 +367,10 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
         isLoading={isLoading}
       />
 
-      <StatsWidget
-        activeCoins={activeCoins}
-        markets={markets}
-        isLoading={isLoading}
+      <FearGreedWidget
+        value={fngData?.value ?? 0}
+        label={fngData?.value_classification ?? '—'}
+        isLoading={isLoading || fngLoading}
       />
     </div>
   )
