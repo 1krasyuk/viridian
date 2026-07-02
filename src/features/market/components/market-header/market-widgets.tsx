@@ -40,7 +40,7 @@ function Sparkline({
     <svg
       viewBox='0 0 100 100'
       preserveAspectRatio='none'
-      className='w-full'
+      className='w-full hidden sm:block'
       style={{ height }}
     >
       <defs>
@@ -82,24 +82,23 @@ function WidgetCard({
   const isNegative = change !== undefined && change < 0
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-4 sm:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
       <div className='flex items-center justify-between'>
-        <span className='text-sm text-muted-foreground capitalize font-semibold mb-1'>
+        <span className='text-xs sm:text-sm text-muted-foreground capitalize font-semibold mb-1'>
           {title}
         </span>
-        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
 
-      {/* Value row */}
-      <div className='flex items-baseline gap-2 mb-1'>
+      {/* Value row - column on mobile, row on sm+ */}
+      <div className='flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2 mb-1'>
         {isLoading ? (
           <>
-            <Skeleton className='h-6 w-18' />
-            <Skeleton className='h-3 w-16' />
+            <Skeleton className='h-5 sm:h-6 w-18' />
+            <Skeleton className='h-2.5 sm:h-3 w-16' />
           </>
         ) : (
-          <span className='text-xl font-bold font-mono tracking-tight'>
+          <span className='text-base sm:text-xl font-bold font-mono tracking-tight'>
             {value}
           </span>
         )}
@@ -128,14 +127,18 @@ function WidgetCard({
 
         {/* Muted text (for Volume) */}
         {!isLoading && mutedChange && (
-          <span className='text-xs font-mono text-muted-foreground'>
+          <span className='inline-flex  items-center  text-xs font-normal sm:font-mono text-muted-foreground'>
             {mutedChange}
           </span>
         )}
       </div>
 
-      {/* Sparkline */}
-      {isLoading ? <Skeleton className='h-18 w-full mt-2' /> : sparkline}
+      {/* Sparkline - hidden on mobile */}
+      {isLoading ? (
+        <Skeleton className='hidden sm:block h-14 lg:h-18 w-full mt-2' />
+      ) : (
+        sparkline
+      )}
     </div>
   )
 }
@@ -152,39 +155,38 @@ function DominanceWidget({
   const others = Math.max(0, 100 - btcDominance - ethDominance)
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-4 sm:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
-      <div className='flex items-center justify-between mb-1'>
-        <span className='text-sm text-muted-foreground capitalize font-medium'>
+      <div className='flex items-center justify-between mb-1 min-h-8'>
+        <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
           Dominance
         </span>
-        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
-
       {/* Value */}
       {isLoading ? (
-        <Skeleton className='h-6 w-20 mb-1' />
+        <Skeleton className='h-5 sm:h-6 w-14 sm:w-20 mb-1' />
       ) : (
         <div className='flex items-baseline gap-2 mb-1'>
-          <span className='text-xl font-bold font-mono tracking-tight'>
+          <span className='text-base sm:text-xl font-bold font-mono tracking-tight'>
             {btcDominance.toFixed(1)}%
           </span>
-          <span className='text-xs text-muted-foreground font-mono'>BTC</span>
+          <span className='text-xs text-muted-foreground font-mono hidden sm:inline'>
+            BTC
+          </span>
         </div>
       )}
-
-      {/* Bar + labels */}
+      {/* Bar + labels - labels hidden on mobile */}
       {isLoading ? (
         <div className='mt-3 space-y-2'>
           <Skeleton className='h-3 w-full' />
-          <div className='flex justify-between'>
+          <div className='hidden sm:flex justify-between'>
             <Skeleton className='h-3 w-16' />
             <Skeleton className='h-3 w-14' />
             <Skeleton className='h-3 w-20' />
           </div>
         </div>
       ) : (
-        <div className='mt-3'>
+        <div className='mt-1.5 sm:mt-3'>
           <div className='flex h-2 rounded-full overflow-hidden'>
             <div
               className='bg-amber-500'
@@ -196,7 +198,7 @@ function DominanceWidget({
             />
             <div className='bg-muted flex-1' />
           </div>
-          <div className='flex justify-between mt-2 text-xs text-muted-foreground font-mono'>
+          <div className='hidden sm:flex justify-between mt-2 text-xs text-muted-foreground font-mono'>
             <span className='text-amber-500'>
               BTC {btcDominance.toFixed(1)}%
             </span>
@@ -221,30 +223,29 @@ function StatsWidget({
   isLoading: boolean
 }) {
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-4 sm:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       <div className='flex items-center justify-between mb-1'>
-        <span className='text-sm text-muted-foreground capitalize font-medium'>
+        <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium'>
           Market Overview
         </span>
-        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
 
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-2 gap-2'>
         <div>
           {isLoading ? (
-            <Skeleton className='h-6 w-20 mb-1' />
+            <Skeleton className='h-5 sm:h-6 w-14 sm:w-20 mb-1' />
           ) : (
-            <p className='text-xl font-bold font-mono tracking-tight'>
+            <p className='text-base sm:text-lg lg:text-xl font-bold font-mono tracking-tight'>
               {activeCoins.toLocaleString()}
             </p>
           )}
           <p className='text-xs text-muted-foreground capitalize'>Coins</p>
         </div>
-        <div>
+        <div className='hidden sm:block'>
           {isLoading ? (
-            <Skeleton className='h-6 w-16 mb-1' />
+            <Skeleton className='h-5 sm:h-6 w-16 mb-1' />
           ) : (
-            <p className='text-xl font-bold font-mono tracking-tight'>
+            <p className='text-base sm:text-lg lg:text-xl font-bold font-mono tracking-tight'>
               {markets.toLocaleString()}
             </p>
           )}
@@ -285,14 +286,14 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
       : undefined
 
   return (
-    <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 px-3'>
+    <div className='grid grid-cols-4 gap-2 sm:gap-3 px-2 sm:px-3'>
       <WidgetCard
         title='Market Cap'
         value={format(totalMcap, { notation: 'compact' })}
         change={marketChange}
         sparkline={
           mcapSparkline.length > 1 ? (
-            <Sparkline data={mcapSparkline} color={mcapColor} height={80} />
+            <Sparkline data={mcapSparkline} color={mcapColor} height={60} />
           ) : null
         }
         isLoading={isLoading}
@@ -301,10 +302,10 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
       <WidgetCard
         title='24h Volume'
         value={format(totalVolume, { notation: 'compact' })}
-        mutedChange={volMcapRatio ? `${volMcapRatio} of cap` : undefined}
+        mutedChange={volMcapRatio ? `${volMcapRatio} Mcap` : undefined}
         sparkline={
           volumeSparkline.length > 1 ? (
-            <Sparkline data={volumeSparkline} color={volColor} height={80} />
+            <Sparkline data={volumeSparkline} color={volColor} height={60} />
           ) : null
         }
         isLoading={isLoading}
