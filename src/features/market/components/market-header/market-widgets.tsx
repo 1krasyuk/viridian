@@ -1,4 +1,4 @@
-import { ArrowUpRight, ArrowDownRight, Minus, ChevronRight } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react'
 import { Skeleton } from '@/shared/ui/skeleton'
 import type { GlobalData } from '@/features/market/types/global'
 import { useCoinMarketChart } from '@/features/market/hooks/coins-queries'
@@ -67,14 +67,14 @@ function WidgetCard({
   title,
   value,
   change,
-  subvalue,
+  mutedChange,
   sparkline,
   isLoading,
 }: {
   title: string
   value: string
   change?: number
-  subvalue?: string
+  mutedChange?: string
   sparkline?: React.ReactNode
   isLoading: boolean
 }) {
@@ -88,19 +88,23 @@ function WidgetCard({
         <span className='text-sm text-muted-foreground capitalize font-semibold mb-1'>
           {title}
         </span>
-        <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' />
+        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
 
-      {/* Value + change */}
+      {/* Value row */}
       <div className='flex items-baseline gap-2 mb-1'>
         {isLoading ? (
-          <Skeleton className='h-7 w-28' />
+          <>
+            <Skeleton className='h-6 w-18' />
+            <Skeleton className='h-3 w-16' />
+          </>
         ) : (
-          <span className='text-xl sm:text-xl font-bold font-mono tracking-tight'>
+          <span className='text-xl font-bold font-mono tracking-tight'>
             {value}
           </span>
         )}
 
+        {/* Colored change (for Market Cap) */}
         {!isLoading && change !== undefined && (
           <span
             className={`inline-flex items-center gap-0.5 text-xs font-mono font-medium ${
@@ -121,18 +125,17 @@ function WidgetCard({
             {Math.abs(change).toFixed(2)}%
           </span>
         )}
+
+        {/* Muted text (for Volume) */}
+        {!isLoading && mutedChange && (
+          <span className='text-xs font-mono text-muted-foreground'>
+            {mutedChange}
+          </span>
+        )}
       </div>
 
-      {/* Subvalue */}
-      {subvalue && !isLoading && (
-        <p className='text-xs text-muted-foreground font-mono mb-1'>
-          {subvalue}
-        </p>
-      )}
-      {isLoading && <Skeleton className='h-3 w-20 mb-3' />}
-
       {/* Sparkline */}
-      {sparkline}
+      {isLoading ? <Skeleton className='h-18 w-full mt-2' /> : sparkline}
     </div>
   )
 }
@@ -150,25 +153,37 @@ function DominanceWidget({
 
   return (
     <div className='flex-1 min-w-0 rounded-xl p-4 sm:p-5 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+      {/* Header */}
       <div className='flex items-center justify-between mb-1'>
         <span className='text-sm text-muted-foreground capitalize font-medium'>
           Dominance
         </span>
-        <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' />
+        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
 
+      {/* Value */}
       {isLoading ? (
-        <Skeleton className='h-7 w-20 mb-1' />
+        <Skeleton className='h-6 w-20 mb-1' />
       ) : (
         <div className='flex items-baseline gap-2 mb-1'>
-          <span className='text-xl sm:text-xl font-bold font-mono tracking-tight'>
+          <span className='text-xl font-bold font-mono tracking-tight'>
             {btcDominance.toFixed(1)}%
           </span>
           <span className='text-xs text-muted-foreground font-mono'>BTC</span>
         </div>
       )}
 
-      {!isLoading && (
+      {/* Bar + labels */}
+      {isLoading ? (
+        <div className='mt-3 space-y-2'>
+          <Skeleton className='h-3 w-full' />
+          <div className='flex justify-between'>
+            <Skeleton className='h-3 w-16' />
+            <Skeleton className='h-3 w-14' />
+            <Skeleton className='h-3 w-20' />
+          </div>
+        </div>
+      ) : (
         <div className='mt-3'>
           <div className='flex h-2 rounded-full overflow-hidden'>
             <div
@@ -211,15 +226,15 @@ function StatsWidget({
         <span className='text-sm text-muted-foreground capitalize font-medium'>
           Market Overview
         </span>
-        <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' />
+        {/* <ChevronRight className='h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors' /> */}
       </div>
 
       <div className='grid grid-cols-2 gap-4'>
         <div>
           {isLoading ? (
-            <Skeleton className='h-7 w-16 mb-1' />
+            <Skeleton className='h-6 w-20 mb-1' />
           ) : (
-            <p className='text-xl sm:text-2xl font-bold font-mono tracking-tight'>
+            <p className='text-xl font-bold font-mono tracking-tight'>
               {activeCoins.toLocaleString()}
             </p>
           )}
@@ -227,9 +242,9 @@ function StatsWidget({
         </div>
         <div>
           {isLoading ? (
-            <Skeleton className='h-7 w-16 mb-1' />
+            <Skeleton className='h-6 w-16 mb-1' />
           ) : (
-            <p className='text-xl sm:text-2xl font-bold font-mono tracking-tight'>
+            <p className='text-xl font-bold font-mono tracking-tight'>
               {markets.toLocaleString()}
             </p>
           )}
@@ -264,17 +279,17 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const mcapColor = marketChange >= 0 ? colors.positive : colors.negative
   const volColor = '#2563eb'
 
+  const volMcapRatio =
+    totalMcap > 0 && totalVolume > 0
+      ? `${((totalVolume / totalMcap) * 100).toFixed(1)}%`
+      : undefined
+
   return (
     <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 px-3'>
       <WidgetCard
         title='Market Cap'
         value={format(totalMcap, { notation: 'compact' })}
         change={marketChange}
-        subvalue={
-          totalMcap > 0
-            ? `${((totalVolume / totalMcap) * 100).toFixed(1)}% vol/mcap`
-            : undefined
-        }
         sparkline={
           mcapSparkline.length > 1 ? (
             <Sparkline data={mcapSparkline} color={mcapColor} height={80} />
@@ -286,11 +301,7 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
       <WidgetCard
         title='24h Volume'
         value={format(totalVolume, { notation: 'compact' })}
-        subvalue={
-          totalMcap > 0
-            ? `${((totalVolume / totalMcap) * 100).toFixed(1)}% of cap`
-            : undefined
-        }
+        mutedChange={volMcapRatio ? `${volMcapRatio} of cap` : undefined}
         sparkline={
           volumeSparkline.length > 1 ? (
             <Sparkline data={volumeSparkline} color={volColor} height={80} />
