@@ -105,7 +105,7 @@ export function DataTableToolbar<TData>({
         >
           <ComboboxInput
             placeholder='Select a category'
-            className='md:w-50 w-full rounded-lg mb-2 md:mb-0'
+            className='md:w-70 w-full rounded-lg mb-2 md:mb-0'
             showClear
           />
           <ComboboxContent>

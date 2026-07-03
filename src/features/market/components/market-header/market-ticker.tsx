@@ -34,7 +34,7 @@ function TickerItem({
     <Link
       to='/coins/$coinId'
       params={{ coinId: id }}
-      className='inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/60 transition-colors cursor-pointer shrink-0'
+      className='inline-flex items-center gap-2 px-3 py-2.5 hover:bg-muted/40 transition-colors cursor-pointer shrink-0'
     >
       {/* Rank */}
       <span className='text-xs font-mono text-muted-foreground tabular-nums'>
@@ -58,7 +58,7 @@ function TickerItem({
       {/* Symbol badge */}
       <Badge
         variant='secondary'
-        className='h-5 px-1.5 text-xs text-muted-foreground font-semibold font-mono uppercase tracking-wide bg-input '
+        className='h-5 px-1.5 text-xs text-muted-foreground font-semibold font-mono uppercase tracking-wide bg-muted '
       >
         {symbol}
       </Badge>

@@ -85,7 +85,7 @@ function WidgetCard({
   const isNegative = change !== undefined && change < 0
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-semibold mb-1'>
@@ -158,9 +158,9 @@ function DominanceWidget({
   const others = Math.max(0, 100 - btcDominance - ethDominance)
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       {/* Header */}
-      <div className='flex items-center justify-between mb-1 min-h-8 sm:min-h-5'>
+      <div className='flex items-center justify-between mb-1 sm:min-h-5'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
           Dominance
         </span>
@@ -247,15 +247,15 @@ function FearGreedWidget({
   }
 
   const segments = [
-    { path: arcPath(180, 152), color: '#ef4444' },
-    { path: arcPath(144, 116), color: '#f97316' },
-    { path: arcPath(108, 80), color: '#eab308' },
-    { path: arcPath(72, 44), color: '#84cc16' },
-    { path: arcPath(36, 0), color: '#22c55e' },
+    { path: arcPath(180, 150), color: '#ef4444' },
+    { path: arcPath(142.5, 112.5), color: '#f97316' },
+    { path: arcPath(105, 75), color: '#facc15' },
+    { path: arcPath(67.5, 37.5), color: '#84cc16' },
+    { path: arcPath(30, 0), color: '#10b981' },
   ]
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
       <div className='flex items-center justify-between mb-1'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
           Fear & Greed
@@ -293,11 +293,11 @@ function FearGreedWidget({
           </svg>
 
           {/* Value + Label */}
-          <div className='flex flex-col items-center -mt-4 sm:-mt-10'>
+          <div className='flex flex-col items-center -mt-5 sm:-mt-10'>
             <span className='text-base sm:text-2xl font-bold font-mono text-foreground leading-none'>
               {value}
             </span>
-            <span className='text-xs sm:text-sm font-medium text-muted-foreground capitalize tracking-wider text-center'>
+            <span className='hidden sm:block text-xs sm:text-sm font-medium text-muted-foreground capitalize tracking-wider text-center'>
               {label}
             </span>
           </div>
