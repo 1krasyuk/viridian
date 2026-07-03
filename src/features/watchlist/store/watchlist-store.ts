@@ -10,6 +10,7 @@ type WatchlistState = {
   removeCoin: (coinId: string) => void
   toggleCoin: (coin: CoinsList) => void
   isWatched: (coinId: string) => boolean
+  clearWatchlist: () => void
 }
 
 const usd = (value: Record<string, number> | undefined) => value?.usd ?? null
@@ -25,8 +26,7 @@ export function coinToWatchlistCoin(coin: Coin): CoinsList {
     price_change_24h: coin.market_data.price_change_24h,
     price_change_percentage_1h_in_currency:
       coin.market_data.price_change_percentage_1h_in_currency?.usd ?? null,
-    price_change_percentage_24h:
-      coin.market_data.price_change_percentage_24h,
+    price_change_percentage_24h: coin.market_data.price_change_percentage_24h,
     price_change_percentage_7d_in_currency:
       coin.market_data.price_change_percentage_7d_in_currency?.usd ?? null,
     price_change_percentage_30d_in_currency:
@@ -45,12 +45,10 @@ export function coinToWatchlistCoin(coin: Coin): CoinsList {
     total_supply: coin.market_data.total_supply,
     max_supply: coin.market_data.max_supply,
     ath: usd(coin.market_data.ath),
-    ath_change_percentage:
-      coin.market_data.ath_change_percentage?.usd ?? null,
+    ath_change_percentage: coin.market_data.ath_change_percentage?.usd ?? null,
     ath_date: coin.market_data.ath_date?.usd ?? null,
     atl: usd(coin.market_data.atl),
-    atl_change_percentage:
-      coin.market_data.atl_change_percentage?.usd ?? null,
+    atl_change_percentage: coin.market_data.atl_change_percentage?.usd ?? null,
     roi: null,
     last_updated: new Date().toISOString(),
   }
@@ -84,6 +82,7 @@ export const useWatchlistStore = create<WatchlistState>()(
         }
       },
       isWatched: (coinId) => get().coins.some((coin) => coin.id === coinId),
+      clearWatchlist: () => set({ coins: [] }),
     }),
     {
       name: 'viridian-watchlist',
