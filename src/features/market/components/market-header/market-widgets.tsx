@@ -97,8 +97,8 @@ function WidgetCard({
       <div className='flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2 mb-1'>
         {isLoading ? (
           <>
-            <Skeleton className='h-5 sm:h-6 w-18' />
-            <Skeleton className='h-2.5 sm:h-3 w-16' />
+            <Skeleton className='h-5 sm:h-6 w-18 mb-2' />
+            <Skeleton className='h-3 w-16' />
           </>
         ) : (
           <span className='text-base sm:text-xl font-bold font-mono tracking-tight'>
@@ -138,7 +138,7 @@ function WidgetCard({
 
       {/* Sparkline - hidden on mobile */}
       {isLoading ? (
-        <Skeleton className='hidden sm:block h-14 lg:h-18 w-full mt-2' />
+        <Skeleton className='hidden sm:block h-14 w-full mt-2' />
       ) : (
         sparkline
       )}
@@ -264,7 +264,7 @@ function FearGreedWidget({
 
       {isLoading ? (
         <div className='flex flex-col items-center gap-2'>
-          <Skeleton className='h-20 w-28 sm:w-32' />
+          <Skeleton className='h-10 sm:h-20 w-16 sm:w-32' />
         </div>
       ) : (
         <div className='flex flex-col items-center relative'>

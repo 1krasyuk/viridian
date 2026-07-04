@@ -1,4 +1,3 @@
-// src/features/currency/hooks.ts
 import { useCurrencyStore } from './store'
 
 interface FormatOptions {
