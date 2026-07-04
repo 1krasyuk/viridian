@@ -3,6 +3,7 @@ import { columns } from '@/features/market/components/coins-table/columns'
 import type { CoinsList } from '@/features/market/types/coins-list'
 import type { CellContext } from '@tanstack/react-table'
 import { useWatchlistStore } from '../store/watchlist-store'
+import { useWatchlistSync } from '../hooks/use-watchlist-sync'
 import { useCurrency } from '@/features/currency/hooks'
 import { Button } from '@/shared/ui/button'
 import { Trash2, TrendingUp, TrendingDown, Minus, Star } from 'lucide-react'
@@ -163,9 +164,11 @@ function WatchlistHeader({
   )
 }
 
-// ─── Main Component ─────────────────────────────────────────────
+//  Main Component
 
 export function WatchlistTable() {
+  useWatchlistSync()
+
   const coins = useWatchlistStore((state) => state.coins)
   const clearWatchlist = useWatchlistStore((state) => state.clearWatchlist)
   const { currency } = useCurrency()
