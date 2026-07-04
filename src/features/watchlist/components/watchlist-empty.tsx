@@ -6,7 +6,6 @@ import { useTrending } from '@/features/market/hooks/coins-queries'
 import { useCurrency } from '@/features/currency/hooks'
 import { useWatchlistStore } from '../store/watchlist-store'
 import { coinsApi } from '@/features/market/api/coins-api'
-import { coinToWatchlistCoin } from '../store/watchlist-store'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -40,8 +39,12 @@ function TrendingCard({
   onToggle: () => void
   adding: boolean
 }) {
-  const { format } = useCurrency()
-  const change24h = coin.data.price_change_percentage_24h?.usd ?? 0
+  const { currency } = useCurrency()
+
+  const priceChangeRecord = coin.data.price_change_percentage_24h as
+    | Record<string, number>
+    | undefined
+  const change24h = priceChangeRecord?.[currency] ?? priceChangeRecord?.usd ?? 0
   const positive = change24h >= 0
   const price = coin.data.price
 
@@ -90,7 +93,10 @@ function TrendingCard({
 
       <div className='flex items-baseline gap-2 flex-wrap mb-5'>
         <span className='text-base sm:text-lg font-bold font-mono'>
-          {format(price, { maximumFractionDigits: price < 1 ? 6 : 2 })}
+          $
+          {new Intl.NumberFormat('en', {
+            maximumFractionDigits: price < 1 ? 6 : 2,
+          }).format(price)}
         </span>
         <span
           className={cn(
@@ -117,6 +123,7 @@ function TrendingCard({
 export function WatchlistEmpty() {
   const addCoin = useWatchlistStore((s) => s.addCoin)
   const { data: trending, isLoading } = useTrending()
+  const { currency } = useCurrency()
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [addingIds, setAddingIds] = useState<Set<string>>(new Set())
@@ -145,14 +152,15 @@ export function WatchlistEmpty() {
     const selectedCoins = coins.filter((c) => selected.has(c.id))
 
     try {
-      const fullCoins = await Promise.all(
-        selectedCoins.map((coin) => coinsApi.getCoin(coin.id)),
-      )
+      const fresh = await coinsApi.getCoins({
+        vs_currency: currency,
+        ids: selectedCoins.map((c) => c.id).join(','),
+        per_page: selectedCoins.length,
+        page: 1,
+      })
 
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      fullCoins.forEach((fullCoin) => {
-        addCoin(coinToWatchlistCoin(fullCoin))
+      fresh.forEach((coin) => {
+        addCoin(coin)
       })
 
       setSelected(new Set())
@@ -176,7 +184,7 @@ export function WatchlistEmpty() {
       </div>
 
       {/* Grid */}
-      <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-3xl mb-6'>
+      <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-lg md:max-w-3xl mb-6'>
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className='h-32 rounded-xl' />
