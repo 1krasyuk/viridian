@@ -11,6 +11,7 @@ type WatchlistState = {
   toggleCoin: (coin: CoinsList) => void
   isWatched: (coinId: string) => boolean
   clearWatchlist: () => void
+  setCoins: (coins: CoinsList[]) => void
 }
 
 const usd = (value: Record<string, number> | undefined) => value?.usd ?? null
@@ -63,7 +64,6 @@ export const useWatchlistStore = create<WatchlistState>()(
           if (!state.coins.some((item) => item.id === coin.id)) {
             return { coins: [...state.coins, coin] }
           }
-
           return {
             coins: state.coins.map((item) =>
               item.id === coin.id ? coin : item,
@@ -83,6 +83,7 @@ export const useWatchlistStore = create<WatchlistState>()(
       },
       isWatched: (coinId) => get().coins.some((coin) => coin.id === coinId),
       clearWatchlist: () => set({ coins: [] }),
+      setCoins: (coins) => set({ coins }),
     }),
     {
       name: 'viridian-watchlist',
