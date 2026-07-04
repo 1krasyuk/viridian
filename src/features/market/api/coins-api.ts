@@ -12,11 +12,13 @@ export const coinsApi = {
     per_page,
     category,
     vs_currency = 'usd',
+    ids,
   }: {
     page: number
     per_page: number
     category?: string
     vs_currency?: string
+    ids?: string
   }): Promise<CoinsList[]> {
     const { data } = await http.get<CoinsList[]>('/coins/markets', {
       params: {
@@ -26,6 +28,7 @@ export const coinsApi = {
         page,
         per_page,
         category,
+        ids,
       },
     })
     return data
