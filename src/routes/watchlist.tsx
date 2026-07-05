@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { WatchlistTable } from '@/features/watchlist/components/watchlist-table'
 import { WatchlistEmpty } from '@/features/watchlist/components/watchlist-empty'
 import { useWatchlistStore } from '@/features/watchlist/store/watchlist-store'
+import { WatchlistPage } from '@/features/watchlist/components/watchlist-page'
 
 export const Route = createFileRoute('/watchlist')({
   component: RouteComponent,
@@ -16,7 +16,7 @@ function RouteComponent() {
 
   return (
     <div className=' py-2 sm:py-4 max-w-[100vw]'>
-      <WatchlistTable />
+      <WatchlistPage />
     </div>
   )
 }
