@@ -52,7 +52,7 @@ function TrendingCard({
     <div
       onClick={!adding ? onToggle : undefined}
       className={cn(
-        'rounded-xl border p-3 sm:p-4 transition-all duration-200 ',
+        'rounded-xl border p-3 py-2 sm:p-4 transition-all duration-200 ',
         adding && 'pointer-events-none',
         selected
           ? 'border-primary bg-primary/5 ring-1 ring-primary cursor-pointer'
@@ -66,7 +66,9 @@ function TrendingCard({
             alt={coin.name}
             className='h-5 w-5 rounded-full shrink-0'
           />
-          <span className='text-base font-semibold truncate'>{coin.name}</span>
+          <span className='text-sm sm:text-base font-semibold truncate'>
+            {coin.name}
+          </span>
           <Badge variant='secondary' className='text-xs font-semibold'>
             {coin.symbol.toUpperCase()}
           </Badge>
@@ -92,7 +94,7 @@ function TrendingCard({
       </div>
 
       <div className='flex items-baseline gap-2 flex-wrap mb-5'>
-        <span className='text-base sm:text-lg font-bold font-mono'>
+        <span className='text-sm sm:text-lg font-bold font-mono'>
           $
           {new Intl.NumberFormat('en', {
             maximumFractionDigits: price < 1 ? 6 : 2,
@@ -100,7 +102,7 @@ function TrendingCard({
         </span>
         <span
           className={cn(
-            'text-xs font-mono font-medium inline-flex items-center gap-0.5',
+            'text-[10px] sm:text-xs font-mono font-medium inline-flex items-center gap-0.5',
             positive
               ? 'text-emerald-500 dark:text-emerald-400'
               : 'text-destructive',
@@ -172,19 +174,19 @@ export function WatchlistEmpty() {
   }
 
   return (
-    <div className='flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-8'>
+    <div className='flex md:min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 py-2 md:py-8'>
       {/* Header */}
-      <div className='mb-6 text-center'>
-        <div className='mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/15'>
-          <Star className='h-7 w-7 fill-amber-400 text-amber-400' />
+      <div className='mb-2 sm:mb-6 text-center'>
+        <div className='mx-auto mb-2 sm:mb-4 flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-full bg-amber-500/15'>
+          <Star className='h-6 sm:h-7 sm:w-7 fill-amber-400 text-amber-400' />
         </div>
-        <h1 className='text-xl sm:text-2xl font-bold tracking-tight'>
+        <h1 className='text-lg sm:text-2xl font-bold tracking-tight'>
           Add Coins to Your Watchlist
         </h1>
       </div>
 
       {/* Grid */}
-      <div className='grid grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-lg md:max-w-3xl mb-6'>
+      <div className='grid grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-lg md:max-w-3xl mb-4 sm:mb-6'>
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className='h-32 rounded-xl' />
