@@ -60,26 +60,28 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
   const positive = totalMcapChange >= 0
 
   return (
-    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 flex flex-col gap-3'>
-      <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
-        <BarChart3 className='h-4 w-4' />
-        Watchlist Overview
+    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-3 xl:p-4 flex flex-col gap-2'>
+      <div className='flex items-center gap-2 text-xs xl:text-sm text-muted-foreground capitalize tracking-wider font-medium'>
+        <BarChart3 className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
+        Overview
       </div>
-      <div className='grid grid-cols-2'>
+      <div className='grid grid-cols-1 xl:grid-cols-2 gap-3 xl:gap-0'>
         <div>
-          <div className='text-xs text-muted-foreground mb-1'>Total Cap</div>
-          <div className='text-2xl font-bold font-mono'>
+          <div className='text-[11px] xl:text-xs text-muted-foreground mb-0.5 xl:mb-1'>
+            Total Cap
+          </div>
+          <div className='text-base xl:text-2xl font-bold font-mono'>
             {format(totalMcap, { notation: 'compact' })}
           </div>
-          <div className='flex items-center gap-1.5 mt-1'>
+          <div className='flex items-center gap-1.5 mt-0.5 xl:mt-1'>
             {positive ? (
-              <TrendingUp className='h-4 w-4 text-emerald-500' />
+              <TrendingUp className='h-3.5 w-3.5 xl:h-4 xl:w-4 text-emerald-500' />
             ) : (
-              <TrendingDown className='h-4 w-4 text-destructive' />
+              <TrendingDown className='h-3.5 w-3.5 xl:h-4 xl:w-4 text-destructive' />
             )}
             <span
               className={cn(
-                'text-xs font-mono',
+                'text-[11px] xl:text-xs font-mono',
                 positive
                   ? 'text-emerald-500 dark:text-emerald-400'
                   : 'text-destructive',
@@ -93,13 +95,18 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
         </div>
 
         <div>
-          <div className='text-xs text-muted-foreground mb-1'>24h Volume</div>
-          <div className='text-2xl font-bold font-mono'>
+          <div className='text-[11px] xl:text-xs text-muted-foreground mb-0.5 xl:mb-1'>
+            24h Volume
+          </div>
+          <div className='text-base xl:text-2xl font-bold font-mono'>
             {format(totalVolume, { notation: 'compact' })}
           </div>
-          <div className='flex items-center gap-1.5 mt-1'>
-            <img src={topVolume.image} className='h-4 w-4 rounded-full' />
-            <span className='text-xs text-muted-foreground'>
+          <div className='flex items-center gap-1.5 mt-0.5 xl:mt-1'>
+            <img
+              src={topVolume.image}
+              className='h-3.5 w-3.5 xl:h-4 xl:w-4 rounded-full'
+            />
+            <span className='text-[11px] xl:text-xs text-muted-foreground'>
               {topVolume.symbol.toUpperCase()} leads volume
             </span>
           </div>
@@ -162,8 +169,8 @@ function DominanceCard({ coins }: { coins: CoinsList[] }) {
     '#06b6d4',
   ]
 
-  const size = 80
-  const strokeWidth = 12
+  const size = 64
+  const strokeWidth = 10
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
 
@@ -174,26 +181,26 @@ function DominanceCard({ coins }: { coins: CoinsList[] }) {
   )
 
   return (
-    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 flex flex-col gap-3'>
-      <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
-        <PieChart className='h-4 w-4' />
+    <div className='h-full rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-3 xl:p-4 flex flex-col gap-2 '>
+      <div className='flex items-center gap-2 text-xs xl:text-sm text-muted-foreground capitalize tracking-wider font-medium'>
+        <PieChart className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
         Dominance
       </div>
-      <div className='flex items-center gap-4'>
+      <div className='flex items-center gap-3 xl:gap-4'>
         <svg width={size} height={size} className='shrink-0 -rotate-90'>
           {segments}
         </svg>
-        <div className='flex flex-col gap-1.5 min-w-0 flex-1'>
+        <div className='flex flex-col gap-1 xl:gap-1.5 min-w-0 flex-1'>
           {data.slice(0, 3).map((coin, i) => (
             <div key={coin.id} className='flex items-center gap-1.5'>
               <div
-                className='h-2.5 w-2.5 rounded-full shrink-0'
+                className='h-2 w-2 xl:h-2.5 xl:w-2.5 rounded-full shrink-0'
                 style={{ backgroundColor: colors[i % colors.length] }}
               />
-              <span className='text-xs truncate'>
+              <span className='text-[11px] xl:text-xs truncate'>
                 {coin.symbol.toUpperCase()}
               </span>
-              <span className='text-xs text-muted-foreground ml-auto'>
+              <span className='text-[11px] xl:text-xs text-muted-foreground ml-auto'>
                 {coin.percent.toFixed(1)}%
               </span>
             </div>
@@ -223,19 +230,21 @@ function SentimentCard({ coins }: { coins: CoinsList[] }) {
   const neutralPercent = total > 0 ? (neutral / total) * 100 : 0
 
   return (
-    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 flex flex-col gap-3'>
-      <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
-        <Activity className='h-4 w-4' />
+    <div className='h-full rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-3 xl:p-4 flex flex-col gap-2 '>
+      <div className='flex items-center gap-2 text-xs xl:text-sm text-muted-foreground capitalize tracking-wider font-medium'>
+        <Activity className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
         Sentiment
       </div>
 
       {/* Counts */}
       <div className='flex items-center justify-between'>
         <div className='flex flex-col items-center gap-0.5'>
-          <span className='text-xs text-muted-foreground'>Rising</span>
+          <span className='text-[11px] xl:text-xs text-muted-foreground'>
+            Rising
+          </span>
           <div className='flex items-center gap-1'>
-            <TrendingUp className='h-5 w-5 text-emerald-500' />
-            <span className='text-xl font-bold font-mono text-emerald-500 dark:text-emerald-400'>
+            <TrendingUp className='h-4 w-4 xl:h-5 xl:w-5 text-emerald-500' />
+            <span className='text-xl xl:text-xl font-bold font-mono text-emerald-500 dark:text-emerald-400'>
               {bullish}
             </span>
           </div>
@@ -244,27 +253,31 @@ function SentimentCard({ coins }: { coins: CoinsList[] }) {
         {neutral > 0 && (
           <div className='flex flex-col items-center gap-0.5'>
             <div className='flex items-center gap-1'>
-              <Minus className='h-5 w-5text-muted-foreground' />
-              <span className='text-xl font-bold font-mono text-muted-foreground'>
+              <Minus className='h-4 w-4 xl:h-5 xl:w-5 text-muted-foreground' />
+              <span className='text-xl xl:text-xl font-bold font-mono text-muted-foreground'>
                 {neutral}
               </span>
             </div>
-            <span className='text-xs text-muted-foreground'>Flat</span>
+            <span className='text-[11px] xl:text-xs text-muted-foreground'>
+              Flat
+            </span>
           </div>
         )}
 
         <div className='flex flex-col items-center gap-0.5'>
-          <span className='text-xs text-muted-foreground'>Falling</span>
+          <span className='text-[11px] xl:text-xs text-muted-foreground'>
+            Falling
+          </span>
           <div className='flex items-center gap-1'>
-            <TrendingDown className='h-5 w-5 text-destructive' />
-            <span className='text-xl font-bold font-mono text-destructive'>
+            <TrendingDown className='h-4 w-4 xl:h-5 xl:w-5 text-destructive' />
+            <span className='text-xl xl:text-xl font-bold font-mono text-destructive'>
               {bearish}
             </span>
           </div>
         </div>
       </div>
       {/* Progress bar */}
-      <div className='flex h-2 w-full rounded-full overflow-hidden'>
+      <div className='flex h-1.5 xl:h-2 w-full rounded-full overflow-hidden'>
         <div
           className='bg-emerald-500'
           style={{ width: `${bullishPercent}%` }}
@@ -307,10 +320,10 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
   const worstChange = (worst[field] as number | null) ?? 0
 
   return (
-    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 py-3 flex flex-col gap-3'>
+    <div className='h-full rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-3 py-2.5 xl:p-4 xl:py-3 flex flex-col gap-2 '>
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
-          <Zap className='h-4 w-4' />
+        <div className='flex items-center gap-2 text-xs xl:text-sm text-muted-foreground capitalize tracking-wider font-medium'>
+          <Zap className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
           Movers
         </div>
         <DropdownMenu>
@@ -318,10 +331,10 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
             <Button
               variant='outline'
               size='sm'
-              className='h-6 text-xs gap-1 px-2.5 rounded-md bg-muted border-muted-foreground/10 hover:bg-muted/70'
+              className='h-5 xl:h-6 text-[11px] xl:text-xs gap-1 px-1.5 xl:px-2.5 rounded-md bg-muted border-muted-foreground/10 hover:bg-muted/70'
             >
               {label}
-              <ChevronDown className='h-3 w-3' />
+              <ChevronDown className='h-2.5 w-2.5 xl:h-3 xl:w-3' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='min-w-10 rounded-xl'>
@@ -330,7 +343,7 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
                 key={value}
                 onClick={() => setPeriod(value)}
                 className={cn(
-                  'text-xs px-2 py-1 rounded-md cursor-pointer',
+                  'text-[11px] xl:text-xs px-2 py-1 rounded-md cursor-pointer',
                   period === value ? 'bg-accent' : '',
                 )}
               >
@@ -341,28 +354,34 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
         </DropdownMenu>
       </div>
 
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='flex flex-col xl:grid xl:grid-cols-2 gap-3 xl:gap-4'>
         {/* Best */}
-        <div className='flex flex-col gap-1.5'>
-          <span className='text-xs uppercase tracking-wider text-muted-foreground font-medium'>
+        <div className='flex flex-col gap-1 xl:gap-1.5'>
+          <span className='text-[11px] xl:text-xs capitalize tracking-wider text-muted-foreground font-medium'>
             Best
           </span>
           <div className='flex items-center gap-2'>
-            <img src={best.image} className='h-8 w-8 rounded-full shrink-0' />
+            <img
+              src={best.image}
+              className='h-6 w-6 xl:h-8 xl:w-8 rounded-full shrink-0'
+            />
             <div className='min-w-0'>
               <div className='flex items-center gap-1'>
-                <div className='font-semibold text-sm truncate'>
+                <div className='font-semibold text-sm xl:text-sm truncate'>
                   {best.name}
                 </div>
-                <Badge variant='secondary' className=''>
+                <Badge
+                  variant='secondary'
+                  className='text-[10px] xl:text-xs px-1 xl:px-2 py-0'
+                >
                   {best.symbol.toUpperCase()}
                 </Badge>
               </div>
               <div className='flex items-center gap-1.5'>
-                <span className='text-xs font-mono text-muted-foreground'>
+                <span className='text-[11px] xl:text-xs font-mono text-muted-foreground'>
                   {format(best.current_price)}
                 </span>
-                <span className='text-xs font-mono font-medium text-emerald-500 dark:text-emerald-400'>
+                <span className='text-[11px] xl:text-xs font-mono font-medium text-emerald-500 dark:text-emerald-400'>
                   +{bestChange.toFixed(2)}%
                 </span>
               </div>
@@ -371,24 +390,32 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
         </div>
 
         {/* Worst */}
-        <div className='flex flex-col gap-1.5'>
-          <span className='text-xs uppercase tracking-wider text-muted-foreground font-medium'>
+        <div className='flex flex-col gap-1 xl:gap-1.5'>
+          <span className='text-[11px] xl:text-xs capitalize tracking-wider text-muted-foreground font-medium'>
             Worst
           </span>
           <div className='flex items-center gap-2'>
-            <img src={worst.image} className='h-8 w-8 rounded-full shrink-0' />
+            <img
+              src={worst.image}
+              className='h-6 w-6 xl:h-8 xl:w-8 rounded-full shrink-0'
+            />
             <div className='min-w-0'>
               <div className='flex items-center gap-1'>
-                <div className='font-semibold text-sm truncate'>
+                <div className='font-semibold text-sm xl:text-sm truncate'>
                   {worst.name}
                 </div>
-                <Badge variant='secondary'>{worst.symbol.toUpperCase()}</Badge>
+                <Badge
+                  variant='secondary'
+                  className='text-[10px] xl:text-xs px-1 xl:px-2 py-0'
+                >
+                  {worst.symbol.toUpperCase()}
+                </Badge>
               </div>
               <div className='flex items-center gap-1.5'>
-                <span className='text-xs font-mono text-muted-foreground'>
+                <span className='text-[11px] xl:text-xs font-mono text-muted-foreground'>
                   {format(worst.current_price)}
                 </span>
-                <span className='text-xs font-mono font-medium text-destructive'>
+                <span className='text-[11px] xl:text-xs font-mono font-medium text-destructive'>
                   {worstChange.toFixed(2)}%
                 </span>
               </div>
@@ -406,11 +433,22 @@ function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
   if (coins.length === 0) return null
 
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
-      <CapVolumeCard coins={coins} />
-      <DominanceCard coins={coins} />
-      <SentimentCard coins={coins} />
-      {coins.length >= 2 && <MoversCard coins={coins} />}
+    <div className='grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4 mb-3 xl:mb-4'>
+      <div className='order-1'>
+        <CapVolumeCard coins={coins} />
+      </div>
+
+      <div className='order-2 xl:order-4'>
+        <MoversCard coins={coins} />
+      </div>
+
+      <div className='order-3 xl:order-2'>
+        <DominanceCard coins={coins} />
+      </div>
+
+      <div className='order-4 xl:order-3'>
+        <SentimentCard coins={coins} />
+      </div>
     </div>
   )
 }
@@ -425,13 +463,13 @@ function WatchlistHeader({
   onClear: () => void
 }) {
   return (
-    <div className='flex items-center justify-between mb-4 px-4 pt-4'>
+    <div className='flex items-center justify-between mb-3 xl:mb-4 px-3 xl:px-4 pt-3 xl:pt-4'>
       <div className='flex items-center gap-2'>
-        <Star className='h-5 w-5 fill-amber-400 text-amber-400' />
-        <h1 className='text-xl sm:text-2xl font-bold tracking-tight'>
+        <Star className='h-4 w-4 xl:h-5 xl:w-5 fill-amber-400 text-amber-400' />
+        <h1 className='text-xl xl:text-xl md:text-2xl font-bold tracking-tight'>
           Watchlist
         </h1>
-        <span className='text-xs sm:text-sm text-muted-foreground font-mono bg-muted px-2 py-0.5 rounded-md'>
+        <span className='text-[11px] xl:text-xs md:text-sm text-muted-foreground font-mono bg-muted px-1.5 xl:px-2 py-0.5 rounded-md'>
           {count}
         </span>
       </div>
@@ -441,10 +479,10 @@ function WatchlistHeader({
           variant='ghost'
           size='sm'
           onClick={onClear}
-          className='text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 px-2'
+          className='text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-7 xl:h-8 px-1.5 xl:px-2'
         >
-          <Trash2 className='h-4 w-4 mr-1' />
-          <span className='hidden sm:inline text-xs'>Clear all</span>
+          <Trash2 className='h-3.5 w-3.5 xl:h-4 xl:w-4 mr-1' />
+          <span className='hidden xl:inline text-xs'>Clear all</span>
         </Button>
       )}
     </div>
@@ -462,7 +500,7 @@ export function WatchlistPage() {
   return (
     <div className='space-y-0'>
       <WatchlistHeader count={coins.length} onClear={clearWatchlist} />
-      <div className='px-4'>
+      <div className='px-3 xl:px-4'>
         <WatchlistSummary coins={coins} />
       </div>
       <WatchlistTable />
