@@ -132,7 +132,7 @@ export function DataTableToolbar<TData>({
         )}
       >
         <Dialog>
-          <DialogTrigger>
+          <DialogTrigger asChild>
             <Button variant='outline' className=''>
               Columns
               <Settings2 />

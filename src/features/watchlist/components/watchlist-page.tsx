@@ -19,11 +19,14 @@ import {
   Zap,
   Activity,
   Minus,
+  Search,
+  Star,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { CoinsList } from '@/features/market/types/coins-list'
 import { WatchlistTable } from './watchlist-table'
 import { Badge } from '@/shared/ui/badge'
+import { Link } from '@tanstack/react-router'
 
 const PERIOD_LABELS: Record<string, string> = {
   '1': '24H',
@@ -41,6 +44,7 @@ const PERIOD_FIELD: Record<string, keyof CoinsList> = {
 
 function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
   const { format } = useCurrency()
+  const isSingle = coins.length === 1
 
   const totalMcap = coins.reduce((acc, c) => acc + (c.market_cap ?? 0), 0)
   const totalMcapChange = coins.reduce(
@@ -63,7 +67,12 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
         <BarChart3 className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
         Overview
       </div>
-      <div className='grid grid-cols-1 xl:grid-cols-2 gap-3 xl:gap-0'>
+      <div
+        className={cn(
+          'grid gap-3',
+          isSingle ? 'grid-cols-2' : 'grid-cols-1 xl:grid-cols-2 xl:gap-0',
+        )}
+      >
         <div>
           <div className='text-[11px] xl:text-xs text-muted-foreground mb-0.5 xl:mb-1'>
             Total Cap
@@ -104,7 +113,7 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
               src={topVolume.image}
               className='h-3.5 w-3.5 xl:h-4 xl:w-4 rounded-full'
             />
-            <span className='text-[11px] xl:text-xs text-muted-foreground'>
+            <span className='text-xs text-muted-foreground'>
               {topVolume.symbol.toUpperCase()} leads volume
             </span>
           </div>
@@ -432,13 +441,15 @@ function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
 
   return (
     <div className='grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4 mb-3 xl:mb-4'>
-      <div className='order-1'>
+      <div className={cn('order-1', coins.length === 1 && 'col-span-2')}>
         <CapVolumeCard coins={coins} />
       </div>
 
-      <div className='order-2 xl:order-4'>
-        <MoversCard coins={coins} />
-      </div>
+      {coins.length > 1 && (
+        <div className='order-2 xl:order-4'>
+          <MoversCard coins={coins} />
+        </div>
+      )}
 
       <div className='order-3 xl:order-2'>
         <DominanceCard coins={coins} />
@@ -447,6 +458,18 @@ function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
       <div className='order-4 xl:order-3'>
         <SentimentCard coins={coins} />
       </div>
+    </div>
+  )
+}
+
+function WatchlistHeader() {
+  return (
+    <div className='flex flex-col md:hidden items-center mb-3 xl:mb-4 px-3 xl:px-4 pt-3 xl:pt-4'>
+      <div className='relative mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15'>
+        <Star className='h-7 w-7 fill-amber-400 text-amber-400' />
+      </div>
+
+      <h1 className='text-xl xl:text-2xl font-bold tracking-wide'>Watchlist</h1>
     </div>
   )
 }
@@ -460,10 +483,19 @@ export function WatchlistPage() {
 
   return (
     <div className='space-y-0'>
+      <WatchlistHeader />
       <div className='px-3 '>
         <WatchlistSummary coins={coins} />
       </div>
       <WatchlistTable />
+      <div className='flex justify-center mt-6 mb-6'>
+        <Button variant='outline' asChild className='h-10 px-6'>
+          <Link to='/' className='flex items-center gap-2'>
+            <Search className='h-4 w-4' />
+            Explore Market
+          </Link>
+        </Button>
+      </div>
     </div>
   )
 }
