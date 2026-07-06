@@ -19,6 +19,7 @@ const watchlistColumns = columns.map((column) => {
 
 export function WatchlistTable() {
   const coins = useWatchlistStore((state) => state.coins)
+  const clearWatchlist = useWatchlistStore((state) => state.clearWatchlist)
   const { currency } = useCurrency()
 
   return (
@@ -36,6 +37,7 @@ export function WatchlistTable() {
       showRowsSelector={false}
       showPagination={false}
       currency={currency}
+      clearWatchlist={clearWatchlist}
     />
   )
 }

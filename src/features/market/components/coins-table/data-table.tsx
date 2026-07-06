@@ -82,6 +82,7 @@ interface DataTableProps<TData, TValue> {
   showRowsSelector?: boolean
   showPagination?: boolean
   currency?: string
+  clearWatchlist?: () => void
 }
 
 export function DataTable<TData, TValue>({
@@ -99,6 +100,7 @@ export function DataTable<TData, TValue>({
   showRowsSelector = true,
   showPagination = true,
   currency = 'usd',
+  clearWatchlist,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -197,6 +199,7 @@ export function DataTable<TData, TValue>({
         onResetColumns={handleResetColumns}
         showCategoryFilter={showCategoryFilter}
         showRowsSelector={showRowsSelector}
+        clearWatchlist={clearWatchlist}
       />
       {/* Sticky table header — separate table synced with body */}
       <div

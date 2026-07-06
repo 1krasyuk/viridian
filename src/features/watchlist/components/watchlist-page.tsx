@@ -11,10 +11,8 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/ui/dropdown-menu'
 import {
-  Trash2,
   TrendingUp,
   TrendingDown,
-  Star,
   ChevronDown,
   BarChart3,
   PieChart,
@@ -39,7 +37,7 @@ const PERIOD_FIELD: Record<string, keyof CoinsList> = {
   '30': 'price_change_percentage_30d_in_currency',
 }
 
-// ─── Cap + Volume Card ──────────────────────────────────────────
+//  Cap + Volume Card
 
 function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
   const { format } = useCurrency()
@@ -116,7 +114,7 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
   )
 }
 
-// ─── Dominance Card ─────────────────────────────────────────────
+//  Dominance Card
 
 function computeSegments(
   data: Array<{ id: string; percent: number }>,
@@ -186,7 +184,7 @@ function DominanceCard({ coins }: { coins: CoinsList[] }) {
         <PieChart className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
         Dominance
       </div>
-      <div className='flex items-center gap-3 xl:gap-4'>
+      <div className='flex items-center gap-2 xl:gap-4'>
         <svg width={size} height={size} className='shrink-0 -rotate-90'>
           {segments}
         </svg>
@@ -211,7 +209,7 @@ function DominanceCard({ coins }: { coins: CoinsList[] }) {
   )
 }
 
-// ─── Sentiment Card ─────────────────────────────────────────────
+//  Sentiment Card
 
 function SentimentCard({ coins }: { coins: CoinsList[] }) {
   const bullish = coins.filter(
@@ -295,7 +293,7 @@ function SentimentCard({ coins }: { coins: CoinsList[] }) {
   )
 }
 
-// ─── Movers Card ─────────────────────────────────────────────────
+//  Movers Card
 
 function MoversCard({ coins }: { coins: CoinsList[] }) {
   const { format } = useCurrency()
@@ -372,7 +370,7 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
                 </div>
                 <Badge
                   variant='secondary'
-                  className='text-[10px] xl:text-xs px-1 xl:px-2 py-0'
+                  className='text-[10px] xl:text-xs px-1.5 xl:px-2 '
                 >
                   {best.symbol.toUpperCase()}
                 </Badge>
@@ -406,7 +404,7 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
                 </div>
                 <Badge
                   variant='secondary'
-                  className='text-[10px] xl:text-xs px-1 xl:px-2 py-0'
+                  className='text-[10px] xl:text-xs  px-1.5 xl:px-2 '
                 >
                   {worst.symbol.toUpperCase()}
                 </Badge>
@@ -427,7 +425,7 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
   )
 }
 
-// ─── Watchlist Summary ──────────────────────────────────────────
+//  Watchlist Summary
 
 function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
   if (coins.length === 0) return null
@@ -453,54 +451,16 @@ function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
   )
 }
 
-// ─── Watchlist Header ───────────────────────────────────────────
-
-function WatchlistHeader({
-  count,
-  onClear,
-}: {
-  count: number
-  onClear: () => void
-}) {
-  return (
-    <div className='flex items-center justify-between mb-3 xl:mb-4 px-3 xl:px-4 pt-3 xl:pt-4'>
-      <div className='flex items-center gap-2'>
-        <Star className='h-4 w-4 xl:h-5 xl:w-5 fill-amber-400 text-amber-400' />
-        <h1 className='text-xl xl:text-xl md:text-2xl font-bold tracking-tight'>
-          Watchlist
-        </h1>
-        <span className='text-[11px] xl:text-xs md:text-sm text-muted-foreground font-mono bg-muted px-1.5 xl:px-2 py-0.5 rounded-md'>
-          {count}
-        </span>
-      </div>
-
-      {count > 0 && (
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={onClear}
-          className='text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-7 xl:h-8 px-1.5 xl:px-2'
-        >
-          <Trash2 className='h-3.5 w-3.5 xl:h-4 xl:w-4 mr-1' />
-          <span className='hidden xl:inline text-xs'>Clear all</span>
-        </Button>
-      )}
-    </div>
-  )
-}
-
-// ─── Main Component ─────────────────────────────────────────────
+// Main Component
 
 export function WatchlistPage() {
   useWatchlistSync()
 
   const coins = useWatchlistStore((state) => state.coins)
-  const clearWatchlist = useWatchlistStore((state) => state.clearWatchlist)
 
   return (
     <div className='space-y-0'>
-      <WatchlistHeader count={coins.length} onClear={clearWatchlist} />
-      <div className='px-3 xl:px-4'>
+      <div className='px-3 '>
         <WatchlistSummary coins={coins} />
       </div>
       <WatchlistTable />

@@ -43,7 +43,7 @@ import {
 
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
-import { ChevronDown, RefreshCcw, Settings2, X } from 'lucide-react'
+import { ChevronDown, RefreshCcw, Settings2, Trash2, X } from 'lucide-react'
 
 import { DraggableColumnItem } from './draggable-column-item'
 import { cn } from '@/shared/lib/utils'
@@ -59,6 +59,7 @@ interface DataTableToolbarProps<TData> {
   onResetColumns: () => void
   showCategoryFilter?: boolean
   showRowsSelector?: boolean
+  clearWatchlist?: () => void
 }
 
 export function DataTableToolbar<TData>({
@@ -72,6 +73,7 @@ export function DataTableToolbar<TData>({
   onResetColumns,
   showCategoryFilter = true,
   showRowsSelector = true,
+  clearWatchlist,
 }: DataTableToolbarProps<TData>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -292,9 +294,24 @@ export function DataTableToolbar<TData>({
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        <Button variant='outline' className='w-10 h-10 group' onClick={onReset}>
-          <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
-        </Button>
+        <div className='flex gap-3'>
+          <Button
+            variant='outline'
+            className='w-10 h-10 group'
+            onClick={onReset}
+          >
+            <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
+          </Button>
+          {clearWatchlist && (
+            <Button
+              variant='destructive'
+              className='w-10 h-10'
+              onClick={clearWatchlist}
+            >
+              <Trash2 className='h-4 w-4' />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )
