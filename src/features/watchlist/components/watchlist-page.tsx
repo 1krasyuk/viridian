@@ -18,10 +18,14 @@ import {
   ChevronDown,
   BarChart3,
   PieChart,
+  Zap,
+  Activity,
+  Minus,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { CoinsList } from '@/features/market/types/coins-list'
 import { WatchlistTable } from './watchlist-table'
+import { Badge } from '@/shared/ui/badge'
 
 const PERIOD_LABELS: Record<string, string> = {
   '1': '24H',
@@ -33,49 +37,6 @@ const PERIOD_FIELD: Record<string, keyof CoinsList> = {
   '1': 'price_change_percentage_24h',
   '7': 'price_change_percentage_7d_in_currency',
   '30': 'price_change_percentage_30d_in_currency',
-}
-
-// ─── Coin Row ───────────────────────────────────────────────────
-
-function CoinRow({ coin, change }: { coin: CoinsList; change: number }) {
-  const { format } = useCurrency()
-  const positive = change >= 0
-
-  return (
-    <div className='flex items-center gap-3'>
-      <img
-        src={coin.image}
-        alt={coin.name}
-        className='h-10 w-10 rounded-full shrink-0'
-      />
-      <div className='flex flex-col gap-0.5 min-w-0 flex-1'>
-        <div className='flex items-center gap-1.5'>
-          <span className='font-semibold text-sm truncate'>{coin.name}</span>
-          <span className='text-[10px] font-mono bg-muted px-1 py-0.5 rounded'>
-            {coin.symbol.toUpperCase()}
-          </span>
-        </div>
-        <span className='text-sm font-mono text-muted-foreground'>
-          {format(coin.current_price)}
-        </span>
-      </div>
-      <div className='flex flex-col items-end gap-0.5'>
-        <div className='flex items-center gap-1'>
-          <span
-            className={cn(
-              'text-sm font-mono font-medium',
-              positive
-                ? 'text-emerald-500 dark:text-emerald-400'
-                : 'text-destructive',
-            )}
-          >
-            {positive ? '+' : ''}
-            {change.toFixed(2)}%
-          </span>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 // ─── Cap + Volume Card ──────────────────────────────────────────
@@ -112,9 +73,9 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
           </div>
           <div className='flex items-center gap-1.5 mt-1'>
             {positive ? (
-              <TrendingUp className='h-3 w-3 text-emerald-500' />
+              <TrendingUp className='h-4 w-4 text-emerald-500' />
             ) : (
-              <TrendingDown className='h-3 w-3 text-destructive' />
+              <TrendingDown className='h-4 w-4 text-destructive' />
             )}
             <span
               className={cn(
@@ -124,8 +85,7 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
                   : 'text-destructive',
               )}
             >
-              {positive ? '+' : ''}
-              {format(totalMcapChange, { notation: 'compact' })} (
+              {format(Math.abs(totalMcapChange), { notation: 'compact' })} (
               {totalMcapChangePercent >= 0 ? '+' : ''}
               {totalMcapChangePercent.toFixed(2)}%)
             </span>
@@ -244,9 +204,88 @@ function DominanceCard({ coins }: { coins: CoinsList[] }) {
   )
 }
 
+// ─── Sentiment Card ─────────────────────────────────────────────
+
+function SentimentCard({ coins }: { coins: CoinsList[] }) {
+  const bullish = coins.filter(
+    (c) => (c.price_change_percentage_7d_in_currency ?? 0) > 0,
+  ).length
+  const bearish = coins.filter(
+    (c) => (c.price_change_percentage_7d_in_currency ?? 0) < 0,
+  ).length
+  const neutral = coins.filter(
+    (c) => (c.price_change_percentage_7d_in_currency ?? 0) === 0,
+  ).length
+
+  const total = coins.length
+  const bullishPercent = total > 0 ? (bullish / total) * 100 : 0
+  const bearishPercent = total > 0 ? (bearish / total) * 100 : 0
+  const neutralPercent = total > 0 ? (neutral / total) * 100 : 0
+
+  return (
+    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 flex flex-col gap-3'>
+      <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
+        <Activity className='h-4 w-4' />
+        Sentiment
+      </div>
+
+      {/* Counts */}
+      <div className='flex items-center justify-between'>
+        <div className='flex flex-col items-center gap-0.5'>
+          <span className='text-xs text-muted-foreground'>Rising</span>
+          <div className='flex items-center gap-1'>
+            <TrendingUp className='h-5 w-5 text-emerald-500' />
+            <span className='text-xl font-bold font-mono text-emerald-500 dark:text-emerald-400'>
+              {bullish}
+            </span>
+          </div>
+        </div>
+
+        {neutral > 0 && (
+          <div className='flex flex-col items-center gap-0.5'>
+            <div className='flex items-center gap-1'>
+              <Minus className='h-5 w-5text-muted-foreground' />
+              <span className='text-xl font-bold font-mono text-muted-foreground'>
+                {neutral}
+              </span>
+            </div>
+            <span className='text-xs text-muted-foreground'>Flat</span>
+          </div>
+        )}
+
+        <div className='flex flex-col items-center gap-0.5'>
+          <span className='text-xs text-muted-foreground'>Falling</span>
+          <div className='flex items-center gap-1'>
+            <TrendingDown className='h-5 w-5 text-destructive' />
+            <span className='text-xl font-bold font-mono text-destructive'>
+              {bearish}
+            </span>
+          </div>
+        </div>
+      </div>
+      {/* Progress bar */}
+      <div className='flex h-2 w-full rounded-full overflow-hidden'>
+        <div
+          className='bg-emerald-500'
+          style={{ width: `${bullishPercent}%` }}
+        />
+        <div
+          className='bg-muted-foreground/30'
+          style={{ width: `${neutralPercent}%` }}
+        />
+        <div
+          className='bg-destructive'
+          style={{ width: `${bearishPercent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
 // ─── Movers Card ─────────────────────────────────────────────────
 
 function MoversCard({ coins }: { coins: CoinsList[] }) {
+  const { format } = useCurrency()
   const [period, setPeriod] = useState('1')
 
   const field = PERIOD_FIELD[period]
@@ -268,10 +307,10 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
   const worstChange = (worst[field] as number | null) ?? 0
 
   return (
-    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 flex flex-col gap-3'>
+    <div className='rounded-xl border border-border/20 bg-linear-to-br from-card to-background p-4 py-3 flex flex-col gap-3'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2 text-sm text-muted-foreground capitalize tracking-wider font-medium'>
-          <BarChart3 className='h-4 w-4' />
+          <Zap className='h-4 w-4' />
           Movers
         </div>
         <DropdownMenu>
@@ -279,19 +318,19 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
             <Button
               variant='outline'
               size='sm'
-              className='h-7 text-xs gap-1 px-2.5 rounded-lg bg-muted/30 border-muted-foreground/10 hover:bg-muted/50'
+              className='h-6 text-xs gap-1 px-2.5 rounded-md bg-muted border-muted-foreground/10 hover:bg-muted/70'
             >
               {label}
               <ChevronDown className='h-3 w-3' />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='min-w-20 rounded-xl'>
+          <DropdownMenuContent align='end' className='min-w-10 rounded-xl'>
             {Object.entries(PERIOD_LABELS).map(([value, lbl]) => (
               <DropdownMenuItem
                 key={value}
                 onClick={() => setPeriod(value)}
                 className={cn(
-                  'text-xs px-2 py-1.5 rounded-lg cursor-pointer',
+                  'text-xs px-2 py-1 rounded-md cursor-pointer',
                   period === value ? 'bg-accent' : '',
                 )}
               >
@@ -302,11 +341,61 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
         </DropdownMenu>
       </div>
 
-      <CoinRow coin={best} change={bestChange} />
+      <div className='grid grid-cols-2 gap-4'>
+        {/* Best */}
+        <div className='flex flex-col gap-1.5'>
+          <span className='text-xs uppercase tracking-wider text-muted-foreground font-medium'>
+            Best
+          </span>
+          <div className='flex items-center gap-2'>
+            <img src={best.image} className='h-8 w-8 rounded-full shrink-0' />
+            <div className='min-w-0'>
+              <div className='flex items-center gap-1'>
+                <div className='font-semibold text-sm truncate'>
+                  {best.name}
+                </div>
+                <Badge variant='secondary' className=''>
+                  {best.symbol.toUpperCase()}
+                </Badge>
+              </div>
+              <div className='flex items-center gap-1.5'>
+                <span className='text-xs font-mono text-muted-foreground'>
+                  {format(best.current_price)}
+                </span>
+                <span className='text-xs font-mono font-medium text-emerald-500 dark:text-emerald-400'>
+                  +{bestChange.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div className='h-px bg-border/30' />
-
-      <CoinRow coin={worst} change={worstChange} />
+        {/* Worst */}
+        <div className='flex flex-col gap-1.5'>
+          <span className='text-xs uppercase tracking-wider text-muted-foreground font-medium'>
+            Worst
+          </span>
+          <div className='flex items-center gap-2'>
+            <img src={worst.image} className='h-8 w-8 rounded-full shrink-0' />
+            <div className='min-w-0'>
+              <div className='flex items-center gap-1'>
+                <div className='font-semibold text-sm truncate'>
+                  {worst.name}
+                </div>
+                <Badge variant='secondary'>{worst.symbol.toUpperCase()}</Badge>
+              </div>
+              <div className='flex items-center gap-1.5'>
+                <span className='text-xs font-mono text-muted-foreground'>
+                  {format(worst.current_price)}
+                </span>
+                <span className='text-xs font-mono font-medium text-destructive'>
+                  {worstChange.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -317,9 +406,10 @@ function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
   if (coins.length === 0) return null
 
   return (
-    <div className='grid sm:grid-cols-3 gap-4 mb-4'>
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
       <CapVolumeCard coins={coins} />
       <DominanceCard coins={coins} />
+      <SentimentCard coins={coins} />
       {coins.length >= 2 && <MoversCard coins={coins} />}
     </div>
   )
