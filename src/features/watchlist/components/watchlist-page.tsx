@@ -21,6 +21,8 @@ import {
   Minus,
   Search,
   Star,
+  Plus,
+  Lock,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import type { CoinsList } from '@/features/market/types/coins-list'
@@ -44,7 +46,6 @@ const PERIOD_FIELD: Record<string, keyof CoinsList> = {
 
 function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
   const { format } = useCurrency()
-  const isSingle = coins.length === 1
 
   const totalMcap = coins.reduce((acc, c) => acc + (c.market_cap ?? 0), 0)
   const totalMcapChange = coins.reduce(
@@ -67,12 +68,7 @@ function CapVolumeCard({ coins }: { coins: CoinsList[] }) {
         <BarChart3 className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
         Overview
       </div>
-      <div
-        className={cn(
-          'grid gap-3',
-          isSingle ? 'grid-cols-2' : 'grid-cols-1 xl:grid-cols-2 xl:gap-0',
-        )}
-      >
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
         <div>
           <div className='text-[11px] xl:text-xs text-muted-foreground mb-0.5 xl:mb-1'>
             Total Cap
@@ -433,31 +429,95 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
     </div>
   )
 }
+// Phantom Card (placeholder for single coin state)
+
+function PhantomCard({
+  icon: Icon,
+  label,
+}: {
+  icon: React.ElementType
+  label: string
+}) {
+  return (
+    <div className='h-23 xl:h-full rounded-xl border border-border bg-linear-to-br from-card/50 to-background/50 p-3 xl:p-4 flex flex-col gap-2 '>
+      <div className='flex items-center gap-2 text-xs xl:text-sm text-muted-foreground/80 capitalize tracking-wider font-medium'>
+        <Icon className='h-3.5 w-3.5 xl:h-4 xl:w-4' />
+        {label}
+      </div>
+      <div className='flex-1 flex items-center justify-center xl:min-h-25'>
+        <div className='flex flex-col items-center gap-1.5 text-muted-foreground/40'>
+          <Plus className='h-5 w-5' />
+          <span className='text-[10px] xl:text-xs'>Add more coins</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Single Coin Overlay
+
+function SingleCoinOverlay() {
+  return (
+    <div className='absolute inset-0 z-10 flex items-center justify-center'>
+      <div className='rounded-2xl border border-border/30 bg-muted/20 px-6 py-15 md:py-10 backdrop-blur-xs flex flex-col items-center gap-3 shadow-lg w-full text-center'>
+        <div className='flex h-12 w-12 items-center justify-center rounded-full bg-muted'>
+          <Lock className='h-5 w-5 text-muted-foreground' />
+        </div>
+        <div>
+          <p className='text-base xl:text-lg font-semibold'>Add more coins</p>
+          <p className='text-sm text-muted-foreground mt-0.5'>
+            Track multiple assets to see full watchlist stats
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 //  Watchlist Summary
 
 function WatchlistSummary({ coins }: { coins: CoinsList[] }) {
   if (coins.length === 0) return null
 
+  const isSingle = coins.length === 1
+
   return (
-    <div className='grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4 mb-3 xl:mb-4'>
-      <div className={cn('order-1', coins.length === 1 && 'col-span-2')}>
-        <CapVolumeCard coins={coins} />
+    <div className='relative'>
+      <div className='grid grid-cols-2 xl:grid-cols-4 gap-3 xl:gap-4 mb-3 xl:mb-4 '>
+        {isSingle ? (
+          <>
+            <div className='order-1 mx-3 py-1 md:py-3'>
+              <PhantomCard icon={BarChart3} label='Overview' />
+            </div>
+            <div className='order-2 xl:order-4 mx-3 py-1 md:py-3'>
+              <PhantomCard icon={Zap} label='Movers' />
+            </div>
+            <div className='order-3 xl:order-2 mx-3 py-1 md:py-3'>
+              <PhantomCard icon={PieChart} label='Dominance' />
+            </div>
+            <div className='order-4 xl:order-3 mx-3 py-1 md:py-3'>
+              <PhantomCard icon={Activity} label='Sentiment' />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className='order-1'>
+              <CapVolumeCard coins={coins} />
+            </div>
+            <div className='order-2 xl:order-4'>
+              <MoversCard coins={coins} />
+            </div>
+            <div className='order-3 xl:order-2'>
+              <DominanceCard coins={coins} />
+            </div>
+            <div className='order-4 xl:order-3'>
+              <SentimentCard coins={coins} />
+            </div>
+          </>
+        )}
       </div>
 
-      {coins.length > 1 && (
-        <div className='order-2 xl:order-4'>
-          <MoversCard coins={coins} />
-        </div>
-      )}
-
-      <div className='order-3 xl:order-2'>
-        <DominanceCard coins={coins} />
-      </div>
-
-      <div className='order-4 xl:order-3'>
-        <SentimentCard coins={coins} />
-      </div>
+      {isSingle && <SingleCoinOverlay />}
     </div>
   )
 }
@@ -468,7 +528,6 @@ function WatchlistHeader() {
       <div className='relative mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15'>
         <Star className='h-7 w-7 fill-amber-400 text-amber-400' />
       </div>
-
       <h1 className='text-xl xl:text-2xl font-bold tracking-wide'>Watchlist</h1>
     </div>
   )
