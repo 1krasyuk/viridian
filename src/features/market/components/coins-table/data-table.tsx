@@ -29,8 +29,9 @@ const PINNED_COLUMNS: Record<
   string,
   { left: number; width?: number; minWidth?: number; isLast?: boolean }
 > = {
-  market_cap_rank: { left: 0, width: 60 },
-  name: { left: 60, minWidth: 120, isLast: true },
+  watchlist: { left: 0, width: 40 },
+  market_cap_rank: { left: 40, width: 40 },
+  name: { left: 80, minWidth: 120, isLast: true },
 }
 
 const MIN_COL_WIDTH = 80
@@ -224,7 +225,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'bg-sidebar text-right group-hover:bg-muted/80  ',
+                        'bg-sidebar text-right group-hover:bg-muted/80 ',
                         pinned && 'sticky z-10',
                         pinned?.isLast && '',
                       )}

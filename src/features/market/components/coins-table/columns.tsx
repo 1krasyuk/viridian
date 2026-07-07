@@ -2,9 +2,10 @@ import type { CellContext, Column, ColumnDef } from '@tanstack/react-table'
 import type { CoinsList } from '../../types/coins-list'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Link } from '@tanstack/react-router'
+import { useWatchlistStore } from '@/features/watchlist/store/watchlist-store'
 
 function sortableHeader<TData, TValue>(
   column: Column<TData, TValue>,
@@ -225,7 +226,39 @@ function formatSparklineCell<TData extends CoinsList, TValue>(
   )
 }
 
+function StarCell({ row }: { row: { original: CoinsList } }) {
+  const coin = row.original
+  const isWatched = useWatchlistStore((s) => s.isWatched(coin.id))
+  const toggleCoin = useWatchlistStore((s) => s.toggleCoin)
+
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation()
+        toggleCoin(coin)
+      }}
+      className='flex items-center justify-end w-full min-h-9'
+    >
+      <Star
+        className={cn(
+          'h-4.5 w-4.5',
+          isWatched
+            ? 'fill-amber-400 text-amber-400'
+            : 'text-muted-foreground hover:text-amber-400',
+        )}
+      />
+    </button>
+  )
+}
+
 export const columns: ColumnDef<CoinsList>[] = [
+  {
+    id: 'watchlist',
+    accessorKey: 'id',
+    header: '',
+    enableHiding: false,
+    cell: ({ row }) => <StarCell row={row} />,
+  },
   {
     id: 'market_cap_rank',
     accessorKey: 'market_cap_rank',
