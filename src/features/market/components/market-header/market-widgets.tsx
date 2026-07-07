@@ -113,7 +113,7 @@ function WidgetCard({
               isPositive
                 ? 'text-emerald-500'
                 : isNegative
-                  ? 'text-red-500'
+                  ? 'text-red-400'
                   : 'text-muted-foreground'
             }`}
           >

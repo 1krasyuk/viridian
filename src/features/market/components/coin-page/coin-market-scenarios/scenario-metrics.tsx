@@ -85,8 +85,7 @@ export function ScenarioMetrics({
                   </TooltipTrigger>
                   <TooltipContent side='top' className='max-w-xs'>
                     <p className='text-xs leading-relaxed'>
-                      Weighted momentum: 20% x 7d + 50% x 30d + 30% x 1y
-                      change.
+                      Weighted momentum: 20% x 7d + 50% x 30d + 30% x 1y change.
                     </p>
                   </TooltipContent>
                 </Tooltip>

@@ -70,9 +70,9 @@ function TickerItem({
       <span
         className={`inline-flex items-center gap-0.5 text-xs font-mono font-medium ${
           isPositive
-            ? 'text-emerald-500'
+            ? 'text-emerald-400'
             : isNegative
-              ? 'text-red-500'
+              ? 'text-red-400'
               : 'text-muted-foreground'
         }`}
       >
