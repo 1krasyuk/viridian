@@ -6,7 +6,7 @@ import {
   useFearGreed,
 } from '@/features/market/hooks/coins-queries'
 import { useCurrency } from '@/features/currency/hooks'
-import { useTheme } from 'next-themes'
+import { useTheme } from '@/shared/lib/theme-provider'
 import { getChartColors } from '@/shared/lib/chart-config'
 
 interface MarketWidgetsProps {
@@ -309,8 +309,12 @@ function FearGreedWidget({
 
 export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const { format, currency } = useCurrency()
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === 'dark'
+  const { theme } = useTheme()
+
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches)
   const colors = getChartColors(isDark)
 
   const totalMcap =
@@ -327,7 +331,7 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const mcapSparkline = btcChart?.prices?.map(([, price]) => price) ?? []
   const volumeSparkline = btcChart?.total_volumes?.map(([, vol]) => vol) ?? []
 
-  const mcapColor = marketChange >= 0 ? colors.positive : colors.negative
+  const mcapColor = marketChange >= 0 ? colors.negative : colors.negative
   const volColor = '#2563eb'
 
   const volMcapRatio =
