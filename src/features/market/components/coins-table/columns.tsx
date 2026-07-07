@@ -243,8 +243,8 @@ function StarCell({ row }: { row: { original: CoinsList } }) {
         className={cn(
           'h-4.5 w-4.5',
           isWatched
-            ? 'fill-amber-400 text-amber-400'
-            : 'text-muted-foreground hover:text-amber-400',
+            ? 'fill-foreground text-foreground'
+            : 'text-muted-foreground hover:text-foreground',
         )}
       />
     </button>
