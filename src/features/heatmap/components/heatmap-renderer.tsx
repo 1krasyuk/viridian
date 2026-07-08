@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router'
 import { Minus, Plus } from 'lucide-react'
-import type { CSSProperties } from 'react'
 import { useMemo } from 'react'
 
 import { useCurrency } from '@/features/currency/hooks'
@@ -29,220 +28,187 @@ type HeatmapRendererProps = {
   isError: boolean
 }
 
-type SkeletonTileProps = {
-  className?: string
-  style: CSSProperties
-  size?: 'huge' | 'large' | 'medium' | 'small' | 'tiny'
-  lines?: number
+const SKELETON_MARKET_VALUES = [
+  1200,
+  209,
+  184,
+  70,
+  68,
+  58,
+  47,
+  25,
+  18,
+  18,
+  15,
+  14,
+  12,
+  9,
+  9,
+  8,
+  7,
+  6.5,
+  6,
+  5.5,
+  5,
+  4.7,
+  4.4,
+  4.1,
+  3.8,
+  3.5,
+  3.2,
+  3,
+  2.8,
+  2.6,
+  ...Array.from({ length: 220 }, (_, index) =>
+    Math.max(0.18, 2.4 * 0.965 ** index),
+  ),
+]
+
+const SKELETON_ITEMS = SKELETON_MARKET_VALUES.map((value, index) => ({
+  coin: { id: `skeleton-${index}` } as CoinsList,
+  value,
+}))
+
+function getTileFlags(rect: HeatmapNode['rect']) {
+  const elongated = rect.width > rect.height * 1.45
+  const compact = rect.width < 104 || rect.height < 66 || elongated
+  const tiny = rect.width < 54 || rect.height < 46
+  const iconOnly = rect.width < 38 || rect.height < 34
+  const large = rect.width > 190 && rect.height > 120
+  const huge = rect.width > 320 && rect.height > 170
+
+  return { compact, tiny, iconOnly, large, huge }
 }
 
-function SkeletonTile({
-  className,
-  style,
-  size = 'medium',
-  lines = 2,
-}: SkeletonTileProps) {
-  const iconSize = {
-    huge: 'size-14 md:size-12',
-    large: 'size-9 md:size-10',
-    medium: 'size-7',
-    small: 'size-5',
-    tiny: 'size-3',
-  }[size]
+function getSkeletonContent(rect: HeatmapNode['rect']) {
+  const { compact, tiny, iconOnly, large, huge } = getTileFlags(rect)
+  const iconSize = huge ? 72 : large ? 56 : iconOnly ? 18 : compact ? 26 : 34
+  const labelWidth = huge
+    ? Math.min(rect.width * 0.3, 180)
+    : large
+      ? Math.min(rect.width * 0.54, 120)
+      : compact
+        ? Math.min(rect.width * 0.62, 42)
+        : Math.min(rect.width * 0.58, 84)
+  const changeWidth = huge
+    ? Math.min(rect.width * 0.28, 158)
+    : large
+      ? Math.min(rect.width * 0.48, 102)
+      : compact
+        ? Math.min(rect.width * 0.58, 38)
+        : Math.min(rect.width * 0.52, 68)
+  const capWidth = huge
+    ? Math.min(rect.width * 0.12, 58)
+    : large
+      ? Math.min(rect.width * 0.2, 42)
+      : Math.min(rect.width * 0.24, 30)
 
-  const lineWidth = {
-    huge: 'w-28',
-    large: 'w-22',
-    medium: 'w-14',
-    small: 'w-9',
-    tiny: 'w-4',
-  }[size]
+  return {
+    compact,
+    tiny,
+    iconOnly,
+    large,
+    huge,
+    showCap: !compact && rect.height > 86,
+    iconSize: Math.max(
+      10,
+      Math.min(iconSize, rect.width * 0.72, rect.height * 0.48),
+    ),
+    labelWidth: Math.max(10, labelWidth),
+    changeWidth: Math.max(10, changeWidth),
+    capWidth: Math.max(10, capWidth),
+  }
+}
+
+function HeatmapSkeletonTile({ node }: { node: HeatmapNode }) {
+  const { rect } = node
+  const {
+    compact,
+    tiny,
+    iconOnly,
+    large,
+    huge,
+    showCap,
+    iconSize,
+    labelWidth,
+    changeWidth,
+    capWidth,
+  } = getSkeletonContent(rect)
+  const micro = rect.width < 18 || rect.height < 18
+  const gap = micro ? 1.5 : tiny ? 1.4 : 1
 
   return (
     <Skeleton
-      style={style}
+      style={{
+        left: rect.x + gap,
+        top: rect.y + gap,
+        width: Math.max(rect.width - gap * 2, 0),
+        height: Math.max(rect.height - gap * 2, 0),
+      }}
       className={cn(
-        'absolute flex items-center justify-center overflow-hidden rounded-none',
-        className,
+        'absolute flex overflow-hidden rounded-none',
+        tiny ? 'p-0.5' : 'p-1.5',
       )}
     >
-      <div className='flex flex-col items-center gap-2'>
-        <Skeleton className={cn('rounded-full', iconSize)} />
-        {lines > 0 && (
-          <div className='flex flex-col items-center gap-1'>
-            {Array.from({ length: lines }).map((_, index) => (
-              <Skeleton
-                key={index}
-                className={cn(
-                  'h-2 rounded-none',
-                  index === 0 ? lineWidth : 'w-10',
-                  size === 'huge' && index === 0 && 'h-3',
-                )}
-              />
-            ))}
-          </div>
+      <div className='flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-1.5'>
+        {(iconOnly || !tiny) && (
+          <Skeleton
+            className='shrink-0 rounded-full brightness-150'
+            style={{ width: iconSize, height: iconSize }}
+          />
+        )}
+
+        {!iconOnly && (
+          <Skeleton
+            className={cn(
+              'shrink-0 rounded-sm brightness-150',
+              huge ? 'h-7' : large ? 'h-5' : compact ? 'h-2.5' : 'h-3.5',
+            )}
+            style={{ width: labelWidth }}
+          />
+        )}
+
+        {!tiny && !iconOnly && (
+          <Skeleton
+            className={cn(
+              'shrink-0 rounded-sm brightness-150',
+              huge ? 'h-6' : large ? 'h-4' : compact ? 'h-2.5' : 'h-3',
+            )}
+            style={{ width: changeWidth }}
+          />
+        )}
+
+        {showCap && (
+          <Skeleton
+            className={cn(
+              'shrink-0 rounded-sm brightness-150',
+              huge ? 'h-3.5' : 'h-2.5',
+            )}
+            style={{ width: capWidth }}
+          />
         )}
       </div>
     </Skeleton>
   )
 }
 
-function SkeletonMiniGrid({
-  className,
-  columns,
-  rows,
-  style,
-}: {
-  className?: string
-  columns: number
-  rows: number
-  style: CSSProperties
-}) {
+function HeatmapSkeleton({ height, width }: { height: number; width: number }) {
+  const nodes = useMemo(() => {
+    if (!width || !height) return []
+
+    return splitTreemap(SKELETON_ITEMS, {
+      x: 0,
+      y: 0,
+      width,
+      height,
+    })
+  }, [height, width])
+
   return (
-    <div
-      style={style}
-      className={cn('absolute grid gap-0.5 overflow-hidden', className)}
-      data-slot='heatmap-mini-grid'
-    >
-      {Array.from({ length: columns * rows }).map((_, index) => (
-        <Skeleton key={index} className='min-h-0 min-w-0 rounded-none' />
+    <div className='absolute inset-0 bg-neutral-950'>
+      {nodes.map((node) => (
+        <HeatmapSkeletonTile key={node.coin.id} node={node} />
       ))}
-    </div>
-  )
-}
-
-// ... HeatmapSkeleton, HeatmapTile, HeatmapRenderer без изменений
-
-function HeatmapSkeleton() {
-  return (
-    <div className='absolute inset-0 animate-pulse bg-neutral-950'>
-      <div className='relative h-full w-full md:hidden'>
-        <SkeletonTile
-          size='huge'
-          style={{ left: '0.5%', top: '0.5%', width: '55.5%', height: '99%' }}
-        />
-        <SkeletonTile
-          size='medium'
-          style={{ left: '56.5%', top: '0.5%', width: '21.5%', height: '39%' }}
-        />
-        <SkeletonTile
-          size='medium'
-          style={{ left: '78.5%', top: '0.5%', width: '21%', height: '39%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '56.5%', top: '40%', width: '21.5%', height: '16%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '78.5%', top: '40%', width: '21%', height: '16%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '56.5%', top: '56.5%', width: '14%', height: '22%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '56.5%', top: '79%', width: '14%', height: '20.5%' }}
-        />
-        <SkeletonMiniGrid
-          columns={10}
-          rows={14}
-          style={{
-            left: '71%',
-            top: '56.5%',
-            width: '28.5%',
-            height: '43%',
-            gridTemplateColumns: 'repeat(10, minmax(0, 1fr))',
-            gridTemplateRows: 'repeat(14, minmax(0, 1fr))',
-          }}
-        />
-      </div>
-
-      <div className='relative hidden h-full w-full md:block'>
-        <SkeletonTile
-          size='huge'
-          style={{
-            left: '0.35%',
-            top: '0.6%',
-            width: '55.8%',
-            height: '98.8%',
-          }}
-        />
-        <SkeletonTile
-          size='large'
-          style={{
-            left: '56.45%',
-            top: '0.6%',
-            width: '23.1%',
-            height: '40.5%',
-          }}
-        />
-        <SkeletonTile
-          size='large'
-          style={{
-            left: '79.85%',
-            top: '0.6%',
-            width: '19.8%',
-            height: '40.5%',
-          }}
-        />
-        <SkeletonTile
-          size='medium'
-          style={{
-            left: '56.45%',
-            top: '41.5%',
-            width: '11.25%',
-            height: '29.5%',
-          }}
-        />
-        <SkeletonTile
-          size='medium'
-          style={{
-            left: '56.45%',
-            top: '71.4%',
-            width: '11.25%',
-            height: '28%',
-          }}
-        />
-        <SkeletonTile
-          size='medium'
-          style={{ left: '68.05%', top: '41.5%', width: '8.8%', height: '35%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{
-            left: '68.05%',
-            top: '76.9%',
-            width: '8.8%',
-            height: '22.5%',
-          }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '77.2%', top: '41.5%', width: '10.6%', height: '13%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '88.15%', top: '41.5%', width: '5.4%', height: '13%' }}
-        />
-        <SkeletonTile
-          size='small'
-          style={{ left: '93.9%', top: '41.5%', width: '5.75%', height: '13%' }}
-        />
-        <SkeletonMiniGrid
-          columns={18}
-          rows={14}
-          style={{
-            left: '77.2%',
-            top: '54.9%',
-            width: '22.45%',
-            height: '44.5%',
-            gridTemplateColumns: 'repeat(18, minmax(0, 1fr))',
-            gridTemplateRows: 'repeat(14, minmax(0, 1fr))',
-          }}
-        />
-      </div>
     </div>
   )
 }
@@ -266,12 +232,7 @@ function HeatmapTile({
     change == null || !Number.isFinite(change)
       ? '--'
       : `${Math.abs(change).toFixed(2)}%`
-  const elongated = rect.width > rect.height * 1.45
-  const compact = rect.width < 104 || rect.height < 66 || elongated
-  const tiny = rect.width < 54 || rect.height < 46
-  const iconOnly = rect.width < 38 || rect.height < 34
-  const large = rect.width > 190 && rect.height > 120
-  const huge = rect.width > 320 && rect.height > 170
+  const { compact, tiny, iconOnly, large, huge } = getTileFlags(rect)
   const label = compact ? coin.symbol.toUpperCase() : coin.name
   const micro = rect.width < 18 || rect.height < 18
   const gap = micro ? 1 : 2
@@ -409,7 +370,7 @@ export function HeatmapRenderer({
       className='relative h-full min-h-0 overflow-hidden bg-neutral-950'
     >
       {isLoading || !size.width || !size.height ? (
-        <HeatmapSkeleton />
+        <HeatmapSkeleton height={size.height} width={size.width} />
       ) : isError ? (
         <div className='flex h-full items-center justify-center text-sm text-muted-foreground'>
           Could not load market data. Try again in a moment.
