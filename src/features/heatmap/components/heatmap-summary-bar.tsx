@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
+import { Skeleton } from '@/shared/ui/skeleton'
 
 type HeatmapSummaryBarProps = {
   averageChange: string
@@ -16,6 +17,16 @@ type HeatmapSummaryBarProps = {
   totalCoins: number
   totalCap: string
   modeLabel: string
+  isLoading?: boolean
+}
+
+function ValueSkeleton({ width }: { width: number }) {
+  return (
+    <Skeleton
+      className='h-3 rounded-sm brightness-125'
+      style={{ width }}
+    />
+  )
 }
 
 function SummaryItem({
@@ -23,11 +34,15 @@ function SummaryItem({
   value,
   icon,
   tone,
+  isLoading,
+  skeletonWidth = 28,
 }: {
   label: string
   value: string | number
   icon: React.ReactNode
   tone?: 'positive' | 'negative'
+  isLoading?: boolean
+  skeletonWidth?: number
 }) {
   return (
     <div className='flex min-w-0 items-center gap-1 whitespace-nowrap'>
@@ -41,7 +56,11 @@ function SummaryItem({
         {icon}
       </span>
       <span className='text-muted-foreground'>{label}</span>
-      <span className='font-semibold text-foreground'>{value}</span>
+      {isLoading ? (
+        <ValueSkeleton width={skeletonWidth} />
+      ) : (
+        <span className='font-semibold text-foreground'>{value}</span>
+      )}
     </div>
   )
 }
@@ -54,6 +73,7 @@ export function HeatmapSummaryBar({
   totalCoins,
   totalCap,
   modeLabel,
+  isLoading = false,
 }: HeatmapSummaryBarProps) {
   return (
     <footer className='flex shrink-0 flex-col gap-1 border-t bg-background/95 px-2.5 py-1.5 text-xs backdrop-blur md:min-h-9 md:flex-row md:items-center md:gap-4'>
@@ -65,12 +85,16 @@ export function HeatmapSummaryBar({
           label='Total MCap'
           value={totalCap}
           icon={<Globe className='size-3.5' />}
+          isLoading={isLoading}
+          skeletonWidth={44}
         />
         <div className='hidden sm:block'>
           <SummaryItem
             label='Coins'
             value={totalCoins}
             icon={<CircleDollarSign className='size-3.5' />}
+            isLoading={isLoading}
+            skeletonWidth={22}
           />
         </div>
         <SummaryItem
@@ -78,18 +102,24 @@ export function HeatmapSummaryBar({
           value={averageChange}
           icon={<Activity className='size-3.5' />}
           tone={averageTone}
+          isLoading={isLoading}
+          skeletonWidth={36}
         />
         <SummaryItem
           label='Up'
           value={advancers}
           icon={<TrendingUp className='size-3.5' />}
           tone='positive'
+          isLoading={isLoading}
+          skeletonWidth={18}
         />
         <SummaryItem
           label='Down'
           value={decliners}
           icon={<TrendingDown className='size-3.5' />}
           tone='negative'
+          isLoading={isLoading}
+          skeletonWidth={22}
         />
       </div>
     </footer>

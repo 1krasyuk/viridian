@@ -133,6 +133,7 @@ export function HeatmapPage() {
         modeLabel={`${period} / ${
           sizeMetric === 'market_cap' ? 'Market cap' : 'Volume'
         } / ${activeRanges.length} ranges`}
+        isLoading={isLoading}
       />
     </div>
   )
