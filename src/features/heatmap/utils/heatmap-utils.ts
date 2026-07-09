@@ -32,7 +32,7 @@ export function formatPercent(value: number | null | undefined) {
   return `${sign}${value.toFixed(2)}%`
 }
 
-export function getTileColors(value: number | null) {
+export function getTileColors(value: number | null, isDark: boolean) {
   if (value == null || !Number.isFinite(value)) {
     return {
       background: 'color-mix(in oklch, var(--muted) 70%, transparent)',
@@ -44,31 +44,47 @@ export function getTileColors(value: number | null) {
 
   if (Math.abs(value) < NEUTRAL_CHANGE_THRESHOLD) {
     return {
-      background: 'oklch(30.9% 0 0)',
+      background: isDark ? 'oklch(30.9% 0 0)' : 'oklch(86% 0.004 286)',
       borderColor: 'transparent',
-      color: 'var(--muted-foreground)',
-      glow: 'inset 0 0 18px color-mix(in oklch, white 5%, transparent)',
+      color: isDark ? 'var(--muted-foreground)' : 'var(--foreground)',
+      glow: isDark
+        ? 'inset 0 0 18px color-mix(in oklch, white 5%, transparent)'
+        : 'inset 0 0 18px color-mix(in oklch, black 4%, transparent)',
     }
   }
 
   if (value > 0) {
     const strength = Math.min(Math.abs(value) / 12, 1)
-    const alpha = 0.64 + strength * 0.28
+    const alpha = isDark ? 0.64 + strength * 0.28 : 0.78 + strength * 0.18
     return {
-      background: `hsl(158 92% 42% / ${alpha})`,
+      background: isDark
+        ? `hsl(158 92% 42% / ${alpha})`
+        : `hsl(158 76% 34% / ${alpha})`,
       borderColor: 'transparent',
       color: 'white',
-      glow: `inset 0 0 18px hsl(150 100% 68% / ${0.08 + strength * 0.14}), 0 0 12px hsl(150 100% 48% / ${0.04 + strength * 0.07})`,
+      glow: isDark
+        ? `inset 0 0 18px hsl(150 100% 68% / ${
+            0.08 + strength * 0.14
+          }), 0 0 12px hsl(150 100% 48% / ${0.04 + strength * 0.07})`
+        : `inset 0 0 14px hsl(158 80% 18% / ${
+            0.05 + strength * 0.08
+          })`,
     }
   }
 
   const strength = Math.min(Math.abs(value) / 12, 1)
-  const alpha = 0.62 + strength * 0.24
+  const alpha = isDark ? 0.62 + strength * 0.24 : 0.78 + strength * 0.18
   return {
-    background: `hsl(0 84% 60% / ${alpha})`,
+    background: isDark
+      ? `hsl(0 84% 60% / ${alpha})`
+      : `hsl(0 74% 50% / ${alpha})`,
     borderColor: 'transparent',
     color: 'white',
-    glow: `inset 0 0 18px hsl(350 100% 66% / ${0.08 + strength * 0.13}), 0 0 12px hsl(350 100% 45% / ${0.04 + strength * 0.07})`,
+    glow: isDark
+      ? `inset 0 0 18px hsl(350 100% 66% / ${
+          0.08 + strength * 0.13
+        }), 0 0 12px hsl(350 100% 45% / ${0.04 + strength * 0.07})`
+      : `inset 0 0 14px hsl(0 75% 22% / ${0.05 + strength * 0.08})`,
   }
 }
 

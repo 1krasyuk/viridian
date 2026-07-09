@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import { useCurrency } from '@/features/currency/hooks'
 import type { CoinsList } from '@/features/market/types/coins-list'
+import { useTheme } from '@/shared/lib/theme-provider'
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/skeleton'
 import {
@@ -206,7 +207,7 @@ function HeatmapSkeleton({ height, width }: { height: number; width: number }) {
   }, [height, width])
 
   return (
-    <div className='absolute inset-0 bg-neutral-950'>
+    <div className='absolute inset-0 bg-neutral-200 dark:bg-neutral-950'>
       {nodes.map((node) => (
         <HeatmapSkeletonTile key={node.coin.id} node={node} />
       ))}
@@ -219,15 +220,17 @@ function HeatmapTile({
   period,
   sizeMetric,
   format,
+  isDark,
 }: {
   node: HeatmapNode
   period: HeatmapPeriod
   sizeMetric: HeatmapSizeMetric
   format: ReturnType<typeof useCurrency>['format']
+  isDark: boolean
 }) {
   const { coin, rect } = node
   const change = getChange(coin, period)
-  const colors = getTileColors(change)
+  const colors = getTileColors(change, isDark)
   const metricValue = coin[sizeMetric]
   const hasChange = change != null && Number.isFinite(change)
   const isNeutral = hasChange && Math.abs(change) < NEUTRAL_CHANGE_THRESHOLD
@@ -352,6 +355,11 @@ export function HeatmapRenderer({
   isError,
 }: HeatmapRendererProps) {
   const { ref, size } = useElementSize<HTMLDivElement>()
+  const { theme } = useTheme()
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   const nodes = useMemo(() => {
     if (!size.width || !size.height) return []
@@ -375,7 +383,7 @@ export function HeatmapRenderer({
   return (
     <div
       ref={ref}
-      className='relative h-full min-h-0 overflow-hidden bg-neutral-950'
+      className='relative h-full min-h-0 overflow-hidden bg-neutral-200 dark:bg-neutral-950'
     >
       {isLoading || !size.width || !size.height ? (
         <HeatmapSkeleton height={size.height} width={size.width} />
@@ -391,6 +399,7 @@ export function HeatmapRenderer({
             period={period}
             sizeMetric={sizeMetric}
             format={format}
+            isDark={isDark}
           />
         ))
       )}
