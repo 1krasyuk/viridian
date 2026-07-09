@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   useCoin,
@@ -14,6 +14,7 @@ import {
 import { CoinPageViewModeTabs } from '@/features/market/components/coin-page/coin-page-view-mode-tabs'
 import { useCoinViewMode } from '@/features/market/components/coin-page/use-coin-view-mode'
 import { useCurrency } from '@/features/currency/hooks'
+import { useRecentlyVisitedStore } from '@/features/sidebar/recently-visited-store'
 
 export const Route = createFileRoute('/coins/$coinId')({
   component: RouteComponent,
@@ -28,6 +29,7 @@ function RouteComponent() {
   const [metricDays, setMetricDays] = useState('30')
   const [dataType, setDataType] = useState<'price' | 'marketCap'>('price')
   const { viewMode, setViewMode } = useCoinViewMode()
+  const addVisitedCoin = useRecentlyVisitedStore((state) => state.addVisitedCoin)
 
   const { data: metricsChart, isLoading: isLoadingMetrics } = useCoinChart(
     coinId,
@@ -40,6 +42,10 @@ function RouteComponent() {
     days,
     currency,
   )
+
+  useEffect(() => {
+    if (data) addVisitedCoin(data, currency)
+  }, [addVisitedCoin, currency, data])
 
   return (
     <div className='flex  min-w-0 flex-col xl:flex-row'>

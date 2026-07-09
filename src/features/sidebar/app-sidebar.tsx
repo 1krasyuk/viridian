@@ -31,6 +31,7 @@ import { sidebarNavItems } from './nav-items'
 import { useState } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
 import { CurrencyModal } from '../currency/currencyModal'
+import { RecentlyVisitedCoins } from './recently-visited-coins'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
@@ -110,6 +111,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <RecentlyVisitedCoins />
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className=''>

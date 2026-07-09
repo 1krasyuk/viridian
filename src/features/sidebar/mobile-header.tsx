@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { useState } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
 import { CurrencyModal } from '../currency/currencyModal'
+import { RecentlyVisitedCoins } from './recently-visited-coins'
 
 const themeOptions = ['light', 'dark', 'system'] as const
 type ThemeOption = (typeof themeOptions)[number]
@@ -101,6 +102,11 @@ export function MobileHeader() {
                 </Link>
               ))}
             </nav>
+
+            <RecentlyVisitedCoins
+              variant='mobile'
+              onNavigate={() => setOpen(false)}
+            />
 
             <div className='mt-auto space-y-3 pb-2'>
               <div className='grid grid-cols-2 gap-3'>
