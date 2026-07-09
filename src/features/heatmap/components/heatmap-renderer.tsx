@@ -10,6 +10,7 @@ import {
   formatPercent,
   getChange,
   getTileColors,
+  NEUTRAL_CHANGE_THRESHOLD,
   splitTreemap,
 } from '../utils/heatmap-utils'
 import type {
@@ -228,10 +229,16 @@ function HeatmapTile({
   const change = getChange(coin, period)
   const colors = getTileColors(change)
   const metricValue = coin[sizeMetric]
+  const hasChange = change != null && Number.isFinite(change)
+  const isNeutral = hasChange && Math.abs(change) < NEUTRAL_CHANGE_THRESHOLD
+  const isPositive = hasChange && !isNeutral && change > 0
+  const isNegative = hasChange && !isNeutral && change < 0
   const changeLabel =
-    change == null || !Number.isFinite(change)
+    !hasChange
       ? '--'
-      : `${Math.abs(change).toFixed(2)}%`
+      : isNeutral
+        ? '0.00%'
+        : `${Math.abs(change).toFixed(2)}%`
   const { compact, tiny, iconOnly, large, huge } = getTileFlags(rect)
   const label = compact ? coin.symbol.toUpperCase() : coin.name
   const micro = rect.width < 18 || rect.height < 18
@@ -304,14 +311,15 @@ function HeatmapTile({
                   ? 'text-xl'
                   : compact
                     ? 'text-[10px]'
-                    : 'text-xs',
+                : 'text-xs',
             )}
           >
-            {(change ?? 0) >= 0 ? (
+            {isPositive && (
               <Plus
                 className={cn(huge ? 'size-8' : large ? 'size-5' : 'size-3')}
               />
-            ) : (
+            )}
+            {isNegative && (
               <Minus
                 className={cn(huge ? 'size-8' : large ? 'size-5' : 'size-3')}
               />
