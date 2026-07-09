@@ -295,9 +295,7 @@ export function DataTable<TData, TValue>({
                         }
                       >
                         {loading ? (
-                          <div className='flex min-h-8 items-center'>
-                            <Skeleton className='h-4 w-full' />
-                          </div>
+                          <Skeleton className='h-4 w-full' />
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
