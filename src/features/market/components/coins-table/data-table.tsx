@@ -191,6 +191,7 @@ export function DataTable<TData, TValue>({
     <div className='w-full'>
       <DataTableToolbar
         table={table}
+        loading={loading}
         categories={categories}
         categoryValue={categoryValue}
         onCategoryChange={onCategoryChange}
@@ -294,7 +295,9 @@ export function DataTable<TData, TValue>({
                         }
                       >
                         {loading ? (
-                          <Skeleton className='h-4 w-full' />
+                          <div className='flex min-h-8 items-center'>
+                            <Skeleton className='h-4 w-full' />
+                          </div>
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,

@@ -138,7 +138,7 @@ function WidgetCard({
 
       {/* Sparkline - hidden on mobile */}
       {isLoading ? (
-        <Skeleton className='hidden sm:block h-14 w-full mt-2' />
+        <Skeleton className='hidden sm:block h-13 w-full mt-2' />
       ) : (
         sparkline
       )}

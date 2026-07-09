@@ -50,6 +50,7 @@ import { cn } from '@/shared/lib/utils'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
+  loading?: boolean
   categories?: Category[]
   categoryValue?: Category
   onCategoryChange: (category: string | undefined) => void
@@ -64,6 +65,7 @@ interface DataTableToolbarProps<TData> {
 
 export function DataTableToolbar<TData>({
   table,
+  loading = false,
   categories,
   categoryValue,
   onCategoryChange,
@@ -108,6 +110,7 @@ export function DataTableToolbar<TData>({
           <ComboboxInput
             placeholder='Select a category'
             className='md:w-70 w-full rounded-lg mb-2 md:mb-0'
+            disabled={loading}
             showClear
           />
           <ComboboxContent>
@@ -133,7 +136,7 @@ export function DataTableToolbar<TData>({
       >
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant='outline' className=''>
+            <Button variant='outline' className='' disabled={loading}>
               Columns
               <Settings2 />
             </Button>
@@ -167,7 +170,7 @@ export function DataTableToolbar<TData>({
                   <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
+                    onDragEnd={loading ? undefined : handleDragEnd}
                   >
                     <SortableContext
                       items={table
@@ -232,8 +235,9 @@ export function DataTableToolbar<TData>({
                           key={column.id}
                           variant={column.getIsVisible() ? 'soft' : 'outline'}
                           disabled={
-                            !column.getIsVisible() &&
-                            table.getVisibleLeafColumns().length - 2 >= 12
+                            loading ||
+                            (!column.getIsVisible() &&
+                              table.getVisibleLeafColumns().length - 2 >= 12)
                           }
                           size='sm'
                           className='rounded-3xl gap-1.5 font-bold max-w-full'
@@ -257,11 +261,15 @@ export function DataTableToolbar<TData>({
               </div>
             </div>
             <div className='flex flex-col-reverse gap-2 sm:flex-row sm:justify-between sm:items-center'>
-              <Button variant='destructive' onClick={onResetColumns}>
+              <Button
+                variant='destructive'
+                onClick={onResetColumns}
+                disabled={loading}
+              >
                 Reset
               </Button>
               <DialogClose asChild>
-                <Button>Apply changes</Button>
+                <Button disabled={loading}>Apply changes</Button>
               </DialogClose>
             </div>
           </DialogContent>
@@ -269,7 +277,7 @@ export function DataTableToolbar<TData>({
         {showRowsSelector && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='outline' className='w-30'>
+              <Button variant='outline' className='w-30' disabled={loading}>
                 {perPage} Rows
                 <ChevronDown />
               </Button>
@@ -299,6 +307,7 @@ export function DataTableToolbar<TData>({
             variant='outline'
             className='w-10 h-10 group'
             onClick={onReset}
+            disabled={loading}
           >
             <RefreshCcw className='transition-transform duration-500 ease-out group-active:rotate-180 group-active:duration-0' />
           </Button>
@@ -307,6 +316,7 @@ export function DataTableToolbar<TData>({
               variant='destructive'
               className='w-10 h-10'
               onClick={clearWatchlist}
+              disabled={loading}
             >
               <Trash2 className='h-4 w-4' />
             </Button>

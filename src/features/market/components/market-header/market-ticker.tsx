@@ -149,9 +149,9 @@ export function MarketTicker({ data, isLoading }: MarketTickerProps) {
         style={{ scrollBehavior: 'auto' }}
       >
         {isLoading ? (
-          <div className='flex items-center gap-3 px-3 py-2'>
+          <div className='flex items-center gap-3 px-3 py-2.5'>
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className='h-6 w-56 shrink-0 rounded-lg' />
+              <Skeleton key={i} className='h-5 w-70 shrink-0 rounded-lg' />
             ))}
           </div>
         ) : duplicatedCoins.length === 0 ? (
