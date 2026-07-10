@@ -22,10 +22,7 @@ type HeatmapSummaryBarProps = {
 
 function ValueSkeleton({ width }: { width: number }) {
   return (
-    <Skeleton
-      className='h-3 rounded-sm brightness-125'
-      style={{ width }}
-    />
+    <Skeleton className='h-3 rounded-sm brightness-125' style={{ width }} />
   )
 }
 
@@ -86,7 +83,7 @@ export function HeatmapSummaryBar({
           value={totalCap}
           icon={<Globe className='size-3.5' />}
           isLoading={isLoading}
-          skeletonWidth={44}
+          skeletonWidth={40}
         />
         <div className='hidden sm:block'>
           <SummaryItem
@@ -94,7 +91,7 @@ export function HeatmapSummaryBar({
             value={totalCoins}
             icon={<CircleDollarSign className='size-3.5' />}
             isLoading={isLoading}
-            skeletonWidth={22}
+            skeletonWidth={25}
           />
         </div>
         <SummaryItem
@@ -111,7 +108,7 @@ export function HeatmapSummaryBar({
           icon={<TrendingUp className='size-3.5' />}
           tone='positive'
           isLoading={isLoading}
-          skeletonWidth={18}
+          skeletonWidth={25}
         />
         <SummaryItem
           label='Down'
@@ -119,7 +116,7 @@ export function HeatmapSummaryBar({
           icon={<TrendingDown className='size-3.5' />}
           tone='negative'
           isLoading={isLoading}
-          skeletonWidth={22}
+          skeletonWidth={25}
         />
       </div>
     </footer>

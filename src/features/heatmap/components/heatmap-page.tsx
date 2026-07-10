@@ -36,12 +36,11 @@ export function HeatmapPage() {
   const sizeMetric = search.size ?? DEFAULT_HEATMAP_SIZE
   const category = search.category
 
-  const { data = [], isLoading, isError } = useCoins(
-    1,
-    MAX_HEATMAP_COINS,
-    category,
-    currency,
-  )
+  const {
+    data = [],
+    isLoading,
+    isError,
+  } = useCoins(1, MAX_HEATMAP_COINS, category, currency)
   const { data: categories = [] } = useCategoriesList()
 
   const coins = data
