@@ -37,14 +37,15 @@ export function CoinChartControls({
   isLoading,
 }: CoinChartControlsProps) {
   return (
-    <div className='flex flex-col gap-2 md:p-2 lg:flex-row md:justify-between'>
-      <div className='flex min-w-0 gap-2 overflow-x-auto pb-1 md:overflow-visible md:pb-0 justify-between'>
+    <div className='flex flex-wrap justify-between gap-2 bg-background p-2'>
+      <div className='flex min-w-0 basis-full flex-wrap items-center justify-between gap-2 @min-[760px]:basis-auto @min-[760px]:flex-none'>
         <ToggleGroup
           type='single'
+          size='sm'
           value={dataType}
           onValueChange={(v) => v && onDataTypeChange(v as CoinChartDataType)}
           disabled={isLoading || chartMode === 'candles'}
-          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-md! [&>button:last-child]:rounded-r-md!'
         >
           <ToggleGroupItem value='price' variant='outline'>
             Price
@@ -53,9 +54,9 @@ export function CoinChartControls({
             Market Cap
           </ToggleGroupItem>
         </ToggleGroup>
-
         <ToggleGroup
           type='single'
+          size='sm'
           value={chartMode}
           onValueChange={(value) => {
             if (
@@ -67,7 +68,7 @@ export function CoinChartControls({
             }
           }}
           disabled={isLoading}
-          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-md! [&>button:last-child]:rounded-r-md!'
         >
           <ToggleGroupItem variant='outline' value='line'>
             <ChartLine className='h-4 w-4' />
@@ -86,13 +87,14 @@ export function CoinChartControls({
         </ToggleGroup>
       </div>
 
-      <div className='flex min-w-0 gap-2 overflow-x-auto pb-1 md:overflow-visible md:pb-0 justify-between '>
+      <div className='flex min-w-0 basis-full flex-wrap items-center justify-between gap-2 @min-[760px]:basis-auto @min-[760px]:flex-none'>
         <ToggleGroup
           type='single'
+          size='sm'
           value={days}
           onValueChange={(v) => v && onDaysChange(v)}
           disabled={isLoading}
-          className='shrink-0 [&>button:first-child]:rounded-l-lg! [&>button:last-child]:rounded-r-lg!'
+          className='shrink-0 [&>button:first-child]:rounded-l-md! [&>button:last-child]:rounded-r-md!'
         >
           <ToggleGroupItem value='1' variant='outline'>
             24H
@@ -116,10 +118,10 @@ export function CoinChartControls({
             1Y
           </ToggleGroupItem>
         </ToggleGroup>
-
+        <div className='ml-auto flex shrink-0 gap-2'>
         <Button
           variant='outline'
-          size='icon'
+          size='icon-sm'
           onClick={onDownload}
           disabled={chartMode === 'tradingview' || isLoading}
         >
@@ -127,7 +129,7 @@ export function CoinChartControls({
         </Button>
 
         <Button
-          size='icon'
+          size='icon-sm'
           variant='outline'
           onClick={onToggleFullscreen}
           disabled={isLoading}
@@ -139,6 +141,7 @@ export function CoinChartControls({
             <Maximize className='h-4 w-4' />
           )}
         </Button>
+        </div>
       </div>
     </div>
   )

@@ -282,7 +282,7 @@ export function CoinChart({
   const hasOHLC = !!ohlcData && ohlcData.length > 0
 
   return (
-    <div ref={wrapperRef} className='flex flex-col h-full bg-background'>
+    <div ref={wrapperRef} className='@container flex h-full flex-col bg-background'>
       <CoinChartControls
         dataType={dataType}
         onDataTypeChange={onDataTypeChange}
