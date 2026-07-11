@@ -1,8 +1,8 @@
 import { ChartNoAxesCombined, Plus } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
-import type { ChartItem } from '../types/types'
+import type { ChartItem } from '../../types/types'
 import { MultichartChartCard } from './multichart-chart-card'
-import { MAX_CHARTS } from '../types/constants'
+import { MAX_CHARTS } from '../../types/constants'
 
 export function MultichartGrid({
   charts,

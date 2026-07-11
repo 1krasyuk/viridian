@@ -7,7 +7,7 @@ import { useCoinChart } from '@/features/market/hooks/coins-queries'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { cn } from '@/shared/lib/utils'
-import type { ChartItem } from '../types/types'
+import type { ChartItem } from '../../types/types'
 
 function Change({ value }: { value: number | null }) {
   if (value == null) return <span className='text-muted-foreground'>—</span>
