@@ -126,26 +126,26 @@ export function CoinPickerCard({
       <div className='my-2'>
         <CoinSparkline coin={coin} />
       </div>
-      <div className='grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs'>
-        <div className='flex min-w-0 items-center justify-between gap-1'>
+      <div className='grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs '>
+        <div className='flex min-w-0 items-center gap-2'>
           <span className='text-muted-foreground'>Market cap</span>
           <span className='truncate text-right font-medium'>
             {format(coin.market_cap, { notation: 'compact' })}
           </span>
         </div>
-        <div className='flex min-w-0 items-center justify-between gap-1'>
+        <div className='flex min-w-0 items-center gap-2'>
           <span className='text-muted-foreground'>Volume 24H</span>
           <span className='truncate text-right font-medium'>
             {format(coin.total_volume, { notation: 'compact' })}
           </span>
         </div>
-        <div className='flex min-w-0 items-center justify-between gap-1'>
+        <div className='flex min-w-0 items-center gap-2'>
           <span className='text-muted-foreground'>Liquidity</span>
           <span className='text-right font-medium'>
             {liquidity == null ? '—' : `${liquidity.toFixed(2)}%`}
           </span>
         </div>
-        <div className='flex min-w-0 items-center justify-between gap-1'>
+        <div className='flex min-w-0 items-center gap-2'>
           <span className='text-muted-foreground'>Change 24H</span>
           <CoinChange value={coin.price_change_percentage_24h} />
         </div>

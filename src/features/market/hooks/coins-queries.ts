@@ -19,15 +19,17 @@ export function useCoins(
   staleTime: number = 0,
   refetchInterval: number | false = 60000,
   gcTime: number = 300000,
+  ids?: string,
 ) {
   return useQuery({
-    queryKey: [coinsKeys.all, page, per_page, category, currency],
+    queryKey: [coinsKeys.all, page, per_page, category, currency, ids],
     queryFn: () =>
       coinsApi.getCoins({
         page,
         per_page,
         category,
         vs_currency: currency,
+        ids,
       }),
     staleTime,
     refetchInterval,
