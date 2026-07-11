@@ -15,6 +15,10 @@ export function useCoins(
   per_page: number,
   category?: string,
   currency: string = 'usd',
+  enabled: boolean = true,
+  staleTime: number = 0,
+  refetchInterval: number | false = 60000,
+  gcTime: number = 300000,
 ) {
   return useQuery({
     queryKey: [coinsKeys.all, page, per_page, category, currency],
@@ -25,7 +29,10 @@ export function useCoins(
         category,
         vs_currency: currency,
       }),
-    refetchInterval: 60000,
+    staleTime,
+    refetchInterval,
+    gcTime,
+    enabled,
   })
 }
 
