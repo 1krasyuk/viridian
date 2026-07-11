@@ -1,34 +1,40 @@
 import { useEffect } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
+import { useCoins } from '@/features/market/hooks/coins-queries'
 import { useWatchlistStore } from '../store/watchlist-store'
-import { coinsApi } from '@/features/market/api/coins-api'
-import type { CoinsList } from '@/features/market/types/coins-list'
 
 export function useWatchlistSync() {
   const currency = useCurrencyStore((s) => s.currency)
   const coins = useWatchlistStore((s) => s.coins)
   const setCoins = useWatchlistStore((s) => s.setCoins)
+  const ids = coins.map((coin) => coin.id).join(',')
+  const { data: freshCoins = [] } = useCoins(
+    1,
+    Math.max(coins.length, 1),
+    undefined,
+    currency,
+    coins.length > 0,
+    0,
+    60000,
+    300000,
+    ids || undefined,
+  )
 
   useEffect(() => {
-    if (coins.length === 0) return
+    if (freshCoins.length === 0) return
 
-    const ids = coins.map((c) => c.id).join(',')
+    const freshById = new Map(freshCoins.map((coin) => [coin.id, coin]))
+    const changed = coins.some((old) => {
+      const fresh = freshById.get(old.id)
+      return (
+        fresh &&
+        Object.entries(fresh).some(
+          ([key, value]) => old[key as keyof typeof old] !== value,
+        )
+      )
+    })
+    if (!changed) return
 
-    coinsApi
-      .getCoins({
-        vs_currency: currency,
-        ids,
-        per_page: coins.length,
-        page: 1,
-      })
-      .then((fresh: CoinsList[]) => {
-        const merged = coins.map((old) => {
-          const freshCoin = fresh.find((f) => f.id === old.id)
-          if (!freshCoin) return old
-          return { ...old, ...freshCoin }
-        })
-        setCoins(merged)
-      })
-      .catch(() => {})
-  }, [currency]) // eslint-disable-line react-hooks/exhaustive-deps
+    setCoins(coins.map((old) => ({ ...old, ...(freshById.get(old.id) ?? {}) })))
+  }, [coins, freshCoins, setCoins])
 }
