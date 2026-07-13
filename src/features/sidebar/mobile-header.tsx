@@ -5,12 +5,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { cn } from '@/shared/lib/utils'
 import { sidebarNavItems } from './nav-items'
 import { useTheme } from '@/shared/lib/theme-provider'
-import { ChevronDown, DollarSign, Languages } from 'lucide-react'
+import { ChevronDown, DollarSign, Languages, Search } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { useState } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
 import { CurrencyModal } from '../currency/currencyModal'
 import { RecentlyVisitedCoins } from './recently-visited-coins'
+import { SearchDialog } from './search-dialog'
 
 const themeOptions = ['light', 'dark', 'system'] as const
 type ThemeOption = (typeof themeOptions)[number]
@@ -87,6 +88,15 @@ export function MobileHeader() {
               aria-label='Mobile navigation'
               className='grid w-full grid-cols-2 gap-3'
             >
+              <SearchDialog onNavigate={() => setOpen(false)}>
+                <button
+                  type='button'
+                  className='group col-span-2 flex h-10 items-center gap-2 rounded-md border border-sidebar-border/90 bg-background/70 px-3 text-muted-foreground shadow-xs transition-colors hover:border-sidebar-border hover:bg-background hover:text-foreground'
+                >
+                  <Search className='size-4 shrink-0' />
+                  <span className='truncate text-base font-medium'>Search coins...</span>
+                </button>
+              </SearchDialog>
               {sidebarNavItems.map((item) => (
                 <Link
                   key={item.to}

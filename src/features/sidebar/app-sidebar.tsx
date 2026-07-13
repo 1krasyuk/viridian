@@ -23,6 +23,7 @@ import {
   DollarSign,
   Languages,
   Moon,
+  Search,
   Settings,
   Sun,
 } from 'lucide-react'
@@ -32,6 +33,7 @@ import { useState } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
 import { CurrencyModal } from '../currency/currencyModal'
 import { RecentlyVisitedCoins } from './recently-visited-coins'
+import { SearchDialog } from './search-dialog'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
@@ -73,6 +75,22 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className='gap-1'>
+            <SidebarMenuItem>
+              <SearchDialog shortcut>
+                <SidebarMenuButton
+                  aria-label='Search'
+                  className='h-10 rounded-md border border-sidebar-border/90 bg-background/70 px-3 text-muted-foreground shadow-xs hover:border-sidebar-border hover:bg-background hover:text-foreground active:bg-background/90 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center [&_svg]:size-4'
+                >
+                  <Search />
+                  <span className='truncate group-data-[collapsible=icon]:hidden'>
+                    Search coins...
+                  </span>
+                  <kbd className='ml-auto flex h-5 min-w-5 items-center justify-center rounded border border-sidebar-border/90 bg-input/30 px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-xs transition-colors group-hover/menu-button:border-sidebar-border group-hover/menu-button:bg-input/40 group-data-[collapsible=icon]:hidden'>
+                    /
+                  </kbd>
+                </SidebarMenuButton>
+              </SearchDialog>
+            </SidebarMenuItem>
             {sidebarNavItems.map((item) => (
               <SidebarMenuItem key={item.to}>
                 <SidebarMenuButton
