@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { useCurrencyStore } from '@/features/currency/store'
 import { CurrencyModal } from '../currency/currencyModal'
 import { RecentlyVisitedCoins } from './recently-visited-coins'
-import { SearchDialog } from './search-dialog'
+import { SearchDialog } from '@/features/search/components/search-dialog'
 
 const themeOptions = ['light', 'dark', 'system'] as const
 type ThemeOption = (typeof themeOptions)[number]

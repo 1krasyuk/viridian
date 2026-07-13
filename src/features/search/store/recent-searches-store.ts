@@ -1,13 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type RecentSearchItem = {
-  id: string
-  name: string
-  type?: 'coin' | 'category'
-  symbol?: string
-  image?: string
-}
+import type { RecentSearchItem } from '../types/recent-search'
 
 type RecentSearchesState = {
   coins: RecentSearchItem[]
