@@ -1,24 +1,20 @@
 import { useMemo } from 'react'
 
 import { useCurrency } from '@/features/currency/hooks'
-import {
-  useCoins,
-  useCoinSearch,
-  useTrending,
-} from '@/features/market/hooks/coins-queries'
+import { useCoins, useTrending } from '@/features/market/hooks/coins-queries'
 import type { CoinsList } from '@/features/market/types/coins-list'
 import { useWatchlistStore } from '@/features/watchlist/store/watchlist-store'
 
-import { useDebouncedValue } from './use-debounced-value'
+import { useSearchQuery } from './use-search-query'
 
 export function useSearchDialogData(query: string, open: boolean) {
-  const debouncedQuery = useDebouncedValue(query.trim(), 350)
   const { currency } = useCurrency()
-  const searchQuery = useCoinSearch(debouncedQuery)
+  const searchQuery = useSearchQuery(query, open)
   const trendingQuery = useTrending({
     refetchInterval: false,
     staleTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
+    enabled: open,
   })
   const watchlist = useWatchlistStore((state) => state.coins)
 
@@ -71,7 +67,7 @@ export function useSearchDialogData(query: string, open: boolean) {
   return {
     results: searchQuery.data,
     isSearchError: searchQuery.isError,
-    isSearching: query.trim() !== debouncedQuery || searchQuery.isFetching,
+    isSearching: searchQuery.isSearching,
     watchlist,
     watchlistCoins: watchlistQuery.data ?? watchlist,
     isWatchlistLoading: watchlistQuery.isFetching && !watchlistQuery.data,

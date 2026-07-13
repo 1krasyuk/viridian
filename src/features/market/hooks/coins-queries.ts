@@ -152,10 +152,12 @@ export function useTrending({
   refetchInterval = 60000,
   staleTime = 30000,
   refetchOnWindowFocus = true,
+  enabled = true,
 }: {
   refetchInterval?: number | false
   staleTime?: number
   refetchOnWindowFocus?: boolean
+  enabled?: boolean
 } = {}) {
   return useQuery({
     queryKey: ['trending'],
@@ -163,6 +165,7 @@ export function useTrending({
     refetchInterval,
     staleTime,
     refetchOnWindowFocus,
+    enabled,
   })
 }
 
