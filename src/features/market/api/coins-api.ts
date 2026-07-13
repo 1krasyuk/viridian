@@ -5,6 +5,7 @@ import type { Category } from '../types/categories'
 import type { CoinChartRaw } from '../types/coin-chart'
 import type { GlobalData } from '../types/global'
 import type { TrendingResponse } from '../types/trending'
+import type { SearchResponse } from '../types/search'
 
 export const coinsApi = {
   async getCoins({
@@ -116,6 +117,13 @@ export const coinsApi = {
 
   async getTrending(): Promise<TrendingResponse> {
     const { data } = await http.get<TrendingResponse>('/search/trending')
+    return data
+  },
+
+  async search(query: string): Promise<SearchResponse> {
+    const { data } = await http.get<SearchResponse>('/search', {
+      params: { query },
+    })
     return data
   },
 

@@ -8,6 +8,18 @@ export const coinsKeys = {
   all: ['coins'] as const,
   detail: (id: string) => ['coins', id] as const,
   global: ['global'] as const,
+  search: (query: string) => ['coins', 'search', query] as const,
+}
+
+export function useCoinSearch(query: string) {
+  const normalizedQuery = query.trim()
+
+  return useQuery({
+    queryKey: coinsKeys.search(normalizedQuery),
+    queryFn: () => coinsApi.search(normalizedQuery),
+    enabled: normalizedQuery.length > 0,
+    staleTime: 1000 * 60 * 5,
+  })
 }
 
 export function useCoins(
@@ -20,6 +32,7 @@ export function useCoins(
   refetchInterval: number | false = 60000,
   gcTime: number = 300000,
   ids?: string,
+  refetchOnWindowFocus: boolean = true,
 ) {
   return useQuery({
     queryKey: [coinsKeys.all, page, per_page, category, currency, ids],
@@ -35,6 +48,7 @@ export function useCoins(
     refetchInterval,
     gcTime,
     enabled,
+    refetchOnWindowFocus,
   })
 }
 
@@ -134,12 +148,21 @@ export function useGlobalData() {
   })
 }
 
-export function useTrending() {
+export function useTrending({
+  refetchInterval = 60000,
+  staleTime = 30000,
+  refetchOnWindowFocus = true,
+}: {
+  refetchInterval?: number | false
+  staleTime?: number
+  refetchOnWindowFocus?: boolean
+} = {}) {
   return useQuery({
     queryKey: ['trending'],
     queryFn: () => coinsApi.getTrending(),
-    refetchInterval: 60000,
-    staleTime: 30000,
+    refetchInterval,
+    staleTime,
+    refetchOnWindowFocus,
   })
 }
 
