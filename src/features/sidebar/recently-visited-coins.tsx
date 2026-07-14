@@ -89,7 +89,7 @@ function RecentlyVisitedCoinLink({
                 (change > 0
                   ? 'text-emerald-500'
                   : change < 0
-                    ? 'text-red-500'
+                    ? 'text-destructive'
                     : 'text-muted-foreground'),
             )}
           >

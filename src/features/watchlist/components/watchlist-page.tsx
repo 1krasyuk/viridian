@@ -384,8 +384,18 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
                 <span className='text-[11px] xl:text-xs font-mono text-muted-foreground'>
                   {format(best.current_price)}
                 </span>
-                <span className='text-[11px] xl:text-xs font-mono font-medium text-emerald-500 dark:text-emerald-400'>
-                  +{bestChange.toFixed(2)}%
+                <span
+                  className={cn(
+                    'text-[11px] xl:text-xs font-mono font-medium',
+                    bestChange > 0
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : bestChange < 0
+                        ? 'text-destructive'
+                        : 'text-muted-foreground',
+                  )}
+                >
+                  {bestChange > 0 ? '+' : ''}
+                  {bestChange.toFixed(2)}%
                 </span>
               </div>
             </div>
@@ -418,7 +428,17 @@ function MoversCard({ coins }: { coins: CoinsList[] }) {
                 <span className='text-[11px] xl:text-xs font-mono text-muted-foreground'>
                   {format(worst.current_price)}
                 </span>
-                <span className='text-[11px] xl:text-xs font-mono font-medium text-destructive'>
+                <span
+                  className={cn(
+                    'text-[11px] xl:text-xs font-mono font-medium',
+                    worstChange > 0
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : worstChange < 0
+                        ? 'text-destructive'
+                        : 'text-muted-foreground',
+                  )}
+                >
+                  {worstChange > 0 ? '+' : ''}
                   {worstChange.toFixed(2)}%
                 </span>
               </div>
