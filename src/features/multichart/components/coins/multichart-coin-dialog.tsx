@@ -338,7 +338,7 @@ export function CoinPicker({
             <Button variant='destructive'>Cancel</Button>
           </DialogClose>
           <Button
-            variant='soft'
+            variant='default'
             disabled={selectedCoins.size === 0}
             onClick={() => {
               onSelect([...selectedCoins.values()])

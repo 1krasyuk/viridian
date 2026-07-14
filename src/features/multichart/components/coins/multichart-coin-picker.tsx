@@ -121,7 +121,7 @@ export function CoinPickerCard({
         <span className='text-lg font-bold tabular-nums'>
           {format(coin.current_price, { maximumFractionDigits: 6 })}
         </span>
-        <CoinChange value={coin.price_change_percentage_24h} />
+        <CoinChange value={coin.price_change_percentage_7d_in_currency} />
       </div>
       <div className='my-2'>
         <CoinSparkline coin={coin} />
