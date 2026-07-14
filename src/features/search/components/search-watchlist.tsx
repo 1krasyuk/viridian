@@ -14,7 +14,7 @@ function PriceChange({ value }: { value: number | null }) {
     <span
       className={cn(
         'text-xs font-semibold tabular-nums',
-        value >= 0 ? 'text-emerald-500' : 'text-destructive',
+        value >= 0 ? 'text-emerald-500' : 'text-red-500',
       )}
     >
       {value >= 0 ? '+' : ''}
@@ -44,7 +44,7 @@ function CoinSparkline({ coin }: { coin: CoinsList }) {
       preserveAspectRatio='none'
       className={cn(
         'h-9 w-24 shrink-0',
-        positive ? 'text-emerald-500' : 'text-destructive',
+        positive ? 'text-emerald-500' : 'text-red-500',
       )}
       aria-hidden='true'
     >
@@ -79,17 +79,22 @@ function WatchlistCard({
       <div className='flex w-full min-w-0 items-center gap-2'>
         <img src={coin.image} alt='' className='size-8 shrink-0 rounded-full' />
         <div className='flex min-w-0 items-center gap-1'>
-          <p className='min-w-0 truncate text-base font-semibold'>{coin.name}</p>
-          <Badge variant='secondary' className='h-4 px-1.5 text-[9px] uppercase'>
+          <p className='min-w-0 truncate text-base font-semibold'>
+            {coin.name}
+          </p>
+          <Badge
+            variant='secondary'
+            className='h-4 px-1.5 text-[9px] uppercase'
+          >
             {coin.symbol}
           </Badge>
         </div>
       </div>
-      <div className='mt-2 flex w-full items-center gap-2'>
+      <div className='mt-2 flex w-full items-center gap-1'>
         <p className='text-sm font-bold tabular-nums'>
           {format(coin.current_price, { maximumFractionDigits: 6 })}
         </p>
-        <PriceChange value={coin.price_change_percentage_24h} />
+        <PriceChange value={coin.price_change_percentage_7d_in_currency} />
       </div>
       <div className='mt-1 w-full overflow-hidden'>
         <CoinSparkline coin={coin} />
@@ -100,7 +105,7 @@ function WatchlistCard({
 
 function WatchlistSkeleton({ count }: { count: number }) {
   return (
-    <div className='grid gap-2 sm:grid-cols-2'>
+    <div className='grid gap-2 grid-cols-2 md:grid-cols-3'>
       {Array.from({ length: Math.min(count, 4) }).map((_, index) => (
         <Skeleton key={index} className='h-20 rounded-xl' />
       ))}
@@ -146,7 +151,7 @@ export function SearchWatchlist({
         isLoading ? (
           <WatchlistSkeleton count={watchlist.length} />
         ) : (
-          <div className='grid gap-2 sm:grid-cols-2'>
+          <div className='grid gap-2 grid-cols-2 md:grid-cols-3'>
             {coins.map((coin) => (
               <WatchlistCard
                 key={coin.id}

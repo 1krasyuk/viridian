@@ -14,7 +14,7 @@ function PriceChange({ value }: { value: number | null }) {
     <span
       className={cn(
         'text-xs font-semibold tabular-nums',
-        value >= 0 ? 'text-emerald-500' : 'text-destructive',
+        value >= 0 ? 'text-emerald-500' : 'text-red-500',
       )}
     >
       {value >= 0 ? '+' : ''}
@@ -120,11 +120,7 @@ export function SearchTrendings({
         ) : (
           <div className='grid gap-2'>
             {coins.map((coin) => (
-              <TrendingCard
-                key={coin.id}
-                coin={coin}
-                onNavigate={onNavigate}
-              />
+              <TrendingCard key={coin.id} coin={coin} onNavigate={onNavigate} />
             ))}
           </div>
         )}
