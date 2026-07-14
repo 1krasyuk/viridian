@@ -293,7 +293,7 @@ export const columns: ColumnDef<CoinsList>[] = [
             </p>
             <Badge
               variant='outline'
-              className='group-hover:text-background group-hover:bg-primary duration-75'
+              className='group-hover:text-background group-hover:bg-primary duration-75 hidden sm:block'
             >
               {symbol}
             </Badge>
