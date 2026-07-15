@@ -45,10 +45,10 @@ function RecentlyVisitedCoinLink({
       params={{ coinId: coin.id }}
       onClick={onNavigate}
       className={cn(
-        'flex min-w-0 items-center gap-2 bg-popover/10 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground ',
+        'flex min-w-0 items-center gap-2 bg-background/70 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground ',
         variant === 'sidebar'
           ? 'px-2 py-1 group-data-[collapsible=icon]:min-h-9 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0'
-          : 'h-22 flex-col justify-start  px-2 py-1 text-center',
+          : 'h-full min-h-26 flex-col justify-start px-2 py-2 text-center',
       )}
     >
       <img
@@ -70,15 +70,17 @@ function RecentlyVisitedCoinLink({
             'font-semibold leading-tight',
             variant === 'sidebar'
               ? 'text-sm'
-              : 'line-clamp-2 min-h-8 max-w-full wrap-break-word text-xs',
+              : 'line-clamp-2 max-w-full wrap-break-word text-xs text-foreground',
           )}
         >
           {coin.name}
         </span>
         <span
           className={cn(
-            'mt-0.5 flex items-center gap-1 text-muted-foreground',
-            variant === 'sidebar' ? 'text-[11px]' : 'text-[10px]',
+            'mt-0.5 flex items-center text-muted-foreground',
+            variant === 'sidebar'
+              ? 'gap-1 text-[11px]'
+              : 'flex-col gap-0 text-[10px] text-muted-foreground',
           )}
         >
           <span>{priceLabel}</span>
@@ -133,13 +135,13 @@ export function RecentlyVisitedCoins({
   }
 
   return (
-    <section className='mt-2 overflow-hidden rounded-md border-2 border-sidebar-border/70 group-data-[collapsible=icon]:-mx-2 group-data-[collapsible=icon]:mt-1 '>
+    <section className='mt-2 overflow-hidden rounded-md border-2 border-sidebar-border/70 group-data-[collapsible=icon]:-mx-2 group-data-[collapsible=icon]:mt-1'>
       <Button
         type='button'
         variant='secondary'
         disabled={coins.length === 0}
         onClick={() => setOpen((value) => !value)}
-        className='h-auto w-full justify-start rounded-none border-0 bg-sidebar-accent/50 px-2 py-2 text-md font-normal text-sidebar-foreground/70 hover:bg-sidebar-accent dark:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0.5 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-1'
+        className='h-auto w-full justify-start rounded-none border-0 bg-sidebar-accent/50 px-2 py-2 text-md font-normal text-sidebar-foreground/70 transition-none hover:bg-sidebar-accent dark:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0.5 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-1'
       >
         <Clock3 className='size-6 stroke-[1.5]' />
         <span className='group-data-[collapsible=icon]:hidden'>
