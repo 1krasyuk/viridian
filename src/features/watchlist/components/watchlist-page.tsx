@@ -28,7 +28,7 @@ import { cn } from '@/shared/lib/utils'
 import type { CoinsList } from '@/features/market/types/coins-list'
 import { WatchlistTable } from './watchlist-table'
 import { Badge } from '@/shared/ui/badge'
-import { Link } from '@tanstack/react-router'
+import { CoinPicker } from '@/features/multichart/components/coins/multichart-coin-dialog'
 
 const PERIOD_LABELS: Record<string, string> = {
   '1': '24H',
@@ -559,6 +559,9 @@ export function WatchlistPage() {
   useWatchlistSync()
 
   const coins = useWatchlistStore((state) => state.coins)
+  const addCoins = useWatchlistStore((state) => state.addCoins)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const selectedIds = new Set(coins.map((coin) => coin.id))
 
   return (
     <div className='space-y-0'>
@@ -568,13 +571,28 @@ export function WatchlistPage() {
       </div>
       <WatchlistTable />
       <div className='flex justify-center mt-6 mb-6'>
-        <Button variant='outline' asChild className='h-10 px-6'>
-          <Link to='/' className='flex items-center gap-2'>
-            <Search className='h-4 w-4' />
-            Explore Market
-          </Link>
+        <Button
+          variant='outline'
+          className='h-10 px-6'
+          onClick={() => setPickerOpen(true)}
+        >
+          <Search className='h-4 w-4' />
+          Explore Market
         </Button>
       </div>
+      <CoinPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        selectedIds={selectedIds}
+        maxSelection={Number.POSITIVE_INFINITY}
+        title='Add coins to watchlist'
+        description='Search CoinGecko and select several coins to follow'
+        confirmLabel='Add to watchlist'
+        onSelect={(selectedCoins) => {
+          addCoins(selectedCoins)
+          setPickerOpen(false)
+        }}
+      />
     </div>
   )
 }

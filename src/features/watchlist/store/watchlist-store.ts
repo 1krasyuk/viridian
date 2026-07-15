@@ -7,6 +7,7 @@ import type { CoinsList } from '@/features/market/types/coins-list'
 type WatchlistState = {
   coins: CoinsList[]
   addCoin: (coin: CoinsList) => void
+  addCoins: (coins: CoinsList[]) => void
   removeCoin: (coinId: string) => void
   toggleCoin: (coin: CoinsList) => void
   isWatched: (coinId: string) => boolean
@@ -69,6 +70,12 @@ export const useWatchlistStore = create<WatchlistState>()(
               item.id === coin.id ? coin : item,
             ),
           }
+        }),
+      addCoins: (coins) =>
+        set((state) => {
+          const nextCoins = new Map(state.coins.map((coin) => [coin.id, coin]))
+          coins.forEach((coin) => nextCoins.set(coin.id, coin))
+          return { coins: [...nextCoins.values()] }
         }),
       removeCoin: (coinId) =>
         set((state) => ({

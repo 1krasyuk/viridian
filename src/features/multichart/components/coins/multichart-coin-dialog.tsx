@@ -99,11 +99,19 @@ export function CoinPicker({
   onOpenChange,
   selectedIds,
   onSelect,
+  title = 'Add coins to multichart',
+  description = 'Search CoinGecko and select several coins to add together',
+  confirmLabel = 'Add coins',
+  maxSelection = MAX_CHARTS - selectedIds.size,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   selectedIds: Set<string>
   onSelect: (coins: CoinsList[]) => void
+  title?: string
+  description?: string
+  confirmLabel?: string
+  maxSelection?: number
 }) {
   const { currency } = useCurrency()
   const [query, setQuery] = useState('')
@@ -221,8 +229,7 @@ export function CoinPicker({
     setSelectedCoins((current) => {
       const next = new Map(current)
       if (next.has(coin.id)) next.delete(coin.id)
-      else if (next.size < MAX_CHARTS - selectedIds.size)
-        next.set(coin.id, coin)
+      else if (next.size < maxSelection) next.set(coin.id, coin)
       return next
     })
   }
@@ -236,8 +243,8 @@ export function CoinPicker({
         <SearchHeader
           query={query}
           onQueryChange={setQuery}
-          title='Add coins to multichart'
-          description='Search CoinGecko and select several coins to add together'
+          title={title}
+          description={description}
           placeholder='Search coins...'
         />
 
@@ -345,7 +352,7 @@ export function CoinPicker({
               reset()
             }}
           >
-            <Check /> Add coins
+            <Check /> {confirmLabel}
             {selectedCoins.size ? ` (${selectedCoins.size})` : ''}
           </Button>
         </DialogFooter>
