@@ -12,7 +12,10 @@ export function useCryptoNews(topic: NewsTopic) {
   return useQuery({
     queryKey: newsKeys.topic(topic),
     queryFn: () => newsApi.getNews({ topic }),
-    staleTime: 60_000,
-    refetchInterval: 120_000,
+    staleTime: 30 * 60_000,
+    gcTime: 2 * 60 * 60_000,
+    refetchInterval: false,
+    refetchOnReconnect: false,
+    retry: false,
   })
 }

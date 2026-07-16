@@ -13,7 +13,7 @@ type GetNewsParams = {
 }
 
 const NEWS_LIMIT = 60
-const FILTERED_TOPIC_PAGES = 8
+const FILTER_SOURCE_LIMIT = 100
 
 const topicMatchers: Partial<Record<NewsTopic, RegExp>> = {
   crypto:
@@ -28,7 +28,7 @@ const topicMatchers: Partial<Record<NewsTopic, RegExp>> = {
 }
 
 function articleId(article: CryptoNewsArticleRaw, index: number) {
-  return article.link ?? `${article.site ?? 'source'}-${article.title ?? index}`
+  return article.link ?? article.url ?? `${article.site ?? article.publisher ?? 'source'}-${article.title ?? index}`
 }
 
 function textFromHtml(value: string | undefined) {
@@ -49,21 +49,21 @@ function normalizeArticle(
   index: number,
 ): CryptoNewsArticle | null {
   const title = article.title?.trim()
-  const link = article.link
+  const link = article.link ?? article.url
 
   if (!title || !link) {
     return null
   }
 
-  const site = article.site ?? 'Financial Modeling Prep'
-  const symbol = article.tickers ?? null
+  const site = article.site ?? article.publisher ?? 'Financial Modeling Prep'
+  const symbol = article.tickers ?? article.symbol ?? null
 
   return {
     id: articleId(article, index),
     title,
     link,
-    description: textFromHtml(article.content),
-    pubDate: article.date ?? null,
+    description: textFromHtml(article.content ?? article.text),
+    pubDate: article.date ?? article.publishedDate ?? null,
     source: site,
     author: article.author ?? null,
     image: article.image ?? null,
@@ -120,17 +120,10 @@ export const newsApi = {
       }
     }
 
-    const pages = await Promise.all(
-      Array.from({ length: FILTERED_TOPIC_PAGES }, (_, page) =>
-        fmpHttp.get<CryptoNewsResponseRaw>('fmp-articles', {
-          params: {
-            page,
-            limit,
-          },
-        }),
-      ),
-    )
-    const response = normalizeResponse(pages.flatMap(({ data }) => data))
+    const { data } = await fmpHttp.get<CryptoNewsResponseRaw>('fmp-articles', {
+      params: { page: 0, limit: FILTER_SOURCE_LIMIT },
+    })
+    const response = normalizeResponse(data)
 
     const filteredArticles = sortByPublishedDate(
       response.articles.filter((article) =>

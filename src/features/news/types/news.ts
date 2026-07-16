@@ -9,12 +9,17 @@ export type NewsTopic =
 export type CryptoNewsArticleRaw = {
   title?: string
   date?: string
+  publishedDate?: string
   content?: string
+  text?: string
   tickers?: string
+  symbol?: string
   image?: string
   link?: string
+  url?: string
   author?: string
   site?: string
+  publisher?: string
 }
 
 export type CryptoNewsArticle = {
