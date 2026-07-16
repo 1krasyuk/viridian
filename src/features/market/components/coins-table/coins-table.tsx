@@ -3,11 +3,13 @@ import { useCategoriesList, useCoins } from '../../hooks/coins-queries'
 import { columns } from './columns'
 import { DataTable } from './data-table'
 import { useSearch, useNavigate } from '@tanstack/react-router'
+import { useCurrency } from '@/features/currency/hooks'
 
 const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 100
 
 export function CoinsTable() {
+  const { currency } = useCurrency()
   const search = useSearch({ from: '/' })
 
   const page = search.page ?? DEFAULT_PAGE
@@ -15,7 +17,7 @@ export function CoinsTable() {
   const category = search.category
   const navigate = useNavigate()
 
-  const { data, isLoading } = useCoins(page, perPage, category)
+  const { data, isLoading } = useCoins(page, perPage, category, currency)
 
   const { data: categoriesData, isLoading: isCategoriesLoading } =
     useCategoriesList()
@@ -58,6 +60,7 @@ export function CoinsTable() {
       loadingCategories={isCategoriesLoading}
       category={category}
       onCategoryChange={handleCategoryChange}
+      currency={currency}
     />
   )
 }

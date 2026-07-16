@@ -238,3 +238,23 @@
     @apply bg-muted-foreground/60;
   }
 }
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* DISABLE SCROLLBAR */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tv-lightweight-charts:active {
+  cursor: move !important;
+}
+

@@ -21,21 +21,26 @@ import {
   ChevronRight,
   ChevronsUpDown,
   DollarSign,
-  Grid2X2,
   Languages,
-  Layers,
   Moon,
-  Newspaper,
+  Search,
   Settings,
-  Star,
   Sun,
-  WalletMinimal,
 } from 'lucide-react'
 import { useTheme } from '@/shared/lib/theme-provider'
+import { sidebarNavItems } from './nav-items'
+import { useState } from 'react'
+import { useCurrencyStore } from '@/features/currency/store'
+import { CurrencyModal } from '../currency/currencyModal'
+import { RecentlyVisitedCoins } from './recently-visited-coins'
+import { SearchDialog } from '@/features/search/components/search-dialog'
 
 export function AppSidebar() {
   const { theme, setTheme } = useTheme()
   const { state } = useSidebar()
+
+  const [currencyOpen, setCurrencyOpen] = useState(false)
+  const currency = useCurrencyStore((s) => s.currency)
 
   return (
     <Sidebar collapsible='icon'>
@@ -70,13 +75,23 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className='gap-1'>
-            {[
-              { to: '/watchlist', icon: <Star />, label: 'Watchlist' },
-              { to: '/multichart', icon: <Grid2X2 />, label: 'Multichart' },
-              { to: '/heatmap', icon: <Layers />, label: 'Heatmap' },
-              { to: '/portfolio', icon: <WalletMinimal />, label: 'Portfolio' },
-              { to: '/news', icon: <Newspaper />, label: 'News' },
-            ].map((item) => (
+            <SidebarMenuItem>
+              <SearchDialog shortcut>
+                <SidebarMenuButton
+                  aria-label='Search'
+                  className='h-10 rounded-md border border-sidebar-border/90 bg-background/70 px-3 text-muted-foreground shadow-xs hover:border-sidebar-border hover:bg-background hover:text-foreground active:bg-background/90 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center [&_svg]:size-4'
+                >
+                  <Search />
+                  <span className='truncate group-data-[collapsible=icon]:hidden'>
+                    Search coins...
+                  </span>
+                  <kbd className='ml-auto flex h-5 min-w-5 items-center justify-center rounded border border-sidebar-border/90 bg-input/30 px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-xs transition-colors group-hover/menu-button:border-sidebar-border group-hover/menu-button:bg-input/40 group-data-[collapsible=icon]:hidden'>
+                    /
+                  </kbd>
+                </SidebarMenuButton>
+              </SearchDialog>
+            </SidebarMenuItem>
+            {sidebarNavItems.map((item) => (
               <SidebarMenuItem key={item.to}>
                 <SidebarMenuButton
                   asChild
@@ -105,7 +120,7 @@ export function AppSidebar() {
                   '
                 >
                   <Link to={item.to} activeProps={{ 'data-active': true }}>
-                    {item.icon}
+                    <item.icon />
                     <span className='group-data-[collapsible=icon]:hidden'>
                       {item.label}
                     </span>
@@ -114,6 +129,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <RecentlyVisitedCoins />
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className=''>
@@ -172,7 +188,10 @@ export function AppSidebar() {
 
                 <div className='my-1 h-px bg-border/40' />
 
-                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                <DropdownMenuItem
+                  disabled
+                  className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'
+                >
                   <Languages className='size-4 opacity-80' />
                   <span className='font-medium text-xs'>Language</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
@@ -181,14 +200,22 @@ export function AppSidebar() {
                   </div>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'>
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={() => setCurrencyOpen(true)}
+                  className='flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer focus:bg-accent'
+                >
                   <DollarSign className='size-4 opacity-80' />
                   <span className='font-medium text-xs'>Currency</span>
                   <div className='ml-auto flex items-center gap-1 opacity-50 text-[10px]'>
-                    <span>USD</span>
+                    <span>{currency.toUpperCase()}</span>
                     <ChevronRight className='size-3' />
                   </div>
                 </DropdownMenuItem>
+                <CurrencyModal
+                  open={currencyOpen}
+                  onOpenChange={setCurrencyOpen}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

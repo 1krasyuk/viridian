@@ -1,9 +1,11 @@
 import type { CellContext, Column, ColumnDef } from '@tanstack/react-table'
-import type { Coin } from '../../types/coins'
+import type { CoinsList } from '../../types/coins-list'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, Star } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { Link } from '@tanstack/react-router'
+import { useWatchlistStore } from '@/features/watchlist/store/watchlist-store'
 
 function sortableHeader<TData, TValue>(
   column: Column<TData, TValue>,
@@ -38,13 +40,22 @@ function sortableHeader<TData, TValue>(
   )
 }
 
-function formatCurrencyCell<TData extends Coin, TValue>(
+function getCurrencyFromContext<TData extends CoinsList, TValue>(
+  context: CellContext<TData, TValue>,
+): string {
+  return (
+    (context.table.options.meta as { currency?: string })?.currency ?? 'usd'
+  )
+}
+
+function formatCurrencyCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     maximumFractionDigits?: number
     naText?: string
     showSign?: boolean
     colored?: boolean
+    currency?: string
   },
 ) {
   const value = context.getValue() as number | null | undefined
@@ -53,6 +64,7 @@ function formatCurrencyCell<TData extends Coin, TValue>(
     naText = '—',
     showSign = false,
     colored = false,
+    currency = getCurrencyFromContext(context),
   } = options ?? {}
 
   let colorClass = ''
@@ -72,7 +84,7 @@ function formatCurrencyCell<TData extends Coin, TValue>(
   const prefix = showSign && value > 0 ? '+' : '-'
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currency.toUpperCase(),
     signDisplay: showSign ? 'never' : 'auto',
     maximumFractionDigits,
   }).format(showSign ? Math.abs(value) : value)
@@ -90,7 +102,7 @@ function formatCurrencyCell<TData extends Coin, TValue>(
   )
 }
 
-function formatPercentageChangeCell<TData extends Coin, TValue>(
+function formatPercentageChangeCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     maximumFractionDigits?: number
@@ -123,7 +135,7 @@ function formatPercentageChangeCell<TData extends Coin, TValue>(
   )
 }
 
-function formatDateCell<TData extends Coin, TValue>(
+function formatDateCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
     mode?: 'date' | 'time' | 'datetime'
@@ -170,13 +182,11 @@ function formatDateCell<TData extends Coin, TValue>(
   return <div>{formatted}</div>
 }
 
-function formatSparklineCell<TData extends Coin, TValue>(
+function formatSparklineCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
 ) {
-  // Get the { price: number[] } object
   const sparkline = context.getValue() as { price: number[] } | undefined
 
-  // If no data or array is empty
   if (!sparkline?.price?.length)
     return <div className='text-muted-foreground'>—</div>
 
@@ -184,15 +194,12 @@ function formatSparklineCell<TData extends Coin, TValue>(
   const width = 150
   const height = 35
 
-  // Find boundaries for scaling
   const min = Math.min(...data)
   const max = Math.max(...data)
   const range = max - min || 1
 
-  // Function to calculate Y coordinate
   const getY = (val: number) => height - ((val - min) / range) * height
 
-  // Build the path: M (start) x,y L (line) x,y ...
   const pathD = data
     .map(
       (val, i) =>
@@ -200,7 +207,6 @@ function formatSparklineCell<TData extends Coin, TValue>(
     )
     .join(' ')
 
-  // Color: if the last price is higher than the first - green, otherwise red
   const colorClass =
     data[data.length - 1] >= data[0]
       ? 'stroke-emerald-500 dark:stroke-emerald-400'
@@ -220,7 +226,39 @@ function formatSparklineCell<TData extends Coin, TValue>(
   )
 }
 
-export const columns: ColumnDef<Coin>[] = [
+function StarCell({ row }: { row: { original: CoinsList } }) {
+  const coin = row.original
+  const isWatched = useWatchlistStore((s) => s.isWatched(coin.id))
+  const toggleCoin = useWatchlistStore((s) => s.toggleCoin)
+
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation()
+        toggleCoin(coin)
+      }}
+      className='flex items-center justify-end w-full min-h-9'
+    >
+      <Star
+        className={cn(
+          'h-4.5 w-4.5',
+          isWatched
+            ? 'fill-foreground text-foreground'
+            : 'text-muted-foreground hover:text-foreground',
+        )}
+      />
+    </button>
+  )
+}
+
+export const columns: ColumnDef<CoinsList>[] = [
+  {
+    id: 'watchlist',
+    accessorKey: 'id',
+    header: '',
+    enableHiding: false,
+    cell: ({ row }) => <StarCell row={row} />,
+  },
   {
     id: 'market_cap_rank',
     accessorKey: 'market_cap_rank',
@@ -239,23 +277,28 @@ export const columns: ColumnDef<Coin>[] = [
     ),
     enableHiding: false,
     cell: ({ row }) => {
-      const image = row.original.image
-      const name = row.original.name
-      const symbol = row.original.symbol
+      const { image, name, symbol, id } = row.original
 
       return (
-        <div className='flex gap-2.5'>
-          <img src={image} className='w-5 h-5 rounded-full scale-115' />
-          <p className='truncate max-w-25' title={name}>
-            {name}
-          </p>
-          <Badge
-            variant='outline'
-            className='group-hover:text-background group-hover:bg-primary duration-75'
-          >
-            {symbol}
-          </Badge>
-        </div>
+        <>
+          <Link
+            to='/coins/$coinId'
+            params={{ coinId: id }}
+            className='absolute inset-0'
+          />
+          <div className='flex gap-2.5'>
+            <img src={image} className='w-5 h-5 rounded-full scale-115' />
+            <p className='truncate max-w-25' title={name}>
+              {name}
+            </p>
+            <Badge
+              variant='outline'
+              className='group-hover:text-background group-hover:bg-primary duration-75 hidden sm:block'
+            >
+              {symbol}
+            </Badge>
+          </div>
+        </>
       )
     },
   },
@@ -391,7 +434,6 @@ export const columns: ColumnDef<Coin>[] = [
         maximumFractionDigits: 0,
       }),
   },
-
   {
     id: 'market_cap_change_percentage_24h',
     accessorKey: 'market_cap_change_percentage_24h',
@@ -399,7 +441,6 @@ export const columns: ColumnDef<Coin>[] = [
     header: ({ column }) => sortableHeader(column, '24h Market Cap Change %'),
     cell: (row) => formatPercentageChangeCell(row),
   },
-
   {
     id: 'total_supply',
     accessorKey: 'total_supply',

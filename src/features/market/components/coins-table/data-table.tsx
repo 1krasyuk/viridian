@@ -29,8 +29,9 @@ const PINNED_COLUMNS: Record<
   string,
   { left: number; width?: number; minWidth?: number; isLast?: boolean }
 > = {
-  market_cap_rank: { left: 0, width: 60 },
-  name: { left: 60, minWidth: 120, isLast: true },
+  watchlist: { left: 0, width: 40 },
+  market_cap_rank: { left: 40, width: 40 },
+  name: { left: 80, minWidth: 120, isLast: true },
 }
 
 const MIN_COL_WIDTH = 80
@@ -78,6 +79,11 @@ interface DataTableProps<TData, TValue> {
   loadingCategories?: boolean
   category: string | undefined
   onCategoryChange: (category: string | undefined) => void
+  showCategoryFilter?: boolean
+  showRowsSelector?: boolean
+  showPagination?: boolean
+  currency?: string
+  clearWatchlist?: () => void
 }
 
 export function DataTable<TData, TValue>({
@@ -91,6 +97,11 @@ export function DataTable<TData, TValue>({
   categories,
   category,
   onCategoryChange,
+  showCategoryFilter = true,
+  showRowsSelector = true,
+  showPagination = true,
+  currency = 'usd',
+  clearWatchlist,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
     id: `skeleton-${i}`,
@@ -122,6 +133,7 @@ export function DataTable<TData, TValue>({
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
+    meta: { currency },
   })
 
   const handleResetColumns = () => {
@@ -179,6 +191,7 @@ export function DataTable<TData, TValue>({
     <div className='w-full'>
       <DataTableToolbar
         table={table}
+        loading={loading}
         categories={categories}
         categoryValue={categoryValue}
         onCategoryChange={onCategoryChange}
@@ -186,6 +199,9 @@ export function DataTable<TData, TValue>({
         onPageChange={onPageChange}
         onReset={handleReset}
         onResetColumns={handleResetColumns}
+        showCategoryFilter={showCategoryFilter}
+        showRowsSelector={showRowsSelector}
+        clearWatchlist={clearWatchlist}
       />
       {/* Sticky table header — separate table synced with body */}
       <div
@@ -210,7 +226,7 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       className={cn(
-                        'bg-sidebar text-right group-hover:bg-muted/80  ',
+                        'bg-sidebar text-right group-hover:bg-muted/80 ',
                         pinned && 'sticky z-10',
                         pinned?.isLast && '',
                       )}
@@ -258,7 +274,8 @@ export function DataTable<TData, TValue>({
                         key={cell.id}
                         className={cn(
                           pinned && 'sticky z-10 bg-background',
-                          pinned?.isLast && '',
+                          pinned?.isLast &&
+                            'shadow-[inset_-1px_0_0_0_var(--color-border)]',
                           // 'shadow-[inset_-1px_0_0_0_var(--color-border)]',
                         )}
                         style={
@@ -303,13 +320,15 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </table>
       </div>
-      <DataTablePagination
-        page={page}
-        perPage={perPage}
-        pageCount={pageCount}
-        loading={loading}
-        onPageChange={onPageChange}
-      />
+      {showPagination && (
+        <DataTablePagination
+          page={page}
+          perPage={perPage}
+          pageCount={pageCount}
+          loading={loading}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   )
 }

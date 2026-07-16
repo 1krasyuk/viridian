@@ -1,4 +1,6 @@
 import { CoinsTable } from '@/features/market/components/coins-table/coins-table'
+import { MarketFooter } from '@/features/market/components/market-footer/market-footer'
+import { MarketHeader } from '@/features/market/components/market-header/market-header'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
@@ -14,5 +16,11 @@ export const Route = createFileRoute('/')({
 })
 
 function RouteComponent() {
-  return <CoinsTable />
+  return (
+    <div>
+      <MarketHeader />
+      <CoinsTable />
+      <MarketFooter />
+    </div>
+  )
 }

@@ -3,6 +3,7 @@ import { SidebarProvider } from '@/shared/ui/sidebar'
 import { AppSidebar } from '@/features/sidebar/app-sidebar'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/shared/lib/query-client'
+import { MobileHeader } from '@/features/sidebar/mobile-header'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -18,7 +19,7 @@ function getCookie(name: string) {
 }
 
 function RootComponent() {
-  const sidebar_state = getCookie('sidebar_state')
+  const sidebar_state = getCookie('sidebar_state') ?? 'true'
   const defaultOpen = sidebar_state === 'true'
   return (
     <QueryClientProvider client={queryClient}>
@@ -26,6 +27,7 @@ function RootComponent() {
         <AppSidebar />
 
         <main className='flex-1 min-w-0'>
+          <MobileHeader />
           <Outlet />
         </main>
       </SidebarProvider>

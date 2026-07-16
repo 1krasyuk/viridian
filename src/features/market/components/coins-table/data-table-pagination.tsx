@@ -17,8 +17,12 @@ export function DataTablePagination({
   onPageChange,
 }: DataTablePaginationProps) {
   return (
-    <div className='flex items-center flex-col py-4'>
-      <div className='flex gap-2 justify-center '>
+    <div className='flex flex-col items-center gap-3 px-4 py-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'>
+      <span className='text-sm text-muted-foreground sm:justify-self-start'>
+        Showing {(page - 1) * perPage + 1} to {page * perPage}
+      </span>
+
+      <div className='flex justify-center gap-2 sm:justify-self-center'>
         <Button
           variant='outline'
           size='sm'
@@ -34,7 +38,7 @@ export function DataTablePagination({
             </>
           ) : (
             <>
-              {(page - 1) * perPage + 1} to {page * perPage}{' '}
+              {(page - 1) * perPage + 1} to {page * perPage}
             </>
           )}
         </Button>
@@ -44,16 +48,15 @@ export function DataTablePagination({
           size='sm'
           onClick={() => onPageChange(page + 1, perPage)}
           disabled={page >= pageCount || loading}
-          className=' min-w-25'
+          className='min-w-25'
         >
           <span>Coins</span>
           {page * perPage + 1} - {(page + 1) * perPage}
           <ChevronRight />
         </Button>
       </div>
-      <span className='text-sm text-muted-foreground my-3 '>
-        Showing {(page - 1) * perPage + 1} to {page * perPage}
-      </span>
+
+      <div aria-hidden='true' className='hidden sm:block' />
     </div>
   )
 }
