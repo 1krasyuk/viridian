@@ -19,7 +19,7 @@ function getCookie(name: string) {
 }
 
 function RootComponent() {
-  const sidebar_state = getCookie('sidebar_state')
+  const sidebar_state = getCookie('sidebar_state') ?? 'true'
   const defaultOpen = sidebar_state === 'true'
   return (
     <QueryClientProvider client={queryClient}>
