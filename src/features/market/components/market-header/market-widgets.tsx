@@ -331,7 +331,7 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const mcapSparkline = btcChart?.prices?.map(([, price]) => price) ?? []
   const volumeSparkline = btcChart?.total_volumes?.map(([, vol]) => vol) ?? []
 
-  const mcapColor = marketChange >= 0 ? colors.negative : colors.negative
+  const mcapColor = marketChange >= 0 ? colors.positive : colors.negative
   const volColor = '#2563eb'
 
   const volMcapRatio =
