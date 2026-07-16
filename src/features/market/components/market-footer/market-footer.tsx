@@ -33,8 +33,8 @@ export function MarketFooter() {
     <TooltipProvider delayDuration={100}>
       <footer className='space-y-3 px-3 py-3'>
         <div className='flex items-center gap-3 px-1 pb-1'>
-          <div className='flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/45'>
-            <ChartNoAxesCombined className='size-5 text-foreground' />
+          <div className='w-12 h-12 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+            <ChartNoAxesCombined className='h-6 w-6 text-emerald-500' />
           </div>
           <div>
             <h2 className='text-2xl font-semibold tracking-tight'>
