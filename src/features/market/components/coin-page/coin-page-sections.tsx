@@ -151,7 +151,7 @@ export function TerminalCoinPageContent({
             view='terminal'
           />
         </div>
-        <div className='min-h-0 flex-1 overflow-auto py-4'>
+        <div className='no-scrollbar min-h-0 flex-1 overflow-auto py-4'>
           <CoinTickersTable
             coinName={coin?.name || ''}
             tickers={coin?.tickers ?? []}
@@ -213,7 +213,7 @@ export function DesktopTerminalCoinPageContent(props: CoinPageSectionProps) {
       <ResizableHandle withHandle />
 
       <ResizablePanel defaultSize='30%' minSize='20%'>
-        <div className='relative h-full overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
+        <div className='no-scrollbar relative h-full overflow-auto'>
           <div className='py-5'>
             <CoinTickersTable
               coinName={coin?.name || ''}
@@ -399,7 +399,7 @@ export function MobileCoinPageContent({
             <ResizableHandle withHandle />
 
             <ResizablePanel defaultSize='40%' minSize='20%'>
-              <div className='relative h-full overflow-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'>
+              <div className='no-scrollbar relative h-full overflow-auto'>
                 <div className='py-4'>
                   <CoinTickersTable
                     coinName={coin?.name || ''}
