@@ -256,7 +256,7 @@ export function CoinRoiCalculator({
                 type='number'
                 value={buyPrice}
                 onChange={(e) => setBuyPrice(e.target.value)}
-                className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+                className='h-10 rounded-xl border-muted-foreground/10 bg-muted/30 pl-10 font-mono text-base transition-colors focus:bg-background md:text-sm'
                 placeholder={default24h ? String(Math.round(default24h)) : '0'}
                 disabled={isLoading}
               />
@@ -297,7 +297,7 @@ export function CoinRoiCalculator({
               type='number'
               value={buyPrice}
               onChange={(e) => setBuyPrice(e.target.value)}
-              className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              className='h-10 rounded-xl border-muted-foreground/10 bg-muted/30 pl-10 font-mono text-base transition-colors focus:bg-background md:text-sm'
               placeholder={default24h ? String(Math.round(default24h)) : '0'}
               disabled={isLoading}
             />

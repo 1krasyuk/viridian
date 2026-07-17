@@ -167,7 +167,7 @@ export function CoinTickersTable({
               placeholder='Search exchange...'
               value={search}
               onChange={(e) => changeSearch(e.target.value)}
-              className='h-8 w-full rounded-md border border-input bg-background pl-7 pr-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring sm:h-7 sm:w-auto'
+              className='h-8 w-full rounded-md border border-input bg-background pr-2 pl-7 text-base focus:ring-1 focus:ring-ring focus:outline-none sm:h-7 sm:w-auto sm:text-xs'
             />
           </div>
         </div>
