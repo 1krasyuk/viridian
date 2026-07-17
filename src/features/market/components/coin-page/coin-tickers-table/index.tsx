@@ -171,16 +171,16 @@ export function CoinTickersTable({
             />
           </div>
         </div>
-        <div className='flex w-full items-center gap-2 overflow-x-auto pb-1 sm:w-auto justify-between sm:flex-wrap sm:overflow-visible sm:pb-0'>
+        <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:flex-wrap'>
           {/* Exchange type filters */}
-          <div className='flex shrink-0 items-center gap-1 bg-muted rounded-lg p-1'>
+          <div className='grid w-full grid-cols-3 items-center gap-1 rounded-lg bg-muted p-1 sm:flex sm:w-auto sm:shrink-0'>
             {EXCHANGE_TYPES.map((type) => (
               <Button
                 key={type.value}
                 variant='ghost'
                 size='sm'
                 className={cn(
-                  'h-7 px-3 text-xs font-medium rounded-md transition-all',
+                  'h-7 min-w-0 w-full rounded-md px-1 text-xs font-medium transition-all sm:w-auto sm:px-3',
                   exchangeType === type.value
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-transparent',
@@ -193,14 +193,14 @@ export function CoinTickersTable({
           </div>
 
           {/* Market type filters */}
-          <div className='flex shrink-0 items-center gap-1 bg-muted rounded-lg p-1'>
+          <div className='grid w-full grid-cols-3 items-center gap-1 rounded-lg bg-muted p-1 sm:flex sm:w-auto sm:shrink-0'>
             {MARKET_TYPES.map((type) => (
               <Button
                 key={type.value}
                 variant='ghost'
                 size='sm'
                 className={cn(
-                  'h-7 px-3 text-xs font-medium rounded-md transition-all',
+                  'h-7 min-w-0 w-full rounded-md px-1 text-xs font-medium transition-all sm:w-auto sm:px-3',
                   marketType === type.value
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-transparent',
