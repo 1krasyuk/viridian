@@ -227,33 +227,33 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
             <Layers className='h-4 w-4 text-emerald-500' />
           </div>
           <div className='min-w-0 flex-1'>
-            <h3 className='text-base font-bold tracking-tight'>
-              Tokenomics & Supply
-            </h3>
+            <div className='flex items-center gap-1.5'>
+              <h3 className='text-base font-bold tracking-tight'>
+                Tokenomics & Supply
+              </h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent side='right' className='max-w-xs'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p>
+                      Token supply structure expressed as percentages, showing
+                      circulating, locked, and unissued tokens as proportions of
+                      maximum supply.
+                    </p>
+                    <p className='text-muted-foreground'>
+                      Lower circulating percentages indicate higher dilution
+                      risk from future token unlocks and emission events.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <p className='text-xs text-muted-foreground'>
               Supply structure and valuation
             </p>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <div className='text-xs leading-relaxed space-y-1.5'>
-                  <p>
-                    Token supply structure expressed as percentages, showing
-                    circulating, locked, and unissued tokens as proportions of
-                    maximum supply.
-                  </p>
-                  <p className='text-muted-foreground'>
-                    Lower circulating percentages indicate higher dilution risk
-                    from future token unlocks and emission events.
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {isLoading ? (
             <Badge
               variant='secondary'

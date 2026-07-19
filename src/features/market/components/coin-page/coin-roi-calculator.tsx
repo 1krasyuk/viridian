@@ -203,30 +203,34 @@ export function CoinRoiCalculator({
           <Calculator className='h-4 w-4 text-emerald-500' />
         </div>
         <div>
-          <h2 className='text-base font-bold tracking-tight'>ROI Calculator</h2>
+          <div className='flex items-center gap-1.5'>
+            <h2 className='text-base font-bold tracking-tight'>
+              ROI Calculator
+            </h2>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent side='right' className='max-w-xs'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p>
+                      Enter your investment amount and buy price to calculate
+                      potential profit or loss at the current market price.
+                    </p>
+                    <p className='text-muted-foreground'>
+                      Use historical price presets to quickly simulate past
+                      entry points and compare different timing strategies.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <p className='text-xs text-muted-foreground'>
             What if you bought at...
           </p>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
-            </TooltipTrigger>
-            <TooltipContent side='right' className='max-w-xs'>
-              <div className='text-xs leading-relaxed space-y-1.5'>
-                <p>
-                  Enter your investment amount and buy price to calculate
-                  potential profit or loss at the current market price.
-                </p>
-                <p className='text-muted-foreground'>
-                  Use historical price presets to quickly simulate past entry
-                  points and compare different timing strategies.
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
         <Button
           variant='ghost'
           size='icon'

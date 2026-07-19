@@ -33,28 +33,33 @@ export function CoinRiskMetrics({
             <Gauge className='h-4 w-4 text-emerald-500' />
           </div>
           <div>
-            <h3 className='text-base font-bold tracking-tight'>Risk Metrics</h3>
+            <div className='flex items-center gap-1.5'>
+              <h3 className='text-base font-bold tracking-tight'>
+                Risk Metrics
+              </h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent side='right' className='max-w-xs'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p>
+                      Combines volatility, momentum, market stress, and
+                      liquidity data to give you a quick snapshot of current
+                      risk conditions.
+                    </p>
+                    <p className='text-muted-foreground'>
+                      Left panel shows live risk signals. Right panel analyzes
+                      historical performance over your selected time period.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <p className='text-xs text-muted-foreground'>
               Real-time risk analysis
             </p>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className='h-4 w-4 text-muted-foreground shrink-0 transition-colors' />
-            </TooltipTrigger>
-            <TooltipContent side='right' className='max-w-xs'>
-              <div className='text-xs leading-relaxed space-y-1.5'>
-                <p>
-                  Combines volatility, momentum, market stress, and liquidity
-                  data to give you a quick snapshot of current risk conditions.
-                </p>
-                <p className='text-muted-foreground'>
-                  Left panel shows live risk signals. Right panel analyzes
-                  historical performance over your selected time period.
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
         </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch'>
