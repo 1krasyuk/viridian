@@ -42,7 +42,7 @@ export function CoinMetricCard({
     <div
       className={`flex h-full flex-col gap-1.5 rounded-xl p-3 transition-all duration-200 ${variants[variant]}`}
     >
-      <div className='flex min-h-8 items-start gap-1.5 text-xs font-medium leading-4 text-muted-foreground uppercase tracking-wider'>
+      <div className='flex items-center gap-1.5 text-xs font-medium leading-4 text-muted-foreground uppercase tracking-wider'>
         {icon}
         <span>{label}</span>
       </div>
