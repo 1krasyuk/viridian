@@ -35,11 +35,35 @@ export const formatPrice = (price: number) => {
   return price.toExponential(2)
 }
 
+export const formatMobilePrice = (price: number) => {
+  if (price >= 1_000) {
+    return new Intl.NumberFormat('en', {
+      notation: 'compact',
+      maximumFractionDigits: 2,
+    }).format(price)
+  }
+
+  return formatPrice(price)
+}
+
 export const formatMarketCap = (value: number) => {
   if (value >= 1_000) return (value / 1_000).toFixed(2) + 'T'
   if (value >= 1) return value.toFixed(2) + 'B'
   if (value >= 0.001) return (value * 1_000).toFixed(2) + 'M'
   return value.toFixed(2)
+}
+
+export const formatMobileMarketCap = (value: number) => {
+  const format = (scaledValue: number, suffix: string) =>
+    `${new Intl.NumberFormat('en', {
+      maximumFractionDigits: 2,
+    }).format(scaledValue)}${suffix}`
+
+  if (value >= 1_000) return format(value / 1_000, 'T')
+  if (value >= 1) return format(value, 'B')
+  if (value >= 0.001) return format(value * 1_000, 'M')
+  if (value >= 0.000001) return format(value * 1_000_000, 'K')
+  return format(value * 1_000_000_000, '')
 }
 
 export const getLineColor = (
@@ -170,6 +194,7 @@ export const createChartOptions = (
 export const createAreaSeriesOptions = (
   colors: ReturnType<typeof getChartColors>,
   prices: { value: number }[],
+  mobile = false,
 ) => {
   const lineColor = getLineColor(prices, colors)
   const isPositive = lineColor === colors.positive
@@ -185,7 +210,7 @@ export const createAreaSeriesOptions = (
     priceLineVisible: false,
     priceFormat: {
       type: 'custom' as const,
-      formatter: formatPrice,
+      formatter: mobile ? formatMobilePrice : formatPrice,
     },
   } as const
 }
@@ -193,6 +218,7 @@ export const createAreaSeriesOptions = (
 export const createBaselineSeriesOptions = (
   colors: ReturnType<typeof getChartColors>,
   baseValue: number,
+  mobile = false,
 ) =>
   ({
     baseValue: { type: 'price', price: baseValue },
@@ -207,7 +233,7 @@ export const createBaselineSeriesOptions = (
     priceLineVisible: false,
     priceFormat: {
       type: 'custom' as const,
-      formatter: formatPrice,
+      formatter: mobile ? formatMobilePrice : formatPrice,
     },
   }) as const
 
@@ -225,6 +251,7 @@ export const createBaseLineOptions = (
 export const createLineSeriesOptions = (
   colors: ReturnType<typeof getChartColors>,
   isMarketCap: boolean = false,
+  mobile = false,
 ) => {
   return {
     color: isMarketCap ? '#3b82f6' : colors.positive,
@@ -233,12 +260,19 @@ export const createLineSeriesOptions = (
     priceLineVisible: false,
     priceFormat: {
       type: 'custom' as const,
-      formatter: isMarketCap ? formatMarketCap : formatPrice,
+      formatter: isMarketCap
+        ? mobile
+          ? formatMobileMarketCap
+          : formatMarketCap
+        : mobile
+          ? formatMobilePrice
+          : formatPrice,
     },
   } as const
 }
 export const createCandlestickSeriesOptions = (
   colors: ReturnType<typeof getChartColors>,
+  mobile = false,
 ) =>
   ({
     upColor: colors.positive,
@@ -249,6 +283,6 @@ export const createCandlestickSeriesOptions = (
     wickDownColor: colors.negative,
     priceFormat: {
       type: 'custom' as const,
-      formatter: formatPrice,
+      formatter: mobile ? formatMobilePrice : formatPrice,
     },
   }) as const
