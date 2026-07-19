@@ -4,6 +4,7 @@ import type { CoinsList } from '@/features/market/types/coins-list'
 import type { CellContext } from '@tanstack/react-table'
 import { useWatchlistStore } from '../store/watchlist-store'
 import { useCurrency } from '@/features/currency/hooks'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 
 const watchlistColumns = columns.map((column) => {
   if (column.id !== 'market_cap_rank') return column
@@ -21,6 +22,7 @@ export function WatchlistTable() {
   const coins = useWatchlistStore((state) => state.coins)
   const clearWatchlist = useWatchlistStore((state) => state.clearWatchlist)
   const { currency } = useCurrency()
+  const isMobile = useIsMobile()
 
   return (
     <DataTable
@@ -37,6 +39,7 @@ export function WatchlistTable() {
       showRowsSelector={false}
       showPagination={false}
       currency={currency}
+      compactMarketNumbers={isMobile}
       clearWatchlist={clearWatchlist}
     />
   )
