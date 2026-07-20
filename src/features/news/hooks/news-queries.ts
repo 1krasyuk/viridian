@@ -5,13 +5,13 @@ import type { NewsTopic } from '../types/news'
 
 export const newsKeys = {
   all: ['news'] as const,
-  topic: (topic: NewsTopic) => [...newsKeys.all, topic] as const,
 }
 
 export function useCryptoNews(topic: NewsTopic) {
   return useQuery({
-    queryKey: newsKeys.topic(topic),
-    queryFn: () => newsApi.getNews({ topic }),
+    queryKey: newsKeys.all,
+    queryFn: () => newsApi.getNews(),
+    select: (response) => newsApi.selectTopic(response, topic),
     staleTime: 30 * 60_000,
     gcTime: 2 * 60 * 60_000,
     refetchInterval: false,

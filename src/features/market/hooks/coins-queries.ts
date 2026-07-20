@@ -138,6 +138,8 @@ export function useCategoriesList() {
   return useQuery({
     queryKey: ['coin-categories-list'],
     queryFn: () => coinsApi.getCategoriesList(),
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
   })
 }
 

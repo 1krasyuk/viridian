@@ -7,11 +7,6 @@ import type {
   NewsTopic,
 } from '../types/news'
 
-type GetNewsParams = {
-  topic: NewsTopic
-  limit?: number
-}
-
 const NEWS_LIMIT = 60
 const FILTER_SOURCE_LIMIT = 100
 
@@ -95,48 +90,37 @@ function sortByPublishedDate(articles: CryptoNewsArticle[]) {
 }
 
 export const newsApi = {
-  async getNews({
-    topic,
-    limit = NEWS_LIMIT,
-  }: GetNewsParams): Promise<CryptoNewsResponse> {
-    const matcher = topicMatchers[topic]
-
-    if (!matcher) {
-      const { data } = await fmpHttp.get<CryptoNewsResponseRaw>(
-        'fmp-articles',
-        {
-          params: {
-            page: 0,
-            limit,
-          },
-        },
-      )
-
-      const response = normalizeResponse(data)
-
-      return {
-        ...response,
-        articles: sortByPublishedDate(response.articles),
-      }
-    }
-
+  async getNews(): Promise<CryptoNewsResponse> {
     const { data } = await fmpHttp.get<CryptoNewsResponseRaw>('fmp-articles', {
       params: { page: 0, limit: FILTER_SOURCE_LIMIT },
     })
     const response = normalizeResponse(data)
 
-    const filteredArticles = sortByPublishedDate(
-      response.articles.filter((article) =>
-        matcher.test(
-          `${article.title} ${article.description} ${article.symbol ?? ''}`,
-        ),
-      ),
-    ).slice(0, limit)
+    return {
+      ...response,
+      articles: sortByPublishedDate(response.articles),
+    }
+  },
+
+  selectTopic(
+    response: CryptoNewsResponse,
+    topic: NewsTopic,
+  ): CryptoNewsResponse {
+    const matcher = topicMatchers[topic]
+    const articles = matcher
+      ? response.articles
+          .filter((article) =>
+            matcher.test(
+              `${article.title} ${article.description} ${article.symbol ?? ''}`,
+            ),
+          )
+          .slice(0, NEWS_LIMIT)
+      : response.articles.slice(0, NEWS_LIMIT)
 
     return {
       ...response,
-      articles: filteredArticles,
-      totalCount: filteredArticles.length,
+      articles,
+      totalCount: articles.length,
     }
   },
 }
