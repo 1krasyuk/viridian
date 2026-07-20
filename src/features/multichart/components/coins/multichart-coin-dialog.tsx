@@ -129,9 +129,9 @@ export function CoinPicker({
     undefined,
     currency,
     open && !hasQuery,
-    Infinity,
+    1000 * 60 * 5,
     false,
-    Infinity,
+    1000 * 60 * 30,
     undefined,
     false,
   )
