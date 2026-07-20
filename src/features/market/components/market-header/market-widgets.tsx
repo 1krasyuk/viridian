@@ -85,7 +85,7 @@ function WidgetCard({
   const isNegative = change !== undefined && change < 0
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group'>
       {/* Header */}
       <div className='flex items-center justify-between'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-semibold mb-1'>
@@ -158,7 +158,7 @@ function DominanceWidget({
   const others = Math.max(0, 100 - btcDominance - ethDominance)
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group'>
       {/* Header */}
       <div className='flex items-center justify-between mb-1 sm:min-h-5'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
@@ -220,10 +220,12 @@ function FearGreedWidget({
   value,
   label,
   isLoading,
+  isError,
 }: {
   value: number
   label: string
   isLoading: boolean
+  isError: boolean
 }) {
   const cx = 60
   const cy = 60
@@ -255,7 +257,7 @@ function FearGreedWidget({
   ]
 
   return (
-    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group cursor-pointer'>
+    <div className='flex-1 min-w-0 rounded-xl p-1 min-[420px]:p-3 py-3 sm:p-4 lg:px-5 lg:py-3 bg-linear-to-br from-card to-background hover:from-card hover:to-background/80 border border-border/20 transition-all duration-200 group'>
       <div className='flex items-center justify-between mb-1'>
         <span className='text-xs sm:text-sm text-muted-foreground capitalize font-medium whitespace-nowrap'>
           Fear & Greed
@@ -265,6 +267,10 @@ function FearGreedWidget({
       {isLoading ? (
         <div className='flex flex-col items-center gap-2'>
           <Skeleton className='h-10 sm:h-20 w-16 sm:w-32' />
+        </div>
+      ) : isError ? (
+        <div className='flex h-10 items-center justify-center text-xs text-muted-foreground sm:h-20'>
+          Unavailable
         </div>
       ) : (
         <div className='flex flex-col items-center relative'>
@@ -326,7 +332,11 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
   const marketChange = data?.market_cap_change_percentage_24h_usd ?? 0
 
   const { data: btcChart } = useCoinMarketChart('bitcoin', '7', currency)
-  const { data: fngData, isLoading: fngLoading } = useFearGreed()
+  const {
+    data: fngData,
+    isLoading: fngLoading,
+    isError: fngError,
+  } = useFearGreed()
 
   const mcapSparkline = btcChart?.prices?.map(([, price]) => price) ?? []
   const volumeSparkline = btcChart?.total_volumes?.map(([, vol]) => vol) ?? []
@@ -375,6 +385,7 @@ export function MarketWidgets({ data, isLoading }: MarketWidgetsProps) {
         value={fngData?.value ?? 0}
         label={fngData?.value_classification ?? '—'}
         isLoading={isLoading || fngLoading}
+        isError={fngError}
       />
     </div>
   )

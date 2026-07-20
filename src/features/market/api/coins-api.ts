@@ -1,4 +1,4 @@
-import { http } from '@/shared/lib/axios-config'
+import { fearGreedHttp, http } from '@/shared/lib/axios-config'
 import type { CoinsList } from '../types/coins-list'
 import type { Coin } from '../types/coin'
 import type { Category } from '../types/categories'
@@ -150,15 +150,18 @@ export const coinsApi = {
     value_classification: string
     timestamp: string
   }> {
-    try {
-      const { data } = await http.get('https://api.alternative.me/fng/?limit=1')
-      return data.data[0]
-    } catch {
-      return {
-        value: 50,
-        value_classification: 'Neutral',
-        timestamp: String(Date.now() / 1000),
-      }
-    }
+    const { data } = await fearGreedHttp.get<{
+      data: Array<{
+        value: string
+        value_classification: string
+        timestamp: string
+      }>
+    }>('', {
+      params: { limit: 1 },
+    })
+    const result = data.data[0]
+    if (!result) throw new Error('Fear & Greed data is unavailable')
+
+    return { ...result, value: Number(result.value) }
   },
 }

@@ -17,3 +17,8 @@ export const fmpHttp = axios.create({
     apikey: import.meta.env.VITE_FMP_API_KEY,
   },
 })
+
+export const fearGreedHttp = axios.create({
+  baseURL: 'https://api.alternative.me/fng/',
+  timeout: 10000,
+})
