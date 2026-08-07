@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Waves } from 'lucide-react'
 
 import type { CoinsList } from '@/features/market/types/coins-list'
@@ -57,7 +58,13 @@ export function MarketLiquidityOverview({ coins, isLoading }: { coins: CoinsList
                 <img src={coin.image} alt='' className='size-7 rounded-full' loading='lazy' />
                 <div className='min-w-0 flex-1'>
                   <div className='mb-1 flex items-center justify-between gap-3'>
-                    <span className='truncate text-sm font-semibold'>{coin.name}</span>
+                    <Link
+                      to='/coins/$coinId'
+                      params={{ coinId: coin.id }}
+                      className='truncate text-sm font-semibold transition-colors hover:text-emerald-500 focus-visible:text-emerald-500 focus-visible:outline-none'
+                    >
+                      {coin.name}
+                    </Link>
                     <span className='text-xs font-medium tabular-nums'>{coin.turnover.toFixed(1)}%</span>
                   </div>
                   <div className='h-1.5 overflow-hidden rounded-full bg-muted/80'>
