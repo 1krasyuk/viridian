@@ -41,7 +41,7 @@ export function ScenarioControls({
               type='number'
               value={investment}
               onChange={(e) => onInvestmentChange(e.target.value)}
-              className='h-10 pl-10 font-mono text-sm rounded-xl bg-muted/30 border-muted-foreground/10 focus:bg-background transition-colors'
+              className='h-10 rounded-xl border-muted-foreground/10 bg-muted/30 pl-10 font-mono text-base transition-colors focus:bg-background md:text-sm'
             />
           </div>
         )}

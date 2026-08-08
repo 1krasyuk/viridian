@@ -165,7 +165,7 @@ export function CurrencyModal({ open, onOpenChange }: CurrencyModalProps) {
             placeholder='Search'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className='w-full pl-9 pr-3 py-2.5 rounded-xl bg-muted text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 border-0'
+            className='w-full rounded-xl border-0 bg-muted py-2.5 pr-3 pl-9 text-base text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:outline-none md:text-sm'
           />
         </div>
 

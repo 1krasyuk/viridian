@@ -200,43 +200,43 @@ export function CoinMarketDominance({
 
   return (
     <TooltipProvider>
-      <div className='bg-linear-to-br from-card/60 to-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-4 space-y-4 h-full flex flex-col'>
+      <div className='@container flex h-full flex-col space-y-4 rounded-xl border border-border/30 bg-linear-to-br from-card/60 to-background/40 p-4 backdrop-blur-sm'>
         {/* Header */}
-        <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+        <div className='flex items-center gap-2 @lg:gap-3'>
+          <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/10 bg-linear-to-br from-emerald-500/15 to-teal-500/10'>
             <Globe className='h-4 w-4 text-emerald-500' />
           </div>
-          <div>
-            <h3 className='text-base font-bold tracking-tight'>
-              Market Dominance
-            </h3>
+          <div className='min-w-0 flex-1'>
+            <div className='flex items-center gap-1.5'>
+              <h3 className='text-base font-bold tracking-tight'>
+                Market Dominance
+              </h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent side='right' className='max-w-xs'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p>
+                      Market cap of this asset divided by total crypto market
+                      cap, expressed as a percentage.
+                    </p>
+                    <p className='text-muted-foreground'>
+                      Higher values indicate greater market presence, liquidity,
+                      and institutional adoption.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <p className='text-xs text-muted-foreground'>
               Market share and relative metrics
             </p>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <div className='text-xs leading-relaxed space-y-1.5'>
-                  <p>
-                    Market cap of this asset divided by total crypto market cap,
-                    expressed as a percentage.
-                  </p>
-                  <p className='text-muted-foreground'>
-                    Higher values indicate greater market presence, liquidity,
-                    and institutional adoption.
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {isLoadingAny ? (
             <Badge
               variant='secondary'
-              className='text-xs h-5 px-2 font-mono ml-auto'
+              className='h-5 shrink-0 px-2 font-mono text-xs whitespace-nowrap'
             >
               <Skeleton className='h-3 w-12 inline-block' />
             </Badge>
@@ -245,7 +245,7 @@ export function CoinMarketDominance({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div
-                    className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium cursor-default ml-auto ${getDominanceLevel(coinDominance).color}`}
+                    className={`inline-flex shrink-0 cursor-default items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ${getDominanceLevel(coinDominance).color}`}
                   >
                     <Target className='h-3 w-3' />
                     <span>{getDominanceLevel(coinDominance).label}</span>
@@ -283,50 +283,76 @@ export function CoinMarketDominance({
             isLoading={isLoadingAny}
             isBitcoin={isBitcoin}
           />
-          <div className='flex-1 space-y-1.5'>
+          <div className='min-w-0 flex-1 space-y-1.5'>
             {/* Coin */}
-            <div className='flex items-center justify-between text-sm gap-2'>
-              <div className='flex items-center gap-2 break-all'>
-                <div className='w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400' />
-                <span>{symbol || 'This Asset'}</span>
+            <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+              <div className='flex min-w-0 items-center gap-2'>
+                <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400' />
+                <span className='truncate'>{symbol || 'This Asset'}</span>
               </div>
               {isLoadingAny ? (
-                <Skeleton className='h-4 w-24' />
+                <Skeleton className='h-4 w-24 justify-self-end' />
               ) : (
-                <span className='font-mono text-sm break-all'>
-                  {format(mcap)}
+                <span
+                  className='whitespace-nowrap font-mono text-sm'
+                  title={format(mcap)}
+                >
+                  <span className='@lg:hidden'>
+                    {format(mcap, { notation: 'compact' })}
+                  </span>
+                  <span className='hidden @lg:inline'>{format(mcap)}</span>
                 </span>
               )}
             </div>
 
             {/* BTC — hide on Bitcoin page */}
             {!isBitcoin && (
-              <div className='flex items-center justify-between text-sm break-all'>
-                <div className='flex items-center gap-2'>
-                  <div className='w-2.5 h-2.5 rounded-full bg-emerald-500/35 dark:bg-emerald-400/35' />
-                  <span className='text-muted-foreground'>Bitcoin</span>
+              <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+                <div className='flex min-w-0 items-center gap-2'>
+                  <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500/35 dark:bg-emerald-400/35' />
+                  <span className='truncate text-muted-foreground'>
+                    Bitcoin
+                  </span>
                 </div>
                 {isLoadingAny ? (
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='h-4 w-20 justify-self-end' />
                 ) : (
-                  <span className='font-mono text-sm text-muted-foreground'>
-                    {format(btcMcap)}
+                  <span
+                    className='whitespace-nowrap font-mono text-sm text-muted-foreground'
+                    title={format(btcMcap)}
+                  >
+                    <span className='@lg:hidden'>
+                      {format(btcMcap, { notation: 'compact' })}
+                    </span>
+                    <span className='hidden @lg:inline'>{format(btcMcap)}</span>
                   </span>
                 )}
               </div>
             )}
 
             {/* Rest of Market */}
-            <div className='flex items-center justify-between text-sm break-all'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600' />
-                <span className='text-muted-foreground'>Rest of Market</span>
+            <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+              <div className='flex min-w-0 items-center gap-2'>
+                <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600' />
+                <span className='truncate text-muted-foreground'>
+                  Rest of Market
+                </span>
               </div>
               {isLoadingAny ? (
-                <Skeleton className='h-4 w-20' />
+                <Skeleton className='h-4 w-20 justify-self-end' />
               ) : (
-                <span className='font-mono text-sm text-muted-foreground'>
-                  {format(Math.max(0, globalMcap - mcap - btcMcap))}
+                <span
+                  className='whitespace-nowrap font-mono text-sm text-muted-foreground'
+                  title={format(Math.max(0, globalMcap - mcap - btcMcap))}
+                >
+                  <span className='@lg:hidden'>
+                    {format(Math.max(0, globalMcap - mcap - btcMcap), {
+                      notation: 'compact',
+                    })}
+                  </span>
+                  <span className='hidden @lg:inline'>
+                    {format(Math.max(0, globalMcap - mcap - btcMcap))}
+                  </span>
                 </span>
               )}
             </div>

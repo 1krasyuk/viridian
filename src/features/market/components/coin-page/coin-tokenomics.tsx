@@ -220,51 +220,51 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
   return (
     <TooltipProvider>
-      <div className='bg-linear-to-br from-card/60 to-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-4 space-y-4 h-full flex flex-col'>
+      <div className='@container flex h-full flex-col space-y-4 rounded-xl border border-border/30 bg-linear-to-br from-card/60 to-background/40 p-4 backdrop-blur-sm'>
         {/* Header */}
-        <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-xl bg-linear-to-br from-emerald-500/15 to-teal-500/10 flex items-center justify-center border border-emerald-500/10'>
+        <div className='flex items-center gap-2 @lg:gap-3'>
+          <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500/10 bg-linear-to-br from-emerald-500/15 to-teal-500/10'>
             <Layers className='h-4 w-4 text-emerald-500' />
           </div>
-          <div>
-            <h3 className='text-base font-bold tracking-tight'>
-              Tokenomics & Supply
-            </h3>
+          <div className='min-w-0 flex-1'>
+            <div className='flex items-center gap-1.5'>
+              <h3 className='text-base font-bold tracking-tight'>
+                Tokenomics & Supply
+              </h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='h-4 w-4 shrink-0 cursor-default text-muted-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent side='right' className='max-w-xs'>
+                  <div className='text-xs leading-relaxed space-y-1.5'>
+                    <p>
+                      Token supply structure expressed as percentages, showing
+                      circulating, locked, and unissued tokens as proportions of
+                      maximum supply.
+                    </p>
+                    <p className='text-muted-foreground'>
+                      Lower circulating percentages indicate higher dilution
+                      risk from future token unlocks and emission events.
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <p className='text-xs text-muted-foreground'>
               Supply structure and valuation
             </p>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className='h-4 w-4 text-muted-foreground cursor-default shrink-0  transition-colors' />
-              </TooltipTrigger>
-              <TooltipContent side='right' className='max-w-xs'>
-                <div className='text-xs leading-relaxed space-y-1.5'>
-                  <p>
-                    Token supply structure expressed as percentages, showing
-                    circulating, locked, and unissued tokens as proportions of
-                    maximum supply.
-                  </p>
-                  <p className='text-muted-foreground'>
-                    Lower circulating percentages indicate higher dilution risk
-                    from future token unlocks and emission events.
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {isLoading ? (
             <Badge
               variant='secondary'
-              className='text-xs h-5 px-2 font-mono ml-auto'
+              className='h-5 shrink-0 px-2 font-mono text-xs whitespace-nowrap'
             >
               <Skeleton className='h-3 w-8 inline-block' />
             </Badge>
           ) : mcapRank ? (
             <Badge
               variant='secondary'
-              className='text-xs h-5 px-2 font-mono ml-auto'
+              className='h-5 shrink-0 px-2 font-mono text-xs whitespace-nowrap'
             >
               Rank #{mcapRank}
             </Badge>
@@ -279,17 +279,20 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
             size={110}
             isLoading={isLoading}
           />
-          <div className='flex-1 space-y-1.5'>
+          <div className='min-w-0 flex-1 space-y-1.5'>
             {/* Circulating */}
-            <div className='flex items-center justify-between text-sm gap-2 break-all'>
-              <div className='flex items-center gap-2'>
-                <div className='w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400' />
-                <span>Circulating</span>
+            <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+              <div className='flex min-w-0 items-center gap-2'>
+                <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 dark:bg-emerald-400' />
+                <span className='truncate'>Circulating</span>
               </div>
               {isLoading ? (
-                <Skeleton className='h-4 w-24' />
+                <Skeleton className='h-4 w-24 justify-self-end' />
               ) : (
-                <span className='font-mono text-sm'>
+                <span
+                  className='max-w-32 truncate whitespace-nowrap text-right font-mono text-sm @lg:max-w-none'
+                  title={`${formatCompact(circulating_supply || 0)} ${symbol}`}
+                >
                   {formatCompact(circulating_supply || 0)} {symbol}
                 </span>
               )}
@@ -297,20 +300,25 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
             {/* Locked / Vesting */}
             {showLocked && (
-              <div className='flex items-center justify-between text-sm break-all'>
-                <div className='flex items-center gap-2'>
-                  <div className='w-2.5 h-2.5 rounded-full bg-emerald-500/35 dark:bg-emerald-400/35' />
-                  <span className='text-muted-foreground'>
+              <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+                <div className='flex min-w-0 items-center gap-2'>
+                  <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500/35 dark:bg-emerald-400/35' />
+                  <span className='truncate text-muted-foreground'>
                     Locked / Vesting
                   </span>
                 </div>
                 {isLoading ? (
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='h-4 w-20 justify-self-end' />
                 ) : (
-                  <span className='font-mono text-sm text-muted-foreground'>
+                  <span
+                    className='max-w-32 truncate whitespace-nowrap text-right font-mono text-sm text-muted-foreground @lg:max-w-none'
+                    title={`${formatCompact(
+                      (total_supply || 0) - (circulating_supply || 0),
+                    )} ${symbol}`}
+                  >
                     {formatCompact(
                       (total_supply || 0) - (circulating_supply || 0),
-                    )}
+                    )}{' '}
                     {symbol}
                   </span>
                 )}
@@ -319,19 +327,27 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
 
             {/* Never issued */}
             {showNeverIssued && (
-              <div className='flex items-center justify-between text-sm gap-2 break-all'>
-                <div className='flex items-center gap-2'>
-                  <div className='w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600' />
-                  <span className='text-muted-foreground'>Never issued</span>
+              <div className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 text-sm'>
+                <div className='flex min-w-0 items-center gap-2'>
+                  <div className='h-2.5 w-2.5 shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-600' />
+                  <span className='truncate text-muted-foreground'>
+                    Never issued
+                  </span>
                 </div>
                 {isLoading ? (
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='h-4 w-20 justify-self-end' />
                 ) : (
-                  <span className='font-mono text-sm text-muted-foreground'>
+                  <span
+                    className='max-w-32 truncate whitespace-nowrap text-right font-mono text-sm text-muted-foreground @lg:max-w-none'
+                    title={`${formatCompact(
+                      (max_supply || 0) -
+                        (total_supply || circulating_supply || 0),
+                    )} ${symbol}`}
+                  >
                     {formatCompact(
                       (max_supply || 0) -
                         (total_supply || circulating_supply || 0),
-                    )}
+                    )}{' '}
                     {symbol}
                   </span>
                 )}
@@ -353,7 +369,14 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           <CoinMetricCard
             icon={<DollarSign className='h-3 w-3 shrink-0' />}
             label='Market Cap'
-            value={format(mcap)}
+            value={
+              <span className='whitespace-nowrap' title={format(mcap)}>
+                <span className='@lg:hidden'>
+                  {format(mcap, { notation: 'compact' })}
+                </span>
+                <span className='hidden @lg:inline'>{format(mcap)}</span>
+              </span>
+            }
             subvalue={
               volumeToMcap > 0
                 ? `Vol/MCap: ${volumeToMcap.toFixed(1)}%`
@@ -364,7 +387,14 @@ export function CoinTokenomics({ coin, isLoading }: CoinTokenomicsProps) {
           <CoinMetricCard
             icon={<Scale className='h-3 w-3  shrink-0' />}
             label='Fully Diluted Val'
-            value={format(fdv)}
+            value={
+              <span className='whitespace-nowrap' title={format(fdv)}>
+                <span className='@lg:hidden'>
+                  {format(fdv, { notation: 'compact' })}
+                </span>
+                <span className='hidden @lg:inline'>{format(fdv)}</span>
+              </span>
+            }
             subvalue={`${fdvRatio.toFixed(2)}x of MCap`}
             warning={isHighDilution}
             isLoading={isLoading}

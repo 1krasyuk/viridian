@@ -83,6 +83,7 @@ interface DataTableProps<TData, TValue> {
   showRowsSelector?: boolean
   showPagination?: boolean
   currency?: string
+  compactMarketNumbers?: boolean
   clearWatchlist?: () => void
 }
 
@@ -101,6 +102,7 @@ export function DataTable<TData, TValue>({
   showRowsSelector = true,
   showPagination = true,
   currency = 'usd',
+  compactMarketNumbers = false,
   clearWatchlist,
 }: DataTableProps<TData, TValue>) {
   const skeletonRows = Array.from({ length: perPage }).map((_, i) => ({
@@ -133,7 +135,7 @@ export function DataTable<TData, TValue>({
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
-    meta: { currency },
+    meta: { currency, compactMarketNumbers },
   })
 
   const handleResetColumns = () => {

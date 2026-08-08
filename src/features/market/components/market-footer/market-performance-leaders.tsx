@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Gauge, TrendingDown, TrendingUp } from 'lucide-react'
 
 import type { CoinsList } from '@/features/market/types/coins-list'
@@ -16,11 +17,18 @@ function PerformanceList({ coins, positive }: { coins: CoinsList[]; positive: bo
         {positive ? 'Top gainers' : 'Top losers'}
       </div>
       {coins.map((coin) => (
-        <div key={coin.id} className='flex items-center gap-2 rounded-xl border border-border/60 bg-muted/45 p-2.5'>
+        <Link
+          key={coin.id}
+          to='/coins/$coinId'
+          params={{ coinId: coin.id }}
+          className='group flex items-center gap-2 rounded-xl border border-border/60 bg-muted/45 p-2.5 transition-colors hover:border-emerald-500/40 focus-visible:border-emerald-500/40 focus-visible:outline-none'
+        >
           <img src={coin.image} alt='' className='size-8 rounded-full' loading='lazy' />
           <div className='min-w-0 flex-1'>
             <div className='flex min-w-0 items-center gap-1.5'>
-              <p className='truncate text-sm font-semibold'>{coin.name}</p>
+              <p className='truncate text-sm font-semibold transition-colors group-hover:text-emerald-500 group-focus-visible:text-emerald-500'>
+                {coin.name}
+              </p>
               <Badge variant='secondary' className='h-4 px-1.5 text-[9px] uppercase'>
                 {coin.symbol}
               </Badge>
@@ -33,7 +41,7 @@ function PerformanceList({ coins, positive }: { coins: CoinsList[]; positive: bo
             {(coin.price_change_percentage_24h ?? 0) > 0 ? '+' : ''}
             {(coin.price_change_percentage_24h ?? 0).toFixed(2)}%
           </span>
-        </div>
+        </Link>
       ))}
     </div>
   )

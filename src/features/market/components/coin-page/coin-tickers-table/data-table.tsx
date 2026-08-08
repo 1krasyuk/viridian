@@ -213,18 +213,46 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-2'>
+      <div className='grid grid-cols-[1fr_auto] items-center gap-3 px-1 sm:flex sm:justify-between sm:gap-4 sm:px-2'>
         {/* Showing text */}
-        <div className='text-sm text-muted-foreground whitespace-nowrap order-2 sm:order-1'>
+        <div className='order-2 whitespace-nowrap text-xs text-muted-foreground sm:order-1 sm:text-sm'>
           Showing {startRow} to {endRow} of {totalRows} results
         </div>
 
-        {/* Page numbers — скролл на мобиле */}
-        <div className='flex items-center gap-1 order-1 sm:order-2 overflow-x-auto max-w-full pb-1'>
+        {/* Compact pagination on narrow screens */}
+        <div className='order-1 col-span-2 flex w-full items-center justify-between gap-2 sm:hidden'>
+          <Button
+            variant='outline'
+            size='sm'
+            className='min-w-20'
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className='h-4 w-4' />
+            Previous
+          </Button>
+          <span className='whitespace-nowrap text-xs text-muted-foreground'>
+            Page {pageCount === 0 ? 0 : currentPage} of {pageCount}
+          </span>
+          <Button
+            variant='outline'
+            size='sm'
+            className='min-w-20'
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+            <ChevronRight className='h-4 w-4' />
+          </Button>
+        </div>
+
+        {/* Full pagination on larger screens */}
+        <div className='order-2 hidden items-center gap-1 sm:flex'>
           <Button
             variant='outline'
             size='icon'
             className='h-8 w-8 shrink-0'
+            aria-label='Go to first page'
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
@@ -234,6 +262,7 @@ export function DataTable<TData, TValue>({
             variant='outline'
             size='icon'
             className='h-8 w-8 shrink-0'
+            aria-label='Go to previous page'
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -268,6 +297,7 @@ export function DataTable<TData, TValue>({
             variant='outline'
             size='icon'
             className='h-8 w-8 shrink-0'
+            aria-label='Go to next page'
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
@@ -277,6 +307,7 @@ export function DataTable<TData, TValue>({
             variant='outline'
             size='icon'
             className='h-8 w-8 shrink-0'
+            aria-label='Go to last page'
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
@@ -285,7 +316,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         {/* Rows per page selector */}
-        <div className='flex items-center gap-2 order-3'>
+        <div className='order-3 flex items-center gap-2 justify-self-end'>
           <span className='text-sm text-muted-foreground'>Rows</span>
           <Select
             value={pagination.pageSize.toString()}
@@ -293,10 +324,20 @@ export function DataTable<TData, TValue>({
               onPaginationChange({ pageIndex: 0, pageSize: Number(value) })
             }
           >
-            <SelectTrigger className='rounded-lg px-2'>
+            <SelectTrigger
+              size='sm'
+              className='min-w-16 rounded-lg px-2'
+              aria-label='Rows per page'
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              side='top'
+              align='end'
+              avoidCollisions
+              collisionPadding={8}
+              className='min-w-20'
+            >
               <SelectItem value='10'>10</SelectItem>
               <SelectItem value='50'>50</SelectItem>
               <SelectItem value='100'>100</SelectItem>

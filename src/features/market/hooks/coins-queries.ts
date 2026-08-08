@@ -89,7 +89,8 @@ export function useCoinChart(
       }
     },
     enabled: !!id,
-    gcTime: 0,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
     refetchIntervalInBackground: false,
   })
 }
@@ -113,7 +114,8 @@ export function useCoinOHLC(
       }))
     },
     enabled: enabled && !!id,
-    gcTime: 0,
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   })
 }
 
@@ -136,6 +138,8 @@ export function useCategoriesList() {
   return useQuery({
     queryKey: ['coin-categories-list'],
     queryFn: () => coinsApi.getCategoriesList(),
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
   })
 }
 

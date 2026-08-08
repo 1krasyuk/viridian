@@ -4,8 +4,8 @@ import { Skeleton } from '@/shared/ui/skeleton'
 type CoinMetricCardProps = {
   icon: ReactNode
   label: string
-  value: string
-  subvalue?: string
+  value: ReactNode
+  subvalue?: ReactNode
   accent?: boolean
   warning?: boolean
   isLoading?: boolean
@@ -40,9 +40,9 @@ export function CoinMetricCard({
 
   return (
     <div
-      className={`rounded-xl p-3 flex flex-col gap-1.5 transition-all duration-200 ${variants[variant]}`}
+      className={`flex h-full flex-col gap-1.5 rounded-xl p-3 transition-all duration-200 ${variants[variant]}`}
     >
-      <div className='flex items-center gap-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wider'>
+      <div className='flex items-center gap-1.5 text-xs font-medium leading-4 text-muted-foreground uppercase tracking-wider'>
         {icon}
         <span>{label}</span>
       </div>
@@ -50,13 +50,13 @@ export function CoinMetricCard({
         <Skeleton className='h-6 w-28' />
       ) : (
         <p
-          className={`text-lg font-bold font-mono tracking-tight break-all ${textColor} ${valueClassName}`}
+          className={`wrap-break-word font-mono text-lg font-bold tracking-tight ${textColor} ${valueClassName}`}
         >
           {value}
         </p>
       )}
       {subvalue && (
-        <p className='text-xs text-muted-foreground font-mono break-all'>
+        <p className='mt-auto wrap-break-word font-mono text-xs text-muted-foreground'>
           {isLoading ? (
             <Skeleton className='h-3 w-20 inline-block' />
           ) : (

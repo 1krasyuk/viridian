@@ -32,6 +32,7 @@ import { useResizeKey } from './coin-chart/use-resize-key'
 import { downloadChartImage } from './coin-chart/download-chart'
 import { CoinChartRenderer } from './coin-chart/chart-renderer'
 import { useCurrency } from '@/features/currency/hooks'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 
 export function CoinChart({
   coinId,
@@ -56,6 +57,7 @@ export function CoinChart({
 }) {
   const { theme } = useTheme()
   const { currency } = useCurrency()
+  const isMobile = useIsMobile()
 
   const [chartMode, setChartMode] = useChartMode()
 
@@ -243,14 +245,22 @@ export function CoinChart({
 
   const colors = getChartColors(isDark)
   const chartOptions = createChartOptions(colors, days)
-  const areaSeriesOptions = createAreaSeriesOptions(colors, prices)
-  const baselineSeriesOptions = createBaselineSeriesOptions(colors, baseValue)
+  const areaSeriesOptions = createAreaSeriesOptions(colors, prices, isMobile)
+  const baselineSeriesOptions = createBaselineSeriesOptions(
+    colors,
+    baseValue,
+    isMobile,
+  )
   const baseLineOptions = createBaseLineOptions(colors)
   const lineSeriesOptions = createLineSeriesOptions(
     colors,
     dataType === 'marketCap',
+    isMobile,
   )
-  const candlestickSeriesOptions = createCandlestickSeriesOptions(colors)
+  const candlestickSeriesOptions = createCandlestickSeriesOptions(
+    colors,
+    isMobile,
+  )
 
   const baseLineData = useMemo(() => {
     if (!prices.length) return []

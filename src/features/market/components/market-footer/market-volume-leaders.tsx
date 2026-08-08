@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from '@tanstack/react-router'
 import { BarChart3 } from 'lucide-react'
 
 import { useCurrency } from '@/features/currency/hooks'
@@ -82,7 +83,13 @@ export function MarketVolumeLeaders({
                   <div className='min-w-0 flex-1'>
                     <div className='mb-1 flex items-center justify-between gap-3'>
                       <div className='min-w-0 truncate text-sm font-semibold'>
-                        {coin.name}
+                        <Link
+                          to='/coins/$coinId'
+                          params={{ coinId: coin.id }}
+                          className='transition-colors hover:text-emerald-500 focus-visible:text-emerald-500 focus-visible:outline-none'
+                        >
+                          {coin.name}
+                        </Link>
                         <span className='ml-1.5 text-xs font-normal uppercase text-muted-foreground'>{coin.symbol}</span>
                       </div>
                       <span className='shrink-0 text-xs font-medium tabular-nums'>

@@ -112,14 +112,14 @@ function StatCard({
         </div>
       </TooltipProvider>
 
-      <div className='flex items-center justify-center flex-wrap gap-2 w-full'>
+      <div className='flex w-full min-w-0 flex-wrap items-center justify-center gap-2'>
         {isLoading ? (
           <Skeleton className='h-5 w-20' />
         ) : (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className='font-bold text-sm cursor-default truncate'>
+                <span className='max-w-full min-w-0 cursor-default wrap-break-word whitespace-normal text-sm leading-tight font-bold'>
                   {formattedValue}
                 </span>
               </TooltipTrigger>

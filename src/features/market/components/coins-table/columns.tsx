@@ -48,6 +48,15 @@ function getCurrencyFromContext<TData extends CoinsList, TValue>(
   )
 }
 
+function getCompactMarketNumbers<TData extends CoinsList, TValue>(
+  context: CellContext<TData, TValue>,
+): boolean {
+  return (
+    (context.table.options.meta as { compactMarketNumbers?: boolean })
+      ?.compactMarketNumbers ?? false
+  )
+}
+
 function formatCurrencyCell<TData extends CoinsList, TValue>(
   context: CellContext<TData, TValue>,
   options?: {
@@ -56,6 +65,7 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
     showSign?: boolean
     colored?: boolean
     currency?: string
+    mobileFormat?: 'compact' | 'trim'
   },
 ) {
   const value = context.getValue() as number | null | undefined
@@ -65,7 +75,11 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
     showSign = false,
     colored = false,
     currency = getCurrencyFromContext(context),
+    mobileFormat,
   } = options ?? {}
+  const useMobileFormat = getCompactMarketNumbers(context)
+  const compact = useMobileFormat && mobileFormat === 'compact'
+  const trim = useMobileFormat && mobileFormat === 'trim'
 
   let colorClass = ''
   if (colored && value != null) {
@@ -85,8 +99,14 @@ function formatCurrencyCell<TData extends CoinsList, TValue>(
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency.toUpperCase(),
+    notation: compact ? 'compact' : 'standard',
     signDisplay: showSign ? 'never' : 'auto',
-    maximumFractionDigits,
+    maximumFractionDigits: compact
+      ? 2
+      : trim && Math.abs(value) >= 1
+        ? Math.min(maximumFractionDigits, 2)
+        : maximumFractionDigits,
+    minimumFractionDigits: trim ? 0 : undefined,
   }).format(showSign ? Math.abs(value) : value)
 
   const result = showSign ? `${prefix}${formatted}` : formatted
@@ -307,7 +327,7 @@ export const columns: ColumnDef<CoinsList>[] = [
     accessorKey: 'current_price',
     meta: { label: 'Current Price', category: 'Price' },
     header: ({ column }) => sortableHeader(column, 'Current Price'),
-    cell: (row) => formatCurrencyCell(row),
+    cell: (row) => formatCurrencyCell(row, { mobileFormat: 'trim' }),
   },
   {
     id: 'price_change_24h',
@@ -361,14 +381,22 @@ export const columns: ColumnDef<CoinsList>[] = [
     accessorKey: 'market_cap',
     meta: { label: 'Market Cap', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Market Cap'),
-    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+    cell: (row) =>
+      formatCurrencyCell(row, {
+        maximumFractionDigits: 0,
+        mobileFormat: 'compact',
+      }),
   },
   {
     id: 'total_volume',
     accessorKey: 'total_volume',
     meta: { label: 'Total Volume', category: 'Market' },
     header: ({ column }) => sortableHeader(column, 'Total Volume'),
-    cell: (row) => formatCurrencyCell(row, { maximumFractionDigits: 0 }),
+    cell: (row) =>
+      formatCurrencyCell(row, {
+        maximumFractionDigits: 0,
+        mobileFormat: 'compact',
+      }),
   },
   {
     id: 'circulating_supply',

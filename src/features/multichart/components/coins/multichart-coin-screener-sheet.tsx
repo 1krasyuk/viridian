@@ -58,9 +58,9 @@ export function CoinScreenerSheet({
     undefined,
     currency,
     open,
-    Infinity,
+    1000 * 60 * 5,
     false,
-    Infinity,
+    1000 * 60 * 30,
   )
   const [query, setQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('rank')

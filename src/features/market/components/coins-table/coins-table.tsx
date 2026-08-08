@@ -4,12 +4,14 @@ import { columns } from './columns'
 import { DataTable } from './data-table'
 import { useSearch, useNavigate } from '@tanstack/react-router'
 import { useCurrency } from '@/features/currency/hooks'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 
 const DEFAULT_PAGE = 1
 const DEFAULT_PER_PAGE = 100
 
 export function CoinsTable() {
   const { currency } = useCurrency()
+  const isMobile = useIsMobile()
   const search = useSearch({ from: '/' })
 
   const page = search.page ?? DEFAULT_PAGE
@@ -61,6 +63,7 @@ export function CoinsTable() {
       category={category}
       onCategoryChange={handleCategoryChange}
       currency={currency}
+      compactMarketNumbers={isMobile}
     />
   )
 }

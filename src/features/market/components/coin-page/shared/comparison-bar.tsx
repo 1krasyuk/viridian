@@ -50,13 +50,13 @@ export function ComparisonBar({
           <p className='font-medium text-[11px] text-muted-foreground'>
             {leftLabel}
           </p>
-          <p className='font-mono text-xs break-all'>{leftValue}</p>
+          <p className='wrap-break-word font-mono text-xs'>{leftValue}</p>
         </div>
         <div className='text-right min-w-0'>
           <p className='font-medium text-[11px] text-muted-foreground'>
             {rightLabel}
           </p>
-          <p className='font-mono text-xs break-all'>{rightValue}</p>
+          <p className='wrap-break-word font-mono text-xs'>{rightValue}</p>
         </div>
       </div>
       <div className='h-2 bg-muted rounded-full overflow-hidden flex'>
